@@ -27,8 +27,8 @@ export function Welcome({ className }: { className?: string }) {
          {/*🦌 Rednote Creative Assistant*/}
       Rednote Creative Assistant
         </a>
-        , a personal assistant built on NVIDIA NIM models with Multi-agent collaboration (MAC) and MCP, helps
-        you search on web, browse information, and handle complex content generation tasks.
+        , a super agent built on NVIDIA NIM models using Multi-agent collaboration (MAC) and MCP tools, helps
+        you handle complex content generation tasks.
       </div>
     </motion.div>
   );

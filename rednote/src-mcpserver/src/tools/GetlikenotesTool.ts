@@ -11,7 +11,7 @@ interface GetlikenotesInput {
 }
 
 class GetlikenotesTool extends MCPTool<GetlikenotesInput> {
-  name = "Get User Liked Notes List";
+  name = "get_user_liked_notes";
   description = "Get a list of notes liked by the specified user. If the user needs to get their own account's list, please first get the current account's ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.";
   schema = {
     user_id: {

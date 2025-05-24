@@ -11,7 +11,7 @@ interface GetfeeddataInput {
 }
 
 class GetfeeddataTool extends MCPTool<GetfeeddataInput> {
-  name = "Get Note Details";
+  name = "get_note_details";
   description = "Get detailed data for a specific note, note_id and xsec_token are both required";
 
   schema = {

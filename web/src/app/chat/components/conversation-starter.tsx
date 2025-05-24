@@ -8,9 +8,9 @@ import { cn } from "~/lib/utils";
 import { Welcome } from "./welcome";
 
 const questions = [
-  //"How many times taller is the Eiffel Tower than the tallest building in the world?",
+  "小红书笔记-智能家居与AI融合,如何实现家电的个性化升级?",
   "How many years does an average Tesla battery last compared to a gasoline engine?",
-  //"How many liters of water are required to produce 1 kg of beef?",
+  "小红书笔记-家居与情绪管理, 如何通过颜色、绿植、香氛提升幸福感？",
   "How many times faster is the speed of light compared to the speed of sound?",
 ];
 export function ConversationStarter({
@@ -31,8 +31,8 @@ export function ConversationStarter({
             key={question}
             className="flex w-1/2 shrink-0 p-2 active:scale-105"
             style={{ transition: "all 0.2s ease-out" }}
-            initial={{ opacity: 0, y: 84 }}
-            animate={{ opacity: 1, y: 60 }}
+            initial={{ opacity: 0, y: 34 }}
+            animate={{ opacity: 1, y: 20 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{
               duration: 0.2,

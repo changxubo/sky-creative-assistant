@@ -8,7 +8,7 @@ interface PostnotecommentInput {
 }
 
 class PostnotecommentTool extends MCPTool<PostnotecommentInput> {
-  name = "Post Note Comment";
+  name = "post_note_comment";
   description = "Post a text comment on a specified Xiaohongshu note";
 
   schema = {

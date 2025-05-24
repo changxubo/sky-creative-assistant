@@ -8,7 +8,7 @@ interface LikenoteacionInput {
 }
 
 class LikenoteacionTool extends MCPTool<LikenoteacionInput> {
-  name = "Note Like Action";
+  name = "like_note_action";
   description = "Like or unlike Xiaohongshu notes based on note ID";
 
   schema = {

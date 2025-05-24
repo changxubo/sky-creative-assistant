@@ -8,7 +8,7 @@ interface FollowuserInput {
 }
 
 class FollowuserTool extends MCPTool<FollowuserInput> {
-  name = "User Follow Action";
+  name = "user_follow_action";
   description = "Follow or unfollow users based on user ID";
 
   schema = {

@@ -11,7 +11,7 @@ interface GetcollectnotesInput {
 }
 
 class GetcollectnotesTool extends MCPTool<GetcollectnotesInput> {
-  name = "Get User Collected Notes List";
+  name = "get_user_collected_notes";
   description = "Get a list of notes collected by the specified user. If the user needs to get their own account's list, please first get the current account's ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.";
   schema = {
     user_id: {
@@ -77,7 +77,7 @@ class GetcollectnotesTool extends MCPTool<GetcollectnotesInput> {
       const download_result = downloadCsvData(fileName, result_csv);
       return download_result['error'] ? `Failed to save data: ${download_result['error']}` : `Data saved. Count: ${results.length}. File: ${download_result.link}`;
     }
-    return result_csv;
+    return results;
 
   }
 }

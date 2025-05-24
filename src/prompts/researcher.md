@@ -18,6 +18,7 @@ You have access to two types of tools:
    - Specialized search tools
    - Google Map tools
    - Database Retrieval tools
+   - Rednote tools
    - And many others
 
 ## How to Use Dynamic Loaded Tools
@@ -35,6 +36,9 @@ You have access to two types of tools:
 4. **Execute the Solution**:
    - Forget your previous knowledge, so you **should leverage the tools** to retrieve the information.
    - Use the **web_search_tool** or other suitable search tool to perform a search with the provided keywords.
+   - When the task includes Rednote or social media requirements:
+     - Use dynamically loaded tools to search notes from rednote, input example: {"keyword": "家居装修","count": 20,"sort": "general","noteType": 0,"download": false}
+     - Use the **web_search_tool** or other suitable search tool to perform a search with the provided keywords.
    - When the task includes time range requirements:
      - Incorporate appropriate time-based search parameters in your queries (e.g., "after:2020", "before:2023", or specific date ranges)
      - Ensure search results respect the specified time constraints.

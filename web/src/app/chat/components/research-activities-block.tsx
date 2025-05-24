@@ -96,7 +96,9 @@ function ActivityListItem({ messageId }: { messageId: string }) {
           return <CrawlToolCall key={toolCall.id} toolCall={toolCall} />;
         } else if (toolCall.name === "python_repl_tool") {
           return <PythonToolCall key={toolCall.id} toolCall={toolCall} />;
-        } else {
+        } else if (toolCall.name === "search_notes") {
+          return <RednoteMCPCall key={toolCall.id} toolCall={toolCall} />;
+        }else {
           return <MCPToolCall key={toolCall.id} toolCall={toolCall} />;
         }
       }
@@ -233,7 +235,132 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
     </section>
   );
 }
-
+const __noteCache = new LRUCache<string, string>({ max: 100 });
+type RednoteResult =
+  | {
+      note_id: string;
+      xsec_token: string;
+      note_type:string;
+      title: string;
+      liked_count: number;
+      cover: string;
+    };
+function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
+  const searching = useMemo(() => {
+    return toolCall.result === undefined;
+  }, [toolCall.result]);
+  console.log("RednoteResult >>", toolCall.result);
+  const searchResults = useMemo<RednoteResult[]>(() => {
+    let results: RednoteResult[] | undefined = undefined;
+    try {
+      results = toolCall.result ? parseJSON(toolCall.result, []) : undefined;
+    } catch {
+      results = undefined;
+    }
+    if (Array.isArray(results)) {
+      results.forEach((result) => {
+        if (result.note_type === "normal" || result.note_type === "video") {
+          __noteCache.set(result.cover, result.title);
+        }
+      });
+    } else {
+      results = [];
+    }
+    return results;
+  }, [toolCall.result]);
+  const noteResults = useMemo(
+    () => searchResults?.filter((result) => result.note_type === "normal"),
+    [searchResults],
+  );
+  const vedioResults = useMemo(
+    () => searchResults?.filter((result) => result.note_type === "video"),
+    [searchResults],
+  );
+  return (
+    <section className="mt-4 pl-4">
+      <div className="font-medium italic">
+        <RainbowText
+          className="flex items-center"
+          animated={searchResults === undefined}
+        >
+          <Search size={16} className={"mr-2"} />
+          <span>Searching for&nbsp;</span>
+          <span className="max-w-[500px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {(toolCall.args as { query: string }).query}
+          </span>
+        </RainbowText>
+      </div>
+      <div className="pr-4">
+        {noteResults && (
+          <ul className="mt-2 flex flex-wrap gap-4">
+            {searching &&
+              [...Array(6)].map((_, i) => (
+                <li
+                  key={`search-result-${i}`}
+                  className="flex h-40 w-40 gap-2 rounded-md text-sm"
+                >
+                  <Skeleton
+                    className="to-accent h-full w-full rounded-md bg-gradient-to-tl from-slate-400"
+                    style={{ animationDelay: `${i * 0.2}s` }}
+                  />
+                </li>
+              ))}
+            {noteResults
+              .filter((result) => result.note_type === "normal")
+              .map((searchResult, i) => (
+                <motion.li
+                  key={`search-result-${i}`}
+                  className="text-muted-foreground bg-accent flex max-w-40 gap-2 rounded-md px-2 py-1 text-sm"
+                  initial={{ opacity: 0, y: 10, scale: 0.66 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    duration: 0.2,
+                    delay: i * 0.1,
+                    ease: "easeOut",
+                  }}
+                >
+                  <FavIcon
+                    className="mt-1"
+                    url={`https://www.xiaohongshu.com/discovery/item/${searchResult.note_id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsec_token}&xsec_source=pc_share`}
+                    title={searchResult.title}
+                  />
+                  <a href={`https://www.xiaohongshu.com/discovery/item/${searchResult.note_id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsec_token}&xsec_source=pc_share`} target="_blank">
+                    {searchResult.title}
+                  </a>
+                </motion.li>
+              ))}
+            {vedioResults.map((searchResult, i) => (
+              <motion.li
+                key={`search-result-${i}`}
+                initial={{ opacity: 0, y: 10, scale: 0.66 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.2,
+                  delay: i * 0.1,
+                  ease: "easeOut",
+                }}
+              >
+                <a
+                  className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
+                  href={searchResult.cover}
+                  target="_blank"
+                >
+                  <Image
+                    src={searchResult.cover}
+                    alt={searchResult.title}
+                    className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
+                    imageClassName="hover:scale-110"
+                    imageTransition
+                  />
+                </a>
+              </motion.li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
 function CrawlToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const url = useMemo(
     () => (toolCall.args as { url: string }).url,

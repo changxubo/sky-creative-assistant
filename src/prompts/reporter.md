@@ -53,6 +53,41 @@ Structure your report in the following format:
    - Include an empty line between each citation for better readability.
    - Format: `- [Source Title](URL)`
 
+7. **Rednote** (for Rednote)
+   - Create a Rednote social media post that combines practical value, emotional resonance, and visual appeal. Follow these requirements:
+   - Focus on [insert niche/topic, e.g., skincare enthusiasts, new moms, budget travelers].
+   - Structure:
+      Title: Use a catchy formula (e.g., suspense, problem-solving, or data-driven) with emojis. Example: '3 Steps to Fix Oily Skin 🌟 | From Dull to Glow in 7 Days!'.
+
+      Hook: Start with a relatable scenario or question (e.g., 'Tired of frizzy hair ruining your selfies? 💔').
+
+      Body:
+
+         Explain a specific problem + share a personal story/testimonial.
+
+         Provide a step-by-step solution (use bullet points or numbered lists).
+
+         Include before/after comparisons, product recommendations, or DIY tips.
+
+      Call-to-Action: End with an engaging question (e.g., 'What’s your go-to hack? Share below! 💬').
+
+   - Tone: Casual, friendly, and conversational (e.g., 'Hey girls! Let’s talk about...'). Use emojis sparingly.
+
+   - SEO Optimization: Include 3-5 hashtags (mix trending keywords like #OilySkinSolutions and niche-specific tags like #SkincareRoutine2024).
+
+   - Visual Notes: Suggest ideas for high-quality images (Including images from the previous steps in the report is very helpful).
+
+   - Avoid: Generic advice, overly promotional language, or banned terms like 'best ever.' Prioritize authenticity and actionable tips."
+   - Example Output:
+      "🌿 DIY Calming Face Mask for Sensitive Skin 🌿
+      ‘Redness after workouts? I’ve been there! 😫 As a rosacea warrior, here’s my 2-ingredient fix:
+      1️⃣ Mix 1 tsp raw honey (antibacterial!) + 2 tbsp aloe vera gel.
+      2️⃣ Apply for 10 mins – instant cooling effect! ❄️
+      3️⃣ Rinse & pat dry (no rubbing!).
+      Before/after pics attached! 👇
+      Pro tip: Store leftovers in a glass jar for weekly use! 🧴
+      What’s your skin-saving trick? Let’s swap ideas! 💬
+      #SensitiveSkinCare #DIYBeauty #SkincareHacks"
 # Writing Guidelines
 
 1. Writing style:

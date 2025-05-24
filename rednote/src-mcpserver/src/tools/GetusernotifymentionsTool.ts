@@ -8,7 +8,7 @@ interface GetusernotifymentionsInput {
 }
 
 class GetusernotifymentionsTool extends MCPTool<GetusernotifymentionsInput> {
-  name = "Get Comment-related Notifications";
+  name = "get_comment_notifications";
   description = "Get user message notifications in the 'Comments and @' category. For example, which users have recently commented on my notes, or mentioned me in notes, can be retrieved with this tool. If the cursor parameter is empty, please pass an empty string";
 
   schema = {

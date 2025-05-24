@@ -71,7 +71,8 @@ async def run_agent_workflow_async(
                     "mcp-rednote-search": {
                         "url": "http://127.0.0.1:19999/mcp",
                         "transport": "sse",
-                        "add_to_agents": ["researcher"],
+                        "enabled_tools": ["search_notes"],
+                        "add_to_agents": ["researcher"]
                     },
                 }
             },
@@ -79,26 +80,29 @@ async def run_agent_workflow_async(
         "recursion_limit": 100,
     }
     last_message_cnt = 0
-    async for s in workflow.astream(
-        input=initial_state, config=config, stream_mode="values"
-    ):
-        try:
-            if isinstance(s, dict) and "messages" in s:
-                if len(s["messages"]) <= last_message_cnt:
-                    continue
-                last_message_cnt = len(s["messages"])
-                message = s["messages"][-1]
-                if isinstance(message, tuple):
-                    print(message)
+    try:
+        async for s in workflow.astream(
+            input=initial_state, config=config, stream_mode="values"
+        ):
+            try:
+                if isinstance(s, dict) and "messages" in s:
+                    if len(s["messages"]) <= last_message_cnt:
+                        continue
+                    last_message_cnt = len(s["messages"])
+                    message = s["messages"][-1]
+                    if isinstance(message, tuple):
+                        print(message)
+                    else:
+                        message.pretty_print()
                 else:
-                    message.pretty_print()
-            else:
-                # For any other output format
-                print(f"Output: {s}")
-        except Exception as e:
-            logger.error(f"Error processing stream output: {e}")
-            print(f"Error processing output: {str(e)}")
-
+                    # For any other output format
+                    print(f"Output: {s}")
+            except Exception as e:
+                logger.error(f"Error processing stream output: {e}")
+                print(f"Error processing output: {str(e)}")
+    except Exception as e:
+        logger.error(f"Workflow execution error: {e}")
+        print(f"Workflow error: {str(e)}")
     logger.info("Async workflow completed successfully")
 
 

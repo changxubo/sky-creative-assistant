@@ -4,7 +4,7 @@ const { httpGet } = require("../xhs-browser.js");
 interface GetselfinfoInput {}
 
 class GetselfinfoTool extends MCPTool<GetselfinfoInput> {
-  name = "Get Current Account Details";
+  name = "get_current_account";
   description = "Get detailed data for the current account, including nickname, ID, avatar, follower data, etc.";
 
   schema = {};

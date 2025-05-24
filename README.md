@@ -46,6 +46,7 @@ VISION_MODEL:
      "mcp-rednote-search": {
          "url": "http://127.0.0.1:19999/mcp",
          "transport": "sse",
+         "enabled_tools": ["search_notes"],
          "add_to_agents": ["researcher"]
       }
   }
@@ -55,8 +56,9 @@ VISION_MODEL:
 This demo showcases the capabilities of Rednote Creative Assistant, including deep research, report generation, and podcast creation. The following images illustrate the user interface and features:
 
 ![Creative Assistant](./assets/assistant.png)
-
-
+![Case-1](./assets/case.png)
+![Case-2](./assets/case-2.png)
+![Case-3](./assets/note.png)
 ### Video
 
 TODO
@@ -414,6 +416,7 @@ Rednote Creative Assistant supports LangSmith tracing to help you debug and moni
    LANGSMITH_API_KEY="xxx"
    LANGSMITH_PROJECT="xxx"
    ```
+![LangSmith](./assets/langsmith.png)
 
 2. Start tracing and visualize the graph locally with LangSmith by running:
    ```bash
