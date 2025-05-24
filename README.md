@@ -61,7 +61,7 @@ This demo showcases the capabilities of Rednote Creative Assistant, including de
 ![Case-3](./assets/note.png)
 ### Video
 
-TODO
+https://youtu.be/BETzPg0QcJA
 
 In this demo, we showcase how to use Agent to:
 
