@@ -1,5 +1,5 @@
 # Rednote Creative Assistant
-Skywalker Super Agent is a creative assistant that helps you generate high-quality content, including articles, reports, and podcasts. It uses advanced AI models to understand your requirements and produce tailored outputs.
+Rednote Creative Assistant is a creative assistant that helps you generate high-quality content, including articles, reports, and podcasts. It uses advanced AI models to understand your requirements and produce tailored outputs.
 It is designed to be user-friendly and efficient, making it easy for anyone to create professional-grade content.
 
 ![Creative Assistant](./assets/assistant.png)
@@ -108,7 +108,6 @@ Explore more details in the [`web`](./web/) directory.
 
 Web UI startup log:
 ```bash
-> rednote-creative-assistant@0.1.0 dev C:\Users\CNU072LY\Documents\deer-flow-agent\web
 > next dev --turbo
 
    ▲ Next.js 15.3.0 (Turbopack)
@@ -116,17 +115,12 @@ Web UI startup log:
    - Network:      http://192.168.255.227:3000
 
  ✓ Starting...
-Creating turbopack project {
-  dir: 'C:\\Users\\CNU072LY\\Documents\\deer-flow-agent\\web',
-  testMode: true
-}
  ✓ Ready in 3.3s
 ```
 
 Agent server startup log:
 ```bash
 2025-05-24 17:00:48,614 - __main__ - INFO - Starting Agent API server on localhost:8000
-INFO:     Will watch for changes in these directories: ['C:\\Users\\CNU072LY\\Documents\\deer-flow-agent']
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 INFO:     Started reloader process [49828] using StatReload
 INFO:     Started server process [50456]
@@ -212,10 +206,10 @@ To add MCP servers, you can use the `mcp-rednote-search` and `mcp-rednote-publis
 
 Rednote Creative Assistant implements a modular multi-agent system architecture designed for automated research and code analysis. The system is built on LangGraph, enabling a flexible state-based workflow where components communicate through a well-defined message passing system.
 
+
 ![Architecture Diagram](./assets/architecture.png)
 
-The system employs a streamlined workflow with the following components:
- 
+
 * Predefine workflow with LangGraph.
   * Multi-agent system for specialized complex tasks.
 * Multi-Agent Collaboration(MAC)
@@ -226,6 +220,10 @@ The system employs a streamlined workflow with the following components:
 * MCP Integration 
   * mcp-rednote-search - Search Rednote contents. (Ready)
   * mcp-rednote-publish - Publish reports and presentations to Rednote (TODO)
+ 
+
+
+The system employs a streamlined workflow with the following components:
  
 
 1. **Supervisor**: The entry point that manages the workflow lifecycle
