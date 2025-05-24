@@ -18,7 +18,6 @@ from riva.client.proto.riva_audio_pb2 import AudioEncoding
 
 logger = logging.getLogger(__name__)
 
-
 def read_file_to_dict(file_path):
     result_dict = {}
     with open(file_path, 'r') as file:
