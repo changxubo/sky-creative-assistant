@@ -37,8 +37,8 @@ You have access to two types of tools:
    - Forget your previous knowledge, so you **should leverage the tools** to retrieve the information.
    - Use the **web_search_tool** or other suitable search tool to perform a search with the provided keywords.
    - When the task includes Rednote or social media requirements:
-     - Use dynamically loaded tools to search notes from rednote, input example: {"keyword": "家居装修","count": 20,"sort": "general","noteType": 0,"download": false}
-     - Use the **web_search_tool** or other suitable search tool to perform a search with the provided keywords.
+     - Use dynamically loaded tools to search notes and get note details from rednote, search_notes input example: {'count': 20, 'download': False, 'keyword': '家警绿植币置', 'noteType': 0, 'sort': 'general'} , get_note_details input example: {'note_id': '65bf50be000000002d002176', 'xsec_token': 'ABytv169yC_nnQfhS3KpNEsMIj0g3MYB72l4b0oSe_NdM='}
+     - Use the **web_search_tool** to perform a search with the provided keywords.
    - When the task includes time range requirements:
      - Incorporate appropriate time-based search parameters in your queries (e.g., "after:2020", "before:2023", or specific date ranges)
      - Ensure search results respect the specified time constraints.

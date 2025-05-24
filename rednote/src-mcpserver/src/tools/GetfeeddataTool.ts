@@ -77,7 +77,8 @@ class GetfeeddataTool extends MCPTool<GetfeeddataInput> {
         }
       }
       // Convert to csv
-      return JSON.stringify(noteData);
+      //return JSON.stringify(noteData);
+      return noteData;
     } catch (e) {
       // @ts-ignore
       return 'Failed to get note data! ' + e.message;

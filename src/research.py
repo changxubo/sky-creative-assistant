@@ -71,7 +71,7 @@ async def run_agent_workflow_async(
                     "mcp-rednote-search": {
                         "url": "http://127.0.0.1:19999/mcp",
                         "transport": "sse",
-                        "enabled_tools": ["search_notes"],
+                        "enabled_tools": ["search_notes","get_note_details"],
                         "add_to_agents": ["researcher"]
                     },
                 }

@@ -96,9 +96,9 @@ function ActivityListItem({ messageId }: { messageId: string }) {
           return <CrawlToolCall key={toolCall.id} toolCall={toolCall} />;
         } else if (toolCall.name === "python_repl_tool") {
           return <PythonToolCall key={toolCall.id} toolCall={toolCall} />;
-        } else if (toolCall.name === "search_notes") {
+        } else if (toolCall.name === "search_notes" || toolCall.name === "get_note_details") {
           return <RednoteMCPCall key={toolCall.id} toolCall={toolCall} />;
-        }else {
+        } else {
           return <MCPToolCall key={toolCall.id} toolCall={toolCall} />;
         }
       }
@@ -110,16 +110,16 @@ function ActivityListItem({ messageId }: { messageId: string }) {
 const __pageCache = new LRUCache<string, string>({ max: 100 });
 type SearchResult =
   | {
-      type: "page";
-      title: string;
-      url: string;
-      content: string;
-    }
+    type: "page";
+    title: string;
+    url: string;
+    content: string;
+  }
   | {
-      type: "image";
-      image_url: string;
-      image_description: string;
-    };
+    type: "image";
+    image_url: string;
+    image_description: string;
+  };
 function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const searching = useMemo(() => {
     return toolCall.result === undefined;
@@ -238,18 +238,54 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
 const __noteCache = new LRUCache<string, string>({ max: 100 });
 type RednoteResult =
   | {
+    id: string;
+    modelType: string;
+    xsecToken: string;
+    noteCard: {
+      type: string;
+      displayTitle: string;
+      user: {
+        userId: string;
+        nickname: string;
+        xsecToken: string;
+      }
+      cover: {
+        urlPre: string;
+        urlDefault: string;
+        width: number;
+        height: number;
+      };
+      interactInfo: {
+        likedCount: number;
+      };
+    }
+  }
+    | {
       note_id: string;
-      xsec_token: string;
-      note_type:string;
       title: string;
-      liked_count: number;
-      cover: string;
+      desc: string;
+      type: string;
+      user: string;
+      time: string;
+      counts: {
+        collected: number;
+        liked: number;
+        comment: number;
+        share: number;
+      },
+      images: [],
+      video: {}
     };
 function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const searching = useMemo(() => {
     return toolCall.result === undefined;
   }, [toolCall.result]);
-  console.log("RednoteResult >>", toolCall.result);
+  function hasNoteCard(result: RednoteResult): result is Extract<RednoteResult, { modelType: string }> {
+    return (result as any).modelType !== undefined;
+  }
+  function hasType(result: RednoteResult): result is Extract<RednoteResult, { type: string }> {
+    return (result as any).type !== undefined;
+  }
   const searchResults = useMemo<RednoteResult[]>(() => {
     let results: RednoteResult[] | undefined = undefined;
     try {
@@ -259,8 +295,8 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
     }
     if (Array.isArray(results)) {
       results.forEach((result) => {
-        if (result.note_type === "normal" || result.note_type === "video") {
-          __noteCache.set(result.cover, result.title);
+        if (hasNoteCard(result)) {
+          __noteCache.set(result.id, result.noteCard.displayTitle);
         }
       });
     } else {
@@ -268,14 +304,16 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
     }
     return results;
   }, [toolCall.result]);
+  
   const noteResults = useMemo(
-    () => searchResults?.filter((result) => result.note_type === "normal"),
+    () => searchResults?.filter((result) => hasNoteCard(result)),
     [searchResults],
   );
-  const vedioResults = useMemo(
-    () => searchResults?.filter((result) => result.note_type === "video"),
+  const imageResults = useMemo(
+    () => searchResults?.filter((result) => hasNoteCard(result)),
     [searchResults],
   );
+
   return (
     <section className="mt-4 pl-4">
       <div className="font-medium italic">
@@ -306,7 +344,7 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                 </li>
               ))}
             {noteResults
-              .filter((result) => result.note_type === "normal")
+          
               .map((searchResult, i) => (
                 <motion.li
                   key={`search-result-${i}`}
@@ -321,15 +359,15 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                 >
                   <FavIcon
                     className="mt-1"
-                    url={`https://www.xiaohongshu.com/discovery/item/${searchResult.note_id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsec_token}&xsec_source=pc_share`}
-                    title={searchResult.title}
+                    url={`https://www.xiaohongshu.com/discovery/item/${searchResult.id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsecToken}&xsec_source=pc_share`}
+                    title={searchResult.noteCard.displayTitle}
                   />
-                  <a href={`https://www.xiaohongshu.com/discovery/item/${searchResult.note_id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsec_token}&xsec_source=pc_share`} target="_blank">
-                    {searchResult.title}
+                  <a href={`https://www.xiaohongshu.com/discovery/item/${searchResult.id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsecToken}&xsec_source=pc_share`} target="_blank">
+                    {searchResult.noteCard.displayTitle}
                   </a>
                 </motion.li>
               ))}
-            {vedioResults.map((searchResult, i) => (
+            {imageResults.map((searchResult, i) => (
               <motion.li
                 key={`search-result-${i}`}
                 initial={{ opacity: 0, y: 10, scale: 0.66 }}
@@ -340,19 +378,22 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                   ease: "easeOut",
                 }}
               >
-                <a
-                  className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
-                  href={searchResult.cover}
-                  target="_blank"
-                >
-                  <Image
-                    src={searchResult.cover}
-                    alt={searchResult.title}
-                    className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
-                    imageClassName="hover:scale-110"
-                    imageTransition
-                  />
-                </a>
+                
+                  <a
+                    key={`note-image-${i}`}
+                    className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
+                    href={`https://www.xiaohongshu.com/discovery/item/${searchResult.id}?source=webshare&xhsshare=pc_web&xsec_token=${searchResult.xsecToken}&xsec_source=pc_share`}
+                    target="_blank"
+                  >
+                    <Image
+                      src={searchResult.noteCard.cover.urlDefault}
+                      alt={searchResult.noteCard.displayTitle}
+                      className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
+                      imageClassName="hover:scale-110"
+                      imageTransition
+                    />
+                  </a>
+                 
               </motion.li>
             ))}
           </ul>
@@ -509,22 +550,22 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
             <AccordionContent>
               {toolCall.result && (
                 <>
-                {/* <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
-                  <SyntaxHighlighter
-                    language="csv"
-                    style={resolvedTheme === "dark" ? dark : docco}
-                    customStyle={{
-                      background: "transparent",
-                      border: "none",
-                      boxShadow: "none",
-                    }}
-                  >
-                    {toolCall.result.trim()}
-                  </SyntaxHighlighter>
-                </div> */}
-                
-                  <Markdown>
-                    {/* {csvToMarkdown(toolCall.result.trim().replaceAll("\\n", "\n").slice(1, -1), ",", true)} */}
+                  <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
+                    <SyntaxHighlighter
+                      language="csv"
+                      style={resolvedTheme === "dark" ? dark : docco}
+                      customStyle={{
+                        background: "transparent",
+                        border: "none",
+                        boxShadow: "none",
+                      }}
+                    >
+                      {toolCall.result.trim()}
+                    </SyntaxHighlighter>
+                  </div>
+
+                  {/*  <Markdown>
+                   {csvToMarkdown(toolCall.result.trim().replaceAll("\\n", "\n").slice(1, -1), ",", true)} 
                     {toolCall.result.trim().slice(1, -1).split("\\n").map((line, idx) => {
                       if (idx === 0) {
                         return "|笔记类型|标题|点赞数量|用户名|\n|---|---|---|---|";
@@ -535,7 +576,7 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                       const line_obj = line.replaceAll("|", "\\|").split(",");
                       return `|${line_obj[2]}|${line_obj[3]}|${line_obj[4]}|${line_obj[7]}|`;
                     }).join("\n")}
-                  </Markdown></>
+                  </Markdown>*/} </>
               )}
             </AccordionContent>
           </AccordionItem>
