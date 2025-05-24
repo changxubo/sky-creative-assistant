@@ -68,7 +68,12 @@ async def run_agent_workflow_async(
                         "args": ["mcp-github-trending"],
                         "enabled_tools": ["get_github_trending_repositories"],
                         "add_to_agents": ["researcher"],
-                    }
+                    },
+                    "mcp-rednote-search": {
+                        "url": "http://127.0.0.1:19999/mcp",
+                        "transport": "sse",
+                        "add_to_agents": ["researcher"],
+                    },
                 }
             },
         },

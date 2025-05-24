@@ -33,8 +33,8 @@ from src.tools import VolcengineTTS
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Rednote Creative Assistant API",
-    description="API for Deer",
+    title="Rednote Creative Assistant",
+    description="Super AI Agents API",
     version="0.1.0",
 )
 

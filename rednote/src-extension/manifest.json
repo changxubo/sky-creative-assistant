@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "xhs-extension",
+  "version": "0.5.20",
+  "description": "Xiaohongshu MCP extension enables AI clients to automatically operate Xiaohongshu, facilitating data retrieval, analysis, and export of notes, comments, users, etc.",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.xiaohongshu.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

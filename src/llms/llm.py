@@ -25,9 +25,11 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
     if not isinstance(llm_conf, dict):
         raise ValueError(f"Invalid LLM Conf: {llm_type}")
     if llm_type == "basic":
-        return ChatOpenAI(**llm_conf, extra_body={"chat_template_kwargs": {"thinking":False}})
+        return ChatOpenAI(**llm_conf, extra_body={"enable_thinking": False})
+        #return ChatOpenAI(**llm_conf, extra_body={"chat_template_kwargs": {"thinking":False}})
     if llm_type == "reasoning":
-        return ChatOpenAI(**llm_conf, extra_body={"chat_template_kwargs": {"thinking":True}})
+        return ChatOpenAI(**llm_conf, extra_body={"enable_thinking": True})
+        #return ChatOpenAI(**llm_conf, extra_body={"chat_template_kwargs": {"thinking":True}})
     return ChatOpenAI(**llm_conf)
 
 
