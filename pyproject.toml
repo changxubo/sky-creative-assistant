@@ -32,6 +32,7 @@ dependencies = [
     "arxiv>=2.2.0",
     "mcp>=1.6.0",
     "langchain-mcp-adapters>=0.0.9",
+    "nvidia-riva-client==2.19.1",
 ]
 
 [project.optional-dependencies]
