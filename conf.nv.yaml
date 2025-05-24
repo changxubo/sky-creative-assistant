@@ -6,21 +6,21 @@
 BASIC_MODEL:
   base_url: https://integrate.api.nvidia.com/v1
   model: "qwen/qwen3-235b-a22b"
-  api_key: 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
+  api_key: ....
   temperature: 0.2
   #max_tokens: 8192
   top_p: 0.7
 REASONING_MODEL:
   base_url: https://integrate.api.nvidia.com/v1
   model: "qwen/qwen3-235b-a22b"
-  api_key: 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
+  api_key: ....
   temperature: 0.2
   #max_tokens: 8192
   top_p: 0.7
 VISION_MODEL:
   base_url: https://integrate.api.nvidia.com/v1
   model: "microsoft/phi-4-multimodal-instruct"
-  api_key: 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
+  api_key: ....
   temperature: 0.1
   #max_tokens: 512
   top_p: 0.7
