@@ -171,7 +171,7 @@ export function InputBox({
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
             >
-              <Detective /> DeepSearch
+              <Detective /> Research
             </Button>
           </Tooltip>
         </div>

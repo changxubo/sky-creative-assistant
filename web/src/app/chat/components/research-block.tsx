@@ -143,7 +143,7 @@ export function ResearchBlock({
                 Note
               </TabsTrigger>
               <TabsTrigger className="px-8" value="activities">
-                Search
+                Research
               </TabsTrigger>
             </TabsList>
           </div>
