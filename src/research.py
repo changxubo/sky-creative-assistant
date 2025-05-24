@@ -1,7 +1,7 @@
 # Copyright (c) 2025 Rednote Creative Assistant
 # SPDX-License-Identifier: MIT
 
-import asyncio
+
 import logging
 from src.graph import build_graph
 
@@ -20,8 +20,7 @@ def enable_debug_logging():
 logger = logging.getLogger(__name__)
 
 # Create the graph
-graph = build_graph()
-
+workflow = build_graph()
 
 async def run_agent_workflow_async(
     user_input: str,
@@ -80,7 +79,7 @@ async def run_agent_workflow_async(
         "recursion_limit": 100,
     }
     last_message_cnt = 0
-    async for s in graph.astream(
+    async for s in workflow.astream(
         input=initial_state, config=config, stream_mode="values"
     ):
         try:
@@ -104,4 +103,4 @@ async def run_agent_workflow_async(
 
 
 if __name__ == "__main__":
-    print(graph.get_graph(xray=True).draw_mermaid())
+    print(workflow.get_graph(xray=True).draw_mermaid())

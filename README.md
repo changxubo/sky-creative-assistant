@@ -1,8 +1,26 @@
 # Rednote Creative Assistant
-RedNote is a creative assistant that helps you generate high-quality content, including articles, reports, and podcasts. It uses advanced AI models to understand your requirements and produce tailored outputs.
+Skywalker Super Agent is a creative assistant that helps you generate high-quality content, including articles, reports, and podcasts. It uses advanced AI models to understand your requirements and produce tailored outputs.
 It is designed to be user-friendly and efficient, making it easy for anyone to create professional-grade content.
- 
-## Demo
+
+![Creative Assistant](./assets/assistant.png)
+
+![Settings](./assets/settings.png)
+## Agent Architecture
+
+### Key Features
+* Predefine workflow with LangGraph.
+  * Multi-agent system for specialized complex tasks.
+* Multi-Agent Collaboration(MAC)
+  * Developer Agent - Write python scripts to generate charts, tables, and other data visualizations.  (Ready)
+  * Researcher Agent - Conduct web searches and gather information.  (Ready)
+  * Podcast Agent - Generate podcast audio based on the generated report. (Ready)
+  * Publisher Agent - Generate reports and presentations and publish them to Rednote. (TODO)
+* MCP Integration 
+  * mcp-rednote-search - Search Rednote contents. (Ready)
+  * mcp-rednote-publish - Publish reports and presentations to Rednote (TODO)
+
+![Architecture Diagram](./assets/architecture.png)
+
 
 ### Video
 
@@ -103,6 +121,67 @@ bootstrap.bat -d
 Open your browser and visit [`http://localhost:3000`](http://localhost:3000) to explore the web UI.
 
 Explore more details in the [`web`](./web/) directory.
+
+Web UI startup log:
+```bash
+> rednote-creative-assistant@0.1.0 dev C:\Users\CNU072LY\Documents\deer-flow-agent\web
+> next dev --turbo
+
+   ▲ Next.js 15.3.0 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.255.227:3000
+
+ ✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\CNU072LY\\Documents\\deer-flow-agent\\web',
+  testMode: true
+}
+ ✓ Ready in 3.3s
+```
+
+Agent server startup log:
+```bash
+2025-05-24 17:00:48,614 - __main__ - INFO - Starting Agent API server on localhost:8000
+INFO:     Will watch for changes in these directories: ['C:\\Users\\CNU072LY\\Documents\\deer-flow-agent']
+INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [49828] using StatReload
+INFO:     Started server process [50456]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+```
+
+
+## Rednote MCP Servers
+Rednote Creative Assistant integrates with Rednote MCP servers to enhance its capabilities. These servers provide access to various services, including search, publishing, and more.
+
+
+```bash
+$ cd rednote
+$ npm i --legacy-peer-deps
+```
+
+```bash
+$ npm run build:mcp
+$ npm run dev
+```
+
+![MCP servers](./assets/mcp.png)
+
+### Add MCP Servers
+To add MCP servers, you can use the `mcp-rednote-search` and `mcp-rednote-publish` services. These services allow you to search Rednote contents and publish reports and presentations to Rednote.
+```json
+{
+  "mcpServers":{
+     "mcp-rednote-search": {
+         "url": "http://127.0.0.1:19999/mcp",
+         "transport": "sse",
+         "add_to_agents": ["researcher"]
+      }
+  }
+}
+
+```
 
 ## Features
 
@@ -250,7 +329,7 @@ pip install -e .
 pip install -U "langgraph-cli[inmem]"
 
 # Start the LangGraph server
-langgraph dev
+langgraph dev --allow-blocking
 ```
 
 After starting the LangGraph server, you'll see several URLs in the terminal:

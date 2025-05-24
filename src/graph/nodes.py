@@ -27,8 +27,8 @@ from src.prompts.planner_model import Plan, StepType
 from src.prompts.template import apply_prompt_template
 from src.utils.json_utils import repair_json_output
 
-from .types import State
-from ..config import SELECTED_SEARCH_ENGINE, SearchEngine
+from src.graph.types import AgentMessageState
+from src.config import SELECTED_SEARCH_ENGINE, SearchEngine
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ def handoff_to_planner(
 
 
 def background_investigation_node(
-    state: State, config: RunnableConfig
+    state: AgentMessageState, config: RunnableConfig
 ) -> Command[Literal["planner"]]:
     logger.info("background investigation node is running.")
     configurable = Configuration.from_runnable_config(config)
@@ -79,7 +79,7 @@ def background_investigation_node(
 
 
 def planner_node(
-    state: State, config: RunnableConfig
+    state: AgentMessageState, config: RunnableConfig
 ) -> Command[Literal["human_feedback", "reporter"]]:
     """Planner node that generate the full plan."""
     logger.info("Planner generating full plan")
@@ -206,7 +206,7 @@ def human_feedback_node(
 
 
 def coordinator_node(
-    state: State,
+    state: AgentMessageState,
 ) -> Command[Literal["planner", "background_investigator", "__end__"]]:
     """Coordinator node that communicate with customers."""
     logger.info("Coordinator talking.")
@@ -247,7 +247,7 @@ def coordinator_node(
     )
 
 
-def reporter_node(state: State):
+def reporter_node(state: AgentMessageState):
     """Reporter node that write a final report."""
     logger.info("Reporter write final report")
     current_plan = state.get("current_plan")
@@ -286,7 +286,7 @@ def reporter_node(state: State):
 
 
 def research_team_node(
-    state: State,
+    state: AgentMessageState,
 ) -> Command[Literal["planner", "researcher", "coder"]]:
     """Research team node that collaborates on tasks."""
     logger.info("Research team is collaborating on tasks.")
@@ -306,7 +306,7 @@ def research_team_node(
 
 
 async def _execute_agent_step(
-    state: State, agent, agent_name: str
+    state: AgentMessageState, agent, agent_name: str
 ) -> Command[Literal["research_team"]]:
     """Helper function to execute a step using the specified agent."""
     current_plan = state.get("current_plan")
@@ -404,7 +404,7 @@ async def _execute_agent_step(
 
 
 async def _setup_and_execute_agent_step(
-    state: State,
+    state: AgentMessageState,
     config: RunnableConfig,
     agent_type: str,
     default_tools: list,
@@ -463,7 +463,7 @@ async def _setup_and_execute_agent_step(
 
 
 async def researcher_node(
-    state: State, config: RunnableConfig
+    state: AgentMessageState, config: RunnableConfig
 ) -> Command[Literal["research_team"]]:
     """Researcher node that do research"""
     logger.info("Researcher node is researching.")
@@ -477,7 +477,7 @@ async def researcher_node(
 
 
 async def coder_node(
-    state: State, config: RunnableConfig
+    state: AgentMessageState, config: RunnableConfig
 ) -> Command[Literal["research_team"]]:
     """Coder node that do code analysis."""
     logger.info("Coder node is coding.")

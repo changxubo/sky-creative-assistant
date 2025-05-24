@@ -1,15 +1,11 @@
 # Copyright (c) 2025 Rednote Creative Assistant
 # SPDX-License-Identifier: MIT
 
-import operator
-from typing import Annotated
-
 from langgraph.graph import MessagesState
-
 from src.prompts.planner_model import Plan
 
 
-class State(MessagesState):
+class AgentMessageState(MessagesState):
     """State for the agent system, extends MessagesState with next field."""
 
     # Runtime Variables
