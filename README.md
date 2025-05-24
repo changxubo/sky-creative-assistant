@@ -5,22 +5,6 @@ It is designed to be user-friendly and efficient, making it easy for anyone to c
 ![Creative Assistant](./assets/assistant.png)
 
 ![Settings](./assets/settings.png)
-## Agent Architecture
-
-### Key Features
-* Predefine workflow with LangGraph.
-  * Multi-agent system for specialized complex tasks.
-* Multi-Agent Collaboration(MAC)
-  * Developer Agent - Write python scripts to generate charts, tables, and other data visualizations.  (Ready)
-  * Researcher Agent - Conduct web searches and gather information.  (Ready)
-  * Podcast Agent - Generate podcast audio based on the generated report. (Ready)
-  * Publisher Agent - Generate reports and presentations and publish them to Rednote. (TODO)
-* MCP Integration 
-  * mcp-rednote-search - Search Rednote contents. (Ready)
-  * mcp-rednote-publish - Publish reports and presentations to Rednote (TODO)
-
-![Architecture Diagram](./assets/architecture.png)
-
 
 ### Video
 
@@ -231,8 +215,20 @@ Rednote Creative Assistant implements a modular multi-agent system architecture 
 ![Architecture Diagram](./assets/architecture.png)
 
 The system employs a streamlined workflow with the following components:
+ 
+* Predefine workflow with LangGraph.
+  * Multi-agent system for specialized complex tasks.
+* Multi-Agent Collaboration(MAC)
+  * Developer Agent - Write python scripts to generate charts, tables, and other data visualizations.  (Ready)
+  * Researcher Agent - Conduct web searches and gather information.  (Ready)
+  * Podcast Agent - Generate podcast audio based on the generated report. (Ready)
+  * Publisher Agent - Generate reports and presentations and publish them to Rednote. (TODO)
+* MCP Integration 
+  * mcp-rednote-search - Search Rednote contents. (Ready)
+  * mcp-rednote-publish - Publish reports and presentations to Rednote (TODO)
+ 
 
-1. **Coordinator**: The entry point that manages the workflow lifecycle
+1. **Supervisor**: The entry point that manages the workflow lifecycle
 
    - Initiates the research process based on user input
    - Delegates tasks to the planner when appropriate
@@ -244,10 +240,10 @@ The system employs a streamlined workflow with the following components:
    - Determines if enough context is available or if more research is needed
    - Manages the research flow and decides when to generate the final report
 
-3. **Research Team**: A collection of specialized agents that execute the plan:
+3. **Team Work**: A collection of specialized agents that execute the plan:
 
    - **Researcher**: Conducts web searches and information gathering using tools like web search engines, crawling and even MCP services.
-   - **Coder**: Handles code analysis, execution, and technical tasks using Python REPL tool.
+   - **Developer**: Handles code analysis, execution, and technical tasks using Python REPL tool.
      Each agent has access to specific tools optimized for their role and operates within the LangGraph framework
 
 4. **Reporter**: Final stage processor for research outputs
