@@ -508,9 +508,10 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
             </AccordionTrigger>
             <AccordionContent>
               {toolCall.result && (
-                <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
+                <>
+                {/* <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
                   <SyntaxHighlighter
-                    language="json"
+                    language="csv"
                     style={resolvedTheme === "dark" ? dark : docco}
                     customStyle={{
                       background: "transparent",
@@ -520,7 +521,21 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                   >
                     {toolCall.result.trim()}
                   </SyntaxHighlighter>
-                </div>
+                </div> */}
+                
+                  <Markdown>
+                    {/* {csvToMarkdown(toolCall.result.trim().replaceAll("\\n", "\n").slice(1, -1), ",", true)} */}
+                    {toolCall.result.trim().slice(1, -1).split("\\n").map((line, idx) => {
+                      if (idx === 0) {
+                        return "|笔记类型|标题|点赞数量|用户名|\n|---|---|---|---|";
+                      }
+                      if (line === "\\n") {
+                        return "";
+                      }
+                      const line_obj = line.replaceAll("|", "\\|").split(",");
+                      return `|${line_obj[2]}|${line_obj[3]}|${line_obj[4]}|${line_obj[7]}|`;
+                    }).join("\n")}
+                  </Markdown></>
               )}
             </AccordionContent>
           </AccordionItem>
