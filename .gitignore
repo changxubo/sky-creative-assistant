@@ -18,7 +18,7 @@ venv/
 
 # user conf
 conf.yaml
-
+conf.nv.yaml
 .idea/
 .langgraph_api/
 

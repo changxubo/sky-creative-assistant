@@ -28,7 +28,7 @@ from src.server.chat_request import (
 )
 from src.server.mcp_request import MCPServerMetadataRequest, MCPServerMetadataResponse
 from src.server.mcp_utils import load_mcp_tools
-from src.tools import VolcengineTTS
+from src.tools import VolcengineTTS,RivaTTS
 
 logger = logging.getLogger(__name__)
 
@@ -169,42 +169,77 @@ def _make_event(event_type: str, data: dict[str, any]):
         data.pop("content")
     return f"event: {event_type}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
+def _riva_tts(request: TTSRequest):
+    app_id = os.getenv("RIVA_TTS_APPID", "")
+    if not app_id:
+        raise HTTPException(status_code=400, detail="RIVA_TTS_APPID is not set")
+    access_token = os.getenv("RIVA_TTS_ACCESS_TOKEN", "")
+    if not access_token:
+        raise HTTPException(
+            status_code=400, detail="RIVA_TTS_ACCESS_TOKEN is not set"
+        )
+    cluster = "Riva_tts"
+    voice_type = "Magpie-Multilingual.EN-US.Sofia"
+    tts_client = RivaTTS(
+        function_id=app_id,
+        access_token=access_token,
+        cluster=cluster,
+        voice_type=voice_type,
+    )
+    # Call the TTS API
+    result = tts_client.text_to_speech(
+        text=request.text[:1024],
+        encoding=request.encoding,
+        speed_ratio=request.speed_ratio,
+        volume_ratio=request.volume_ratio,
+        pitch_ratio=request.pitch_ratio,
+        text_type=request.text_type,
+        with_frontend=request.with_frontend,
+        frontend_type=request.frontend_type,
+        #output_file="output.wav",   # Specify output file for debugging
+    )
+    return result
+def _volcengine_tts(request: TTSRequest):
+    app_id = os.getenv("VOLCENGINE_TTS_APPID", "")
+    if not app_id:
+        raise HTTPException(status_code=400, detail="VOLCENGINE_TTS_APPID is not set")
+    access_token = os.getenv("VOLCENGINE_TTS_ACCESS_TOKEN", "")
+    if not access_token:
+        raise HTTPException(
+            status_code=400, detail="VOLCENGINE_TTS_ACCESS_TOKEN is not set"
+        )
+    cluster = os.getenv("VOLCENGINE_TTS_CLUSTER", "volcano_tts")
+    voice_type = os.getenv("VOLCENGINE_TTS_VOICE_TYPE", "BV700_V2_streaming")
+
+    tts_client = VolcengineTTS(
+        appid=app_id,
+        access_token=access_token,
+        cluster=cluster,
+        voice_type=voice_type,
+    )
+    # Call the TTS API
+    result = tts_client.text_to_speech(
+        text=request.text[:1024],
+        encoding=request.encoding,
+        speed_ratio=request.speed_ratio,
+        volume_ratio=request.volume_ratio,
+        pitch_ratio=request.pitch_ratio,
+        text_type=request.text_type,
+        with_frontend=request.with_frontend,
+        frontend_type=request.frontend_type,
+    )
+    return result
+
 
 @app.post("/api/tts")
 async def text_to_speech(request: TTSRequest):
     """Convert text to speech using volcengine TTS API."""
     try:
-        app_id = os.getenv("VOLCENGINE_TTS_APPID", "")
-        if not app_id:
-            raise HTTPException(
-                status_code=400, detail="VOLCENGINE_TTS_APPID is not set"
-            )
-        access_token = os.getenv("VOLCENGINE_TTS_ACCESS_TOKEN", "")
-        if not access_token:
-            raise HTTPException(
-                status_code=400, detail="VOLCENGINE_TTS_ACCESS_TOKEN is not set"
-            )
-        cluster = os.getenv("VOLCENGINE_TTS_CLUSTER", "volcano_tts")
-        voice_type = os.getenv("VOLCENGINE_TTS_VOICE_TYPE", "BV700_V2_streaming")
-
-        tts_client = VolcengineTTS(
-            appid=app_id,
-            access_token=access_token,
-            cluster=cluster,
-            voice_type=voice_type,
-        )
-        # Call the TTS API
-        result = tts_client.text_to_speech(
-            text=request.text[:1024],
-            encoding=request.encoding,
-            speed_ratio=request.speed_ratio,
-            volume_ratio=request.volume_ratio,
-            pitch_ratio=request.pitch_ratio,
-            text_type=request.text_type,
-            with_frontend=request.with_frontend,
-            frontend_type=request.frontend_type,
-        )
-
+        tts_type = os.getenv("TTS_TYPE", "VOLCENGINE")
+        if tts_type == "RIVA":
+            result = _riva_tts(request)
+        else:
+            result = _volcengine_tts(request)
         if not result["success"]:
             raise HTTPException(status_code=500, detail=str(result["error"]))
 

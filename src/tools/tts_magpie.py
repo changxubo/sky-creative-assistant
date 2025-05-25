@@ -41,11 +41,11 @@ class RivaTTS:
     def __init__(
         self,
         appid: str,
-        access_token: str = "Bearer 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",
+        access_token: str,
         cluster: str = "Riva_tts",
         voice_type: str = "Magpie-Multilingual.EN-US.Sofia",
         host: str = "grpc.nvcf.nvidia.com:443",
-        function_id: str = '877104f7-e885-42b9-8de8-f6e4c6303969',
+        function_id: str="",
         use_ssl: bool = True,
         ssl_cert: Optional[str] = None,
         metadata: Optional[List[str]] = None,
@@ -332,8 +332,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    app_id = "877104f7-e885-42b9-8de8-f6e4c6303969"
-    access_token = "Bearer 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"
+    app_id = "<your_app_id_here>"  # Replace with your actual app ID
+    access_token = "Bearer <your_access_token_here>"  # Replace with your actual access token
+    
     cluster = "Riva_tts"
     voice_type = "Magpie-Multilingual.EN-US.Sofia"
 
@@ -349,7 +350,7 @@ def main() -> None:
     }
 
     tts_client = RivaTTS(
-        appid=app_id,
+        function_id=app_id,
         access_token=access_token,
         cluster=cluster,
         voice_type=voice_type,
