@@ -8,10 +8,10 @@ import { cn } from "~/lib/utils";
 import { Welcome } from "./welcome";
 
 const questions = [
-  "小红书笔记-智能家居与AI融合,如何实现家电的个性化升级?",
-  "How many years does an average Tesla battery last compared to a gasoline engine?",
-  "小红书笔记-家居与情绪管理, 如何通过颜色、绿植、香氛提升幸福感？",
-  "How many times faster is the speed of light compared to the speed of sound?",
+  "调研智能家居与AI融合话题,发布小红书笔记谈谈如何实现家电的个性化升级?",
+  "特斯拉电池的平均使用寿命与汽油发动机相比是几年？",
+  "研究家居与情绪管理爆款小红书笔记，创作笔记：如何通过颜色、绿植、香氛提升幸福感？",
+  "查找小红书小户型家具收纳和家具推荐信息，写一篇关于小户型空间利用技巧的笔记。",
 ];
 export function ConversationStarter({
   className,

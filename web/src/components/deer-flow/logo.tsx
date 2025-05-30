@@ -10,7 +10,7 @@ export function Logo() {
       href="/"
     >
       {/*🦌 Rednote Creative Assistant*/}
-     <span style={{ paddingLeft: "30px" }}>Rednote Creative Assistant</span>
+     <span style={{ paddingLeft: "60px" }}>Rednote Agent</span>
     </Link>
   );
 }

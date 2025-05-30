@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { ThemeToggle } from "../../components/deer-flow/theme-toggle";
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
+import { Logo } from "../../components/deer-flow/logo";
 
 const Main = dynamic(() => import("./main"), {
   ssr: false,
@@ -22,6 +23,7 @@ export default function HomePage() {
 
     <div className="flex h-screen w-screen justify-center overscroll-none">
       <header className="fixed top-0 left-0 flex h-12 w-full items-center justify-between px-4">
+         <Logo />
         <div className="flex items-center" style={{ paddingRight: "30px" }}>
           <ThemeToggle />
           <Suspense>
