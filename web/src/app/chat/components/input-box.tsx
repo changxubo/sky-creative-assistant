@@ -166,12 +166,12 @@ export function InputBox({
                 backgroundInvestigation && "!border-brand !text-brand",
               )}
               variant="outline"
-              size="lg"
+              size="sm"
               onClick={() =>
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
             >
-              <Detective /> Research
+              <Detective />search
             </Button>
           </Tooltip>
         </div>
