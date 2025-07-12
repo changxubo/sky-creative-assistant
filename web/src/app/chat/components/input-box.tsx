@@ -8,7 +8,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Detective } from "~/components/core/icons/detective";
 import { Search } from "~/components/core/icons/search";
 import { SendMessage } from "~/components/core/icons/send-message";
-
 import MessageInput, {
   type MessageInputRef,
 } from "~/components/core/message-input";
