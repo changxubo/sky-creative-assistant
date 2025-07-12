@@ -1,15 +1,14 @@
-version: "2"
-authtoken: ${NGROK_AUTH_TOKEN}
-tunnels:
-  web:
-    proto: http
-    addr: frontend:3000
-    bind_tls: true
-    hostname: ${NGROK_DOMAIN}
-    inspect: false
-    metadata: "ngrok tunnel for web app"
-  dashboard:
-    proto: http
-    addr: 4040
-    inspect: false
-    metadata: "ngrok dashboard"
+version: 3
+
+agent:
+  authtoken: ${NGROK_AUTH_TOKEN}
+
+endpoints:
+  - name: web
+    url: http://frontend:3000
+    metadata: '{ "id": "frontend" }'
+    description: "ngrok tunnel for web app"
+  - name: dashboard
+    url: http://ngrok:4040
+    metadata: '{ "id": "dashboard" }'
+    description: "ngrok dashboard"
