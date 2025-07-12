@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Button } from "~/components/ui/button";
+
 import { NewChat } from "../../components/core/icons/new-chat";
 import { Logo } from "../../components/core/logo";
 import { ThemeToggle } from "../../components/core/theme-toggle";

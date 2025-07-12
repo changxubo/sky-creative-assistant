@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 import { Rednote } from "./landing/components/rednote";
 import { MultiAgentSection } from "./landing/sections/multi-agent-section";
 
