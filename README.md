@@ -75,11 +75,7 @@ In this demo, we showcase how to use Agent to:
 ## Architecture
 
 Sky Creative Assistant implements a modular multi-agent system architecture designed for automated research and code analysis. The system is built on LangGraph, enabling a flexible state-based workflow where components communicate through a well-defined message passing system.
-
-
-![Architecture Diagram](./assets/architecture.png)
-
-
+The architecture consists of the following key components:
 * Predefine workflow with LangGraph.
   * Multi-agent system for specialized complex tasks.
 * Multi-Agent Collaboration(MAC)
@@ -145,7 +141,7 @@ Make sure your system meets the following minimum requirements:
 
 ```bash
 # Clone the repository
-git clone https://github.com/changxubo/rednote-creative-aisstant.git
+git clone https://github.com/changxubo/sky-creative-aisstant.git
 
 # Install dependencies, uv will take care of the python interpreter and venv creation, and install the required packages
 uv sync
@@ -233,7 +229,7 @@ INFO:     Application startup complete.
 ```
 
 
-## Rednote MCP Servers
+## MCP Servers
 Sky Creative Assistant integrates with Rednote MCP servers to enhance its capabilities. These servers provide access to various services, including search, publishing, and more.
 
 
