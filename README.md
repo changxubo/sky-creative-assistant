@@ -1,6 +1,6 @@
 # Sky Creative Assistant 
 ## Introduction
-With NVIDIA AI Enterprise to accelerate Agentic AI Agent development, Rednote Creative Assistant is a powerful AI assistant designed to help you conduct deep research, generate comprehensive reports, and create engaging podcasts. It leverages NVIDIA NIM models and integrates seamlessly with Rednote's Model Context Protocol (MCP) services.
+With NVIDIA AI Enterprise to accelerate Agentic AI Agent development, Sky Creative Assistant is a powerful AI assistant designed to help you conduct deep research, generate comprehensive reports, and create engaging podcasts. It leverages NVIDIA NIM models and integrates seamlessly with Rednote's Model Context Protocol (MCP) services.
 
 ![Home](./assets/home-page.png)
 
@@ -55,7 +55,7 @@ VISION_MODEL:
 }
 ```
 ## Demo
-This demo showcases the capabilities of Rednote Creative Assistant, including deep research, report generation, and podcast creation. The following images illustrate the user interface and features:
+This demo showcases the capabilities of Sky Creative Assistant, including deep research, report generation, and podcast creation. The following images illustrate the user interface and features:
 
 ![Creative Assistant](./assets/assistant.png)
 ![Case-1](./assets/case.png)
@@ -74,7 +74,7 @@ In this demo, we showcase how to use Agent to:
 
 ## Architecture
 
-Rednote Creative Assistant implements a modular multi-agent system architecture designed for automated research and code analysis. The system is built on LangGraph, enabling a flexible state-based workflow where components communicate through a well-defined message passing system.
+Sky Creative Assistant implements a modular multi-agent system architecture designed for automated research and code analysis. The system is built on LangGraph, enabling a flexible state-based workflow where components communicate through a well-defined message passing system.
 
 
 ![Architecture Diagram](./assets/architecture.png)
@@ -121,7 +121,7 @@ The system employs a streamlined workflow with the following components:
 
 ## Quick Start
 
-Rednote Creative Assistant is developed in Python, and comes with a web UI written in Node.js. To ensure a smooth setup process, we recommend using the following tools:
+Sky Creative Assistant is developed in Python, and comes with a web UI written in Node.js. To ensure a smooth setup process, we recommend using the following tools:
 
 ### Recommended Tools
 
@@ -234,7 +234,7 @@ INFO:     Application startup complete.
 
 
 ## Rednote MCP Servers
-Rednote Creative Assistant integrates with Rednote MCP servers to enhance its capabilities. These servers provide access to various services, including search, publishing, and more.
+Sky Creative Assistant integrates with Rednote MCP servers to enhance its capabilities. These servers provide access to various services, including search, publishing, and more.
 
 
 ```bash
@@ -307,7 +307,7 @@ To add MCP servers, you can use the `mcp-rednote-search` and `mcp-rednote-publis
 
 ## Text-to-Speech Integration
 
-Rednote Creative Assistant now includes a Text-to-Speech (TTS) feature that allows you to convert research reports to speech. This feature uses the volcengine TTS API to generate high-quality audio from text. Features like speed, volume, and pitch are also customizable.
+Sky Creative Assistant now includes a Text-to-Speech (TTS) feature that allows you to convert research reports to speech. This feature uses the volcengine TTS API to generate high-quality audio from text. Features like speed, volume, and pitch are also customizable.
 
 ### Using the TTS API
 
@@ -355,11 +355,11 @@ make format
 
 ### Debugging with LangGraph Studio
 
-Rednote Creative Assistant uses LangGraph for its workflow architecture. You can use LangGraph Studio to debug and visualize the workflow in real-time.
+Sky Creative Assistant uses LangGraph for its workflow architecture. You can use LangGraph Studio to debug and visualize the workflow in real-time.
 
 #### Running LangGraph Studio Locally
 
-Rednote Creative Assistant includes a `langgraph.json` configuration file that defines the graph structure and dependencies for the LangGraph Studio. This file points to the workflow graphs defined in the project and automatically loads environment variables from the `.env` file.
+Sky Creative Assistant includes a `langgraph.json` configuration file that defines the graph structure and dependencies for the LangGraph Studio. This file points to the workflow graphs defined in the project and automatically loads environment variables from the `.env` file.
 
 ##### Mac
 
@@ -409,7 +409,7 @@ When you submit a research topic in the Studio UI, you'll be able to see the ent
 
 ### Enabling LangSmith Tracing
 
-Rednote Creative Assistant supports LangSmith tracing to help you debug and monitor your workflows. To enable LangSmith tracing:
+Sky Creative Assistant supports LangSmith tracing to help you debug and monitor your workflows. To enable LangSmith tracing:
 
 1. Make sure your `.env` file has the following configurations (see `.env.example`):
    ```bash
@@ -429,7 +429,7 @@ This will enable trace visualization in LangGraph Studio and send your traces to
  
 ### Human in the Loop
 
-Rednote Creative Assistant includes a human in the loop mechanism that allows you to review, edit, and approve research plans before they are executed:
+Sky Creative Assistant includes a human in the loop mechanism that allows you to review, edit, and approve research plans before they are executed:
 
 1. **Plan Review**: When human in the loop is enabled, the system will present the generated research plan for your review before execution
 
