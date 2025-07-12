@@ -7,7 +7,7 @@ services:
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
       - NGROK_REGION=us
-    command: ngrok http 3000 --url ${NGROK_DOMAIN}
+    command: ngrok http --url=${NGROK_DOMAIN} 3000
     restart: unless-stopped
     networks:
       - sky-creative-network
