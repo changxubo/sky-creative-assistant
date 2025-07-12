@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { create } from "zustand";
 
@@ -10,10 +9,12 @@ const SETTINGS_KEY = "deerflow.settings";
 const DEFAULT_SETTINGS: SettingsState = {
   general: {
     autoAcceptedPlan: false,
+    enableDeepThinking: false,
     enableBackgroundInvestigation: false,
     maxPlanIterations: 1,
     maxStepNum: 3,
     maxSearchResults: 3,
+    reportStyle: "academic",
   },
   mcp: {
     servers: [],
@@ -23,10 +24,12 @@ const DEFAULT_SETTINGS: SettingsState = {
 export type SettingsState = {
   general: {
     autoAcceptedPlan: boolean;
+    enableDeepThinking: boolean;
     enableBackgroundInvestigation: boolean;
     maxPlanIterations: number;
     maxStepNum: number;
     maxSearchResults: number;
+    reportStyle: "academic" | "popular_science" | "news" | "social_media";
   };
   mcp: {
     servers: MCPServerMetadata[];
@@ -112,7 +115,7 @@ export const getChatStreamSettings = () => {
           ...acc,
           [cur.name]: {
             ...server,
-            enabled_tools: cur.tools.map((tool) => tool.name),
+            enabled_tools: ["search_notes","get_note_details"],//cur.tools.map((tool) => tool.name), 
             add_to_agents: ["researcher"],
           },
         };
@@ -124,6 +127,28 @@ export const getChatStreamSettings = () => {
     mcpSettings,
   };
 };
+
+export function setReportStyle(
+  value: "academic" | "popular_science" | "news" | "social_media",
+) {
+  useSettingsStore.setState((state) => ({
+    general: {
+      ...state.general,
+      reportStyle: value,
+    },
+  }));
+  saveSettings();
+}
+
+export function setEnableDeepThinking(value: boolean) {
+  useSettingsStore.setState((state) => ({
+    general: {
+      ...state.general,
+      enableDeepThinking: value,
+    },
+  }));
+  saveSettings();
+}
 
 export function setEnableBackgroundInvestigation(value: boolean) {
   useSettingsStore.setState((state) => ({

@@ -1,22 +1,21 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { PythonOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { LRUCache } from "lru-cache";
-import { BookOpenText, PencilRuler, Search } from "lucide-react";
+import { BookOpenText, FileText, PencilRuler, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { FavIcon } from "~/components/deer-flow/fav-icon";
-import Image from "~/components/deer-flow/image";
-import { LoadingAnimation } from "~/components/deer-flow/loading-animation";
-import { Markdown } from "~/components/deer-flow/markdown";
-import { RainbowText } from "~/components/deer-flow/rainbow-text";
-import { Tooltip } from "~/components/deer-flow/tooltip";
+import { FavIcon } from "~/components/core/fav-icon";
+import Image from "~/components/core/image";
+import { LoadingAnimation } from "~/components/core/loading-animation";
+import { Markdown } from "~/components/core/markdown";
+import { RainbowText } from "~/components/core/rainbow-text";
+import { Tooltip } from "~/components/core/tooltip";
 import {
   Accordion,
   AccordionContent,
@@ -96,7 +95,9 @@ function ActivityListItem({ messageId }: { messageId: string }) {
           return <CrawlToolCall key={toolCall.id} toolCall={toolCall} />;
         } else if (toolCall.name === "python_repl_tool") {
           return <PythonToolCall key={toolCall.id} toolCall={toolCall} />;
-        } else if (toolCall.name === "search_notes" || toolCall.name === "get_note_details") {
+        } else if (toolCall.name === "local_search_tool") {
+          return <RetrieverToolCall key={toolCall.id} toolCall={toolCall} />;
+        }else if (toolCall.name === "search_notes" || toolCall.name === "get_note_details") {
           return <RednoteMCPCall key={toolCall.id} toolCall={toolCall} />;
         } else {
           return <MCPToolCall key={toolCall.id} toolCall={toolCall} />;
@@ -110,16 +111,17 @@ function ActivityListItem({ messageId }: { messageId: string }) {
 const __pageCache = new LRUCache<string, string>({ max: 100 });
 type SearchResult =
   | {
-    type: "page";
-    title: string;
-    url: string;
-    content: string;
-  }
+      type: "page";
+      title: string;
+      url: string;
+      content: string;
+    }
   | {
-    type: "image";
-    image_url: string;
-    image_description: string;
-  };
+      type: "image";
+      image_url: string;
+      image_description: string;
+    };
+
 function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const searching = useMemo(() => {
     return toolCall.result === undefined;
@@ -233,6 +235,188 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
         )}
       </div>
     </section>
+  );
+}
+
+function CrawlToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
+  const url = useMemo(
+    () => (toolCall.args as { url: string }).url,
+    [toolCall.args],
+  );
+  const title = useMemo(() => __pageCache.get(url), [url]);
+  return (
+    <section className="mt-4 pl-4">
+      <div>
+        <RainbowText
+          className="flex items-center text-base font-medium italic"
+          animated={toolCall.result === undefined}
+        >
+          <BookOpenText size={16} className={"mr-2"} />
+          <span>Reading</span>
+        </RainbowText>
+      </div>
+      <ul className="mt-2 flex flex-wrap gap-4">
+        <motion.li
+          className="text-muted-foreground bg-accent flex h-40 w-40 gap-2 rounded-md px-2 py-1 text-sm"
+          initial={{ opacity: 0, y: 10, scale: 0.66 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.2,
+            ease: "easeOut",
+          }}
+        >
+          <FavIcon className="mt-1" url={url} title={title} />
+          <a
+            className="h-full flex-grow overflow-hidden text-ellipsis whitespace-nowrap"
+            href={url}
+            target="_blank"
+          >
+            {title ?? url}
+          </a>
+        </motion.li>
+      </ul>
+    </section>
+  );
+}
+
+function RetrieverToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
+  const searching = useMemo(() => {
+    return toolCall.result === undefined;
+  }, [toolCall.result]);
+  const documents = useMemo<
+    Array<{ id: string; title: string; content: string }>
+  >(() => {
+    return toolCall.result ? parseJSON(toolCall.result, []) : [];
+  }, [toolCall.result]);
+  return (
+    <section className="mt-4 pl-4">
+      <div className="font-medium italic">
+        <RainbowText className="flex items-center" animated={searching}>
+          <Search size={16} className={"mr-2"} />
+          <span>Retrieving documents from RAG&nbsp;</span>
+          <span className="max-w-[500px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {(toolCall.args as { keywords: string }).keywords}
+          </span>
+        </RainbowText>
+      </div>
+      <div className="pr-4">
+        {documents && (
+          <ul className="mt-2 flex flex-wrap gap-4">
+            {searching &&
+              [...Array(2)].map((_, i) => (
+                <li
+                  key={`search-result-${i}`}
+                  className="flex h-40 w-40 gap-2 rounded-md text-sm"
+                >
+                  <Skeleton
+                    className="to-accent h-full w-full rounded-md bg-gradient-to-tl from-slate-400"
+                    style={{ animationDelay: `${i * 0.2}s` }}
+                  />
+                </li>
+              ))}
+            {documents.map((doc, i) => (
+              <motion.li
+                key={`search-result-${i}`}
+                className="text-muted-foreground bg-accent flex max-w-40 gap-2 rounded-md px-2 py-1 text-sm"
+                initial={{ opacity: 0, y: 10, scale: 0.66 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.2,
+                  delay: i * 0.1,
+                  ease: "easeOut",
+                }}
+              >
+                <FileText size={32} />
+                {doc.title}
+              </motion.li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PythonToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
+  const code = useMemo<string | undefined>(() => {
+    return (toolCall.args as { code?: string }).code;
+  }, [toolCall.args]);
+  const { resolvedTheme } = useTheme();
+  return (
+    <section className="mt-4 pl-4">
+      <div className="flex items-center">
+        <PythonOutlined className={"mr-2"} />
+        <RainbowText
+          className="text-base font-medium italic"
+          animated={toolCall.result === undefined}
+        >
+          Running Python code
+        </RainbowText>
+      </div>
+      <div>
+        <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
+          <SyntaxHighlighter
+            language="python"
+            style={resolvedTheme === "dark" ? dark : docco}
+            customStyle={{
+              background: "transparent",
+              border: "none",
+              boxShadow: "none",
+            }}
+          >
+            {code?.trim() ?? ""}
+          </SyntaxHighlighter>
+        </div>
+      </div>
+      {toolCall.result && <PythonToolCallResult result={toolCall.result} />}
+    </section>
+  );
+}
+
+function PythonToolCallResult({ result }: { result: string }) {
+  const { resolvedTheme } = useTheme();
+  const hasError = useMemo(
+    () => result.includes("Error executing code:\n"),
+    [result],
+  );
+  const error = useMemo(() => {
+    if (hasError) {
+      const parts = result.split("```\nError: ");
+      if (parts.length > 1) {
+        return parts[1]!.trim();
+      }
+    }
+    return null;
+  }, [result, hasError]);
+  const stdout = useMemo(() => {
+    if (!hasError) {
+      const parts = result.split("```\nStdout: ");
+      if (parts.length > 1) {
+        return parts[1]!.trim();
+      }
+    }
+    return null;
+  }, [result, hasError]);
+  return (
+    <>
+      <div className="mt-4 font-medium italic">
+        {hasError ? "Error when executing the above code" : "Execution output"}
+      </div>
+      <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
+        <SyntaxHighlighter
+          language="plaintext"
+          style={resolvedTheme === "dark" ? dark : docco}
+          customStyle={{
+            color: hasError ? "red" : "inherit",
+            background: "transparent",
+            border: "none",
+            boxShadow: "none",
+          }}
+        >
+          {error ?? stdout ?? "(empty)"}
+        </SyntaxHighlighter>
+      </div>
+    </>
   );
 }
 const __noteCache = new LRUCache<string, string>({ max: 100 });
@@ -402,130 +586,6 @@ function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
     </section>
   );
 }
-function CrawlToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const url = useMemo(
-    () => (toolCall.args as { url: string }).url,
-    [toolCall.args],
-  );
-  const title = useMemo(() => __pageCache.get(url), [url]);
-  return (
-    <section className="mt-4 pl-4">
-      <div>
-        <RainbowText
-          className="flex items-center text-base font-medium italic"
-          animated={toolCall.result === undefined}
-        >
-          <BookOpenText size={16} className={"mr-2"} />
-          <span>Reading</span>
-        </RainbowText>
-      </div>
-      <ul className="mt-2 flex flex-wrap gap-4">
-        <motion.li
-          className="text-muted-foreground bg-accent flex h-40 w-40 gap-2 rounded-md px-2 py-1 text-sm"
-          initial={{ opacity: 0, y: 10, scale: 0.66 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            duration: 0.2,
-            ease: "easeOut",
-          }}
-        >
-          <FavIcon className="mt-1" url={url} title={title} />
-          <a
-            className="h-full flex-grow overflow-hidden text-ellipsis whitespace-nowrap"
-            href={url}
-            target="_blank"
-          >
-            {title ?? url}
-          </a>
-        </motion.li>
-      </ul>
-    </section>
-  );
-}
-
-function PythonToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const code = useMemo<string>(() => {
-    return (toolCall.args as { code: string }).code;
-  }, [toolCall.args]);
-  const { resolvedTheme } = useTheme();
-  return (
-    <section className="mt-4 pl-4">
-      <div className="flex items-center">
-        <PythonOutlined className={"mr-2"} />
-        <RainbowText
-          className="text-base font-medium italic"
-          animated={toolCall.result === undefined}
-        >
-          Running Python code
-        </RainbowText>
-      </div>
-      <div>
-        <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
-          <SyntaxHighlighter
-            language="python"
-            style={resolvedTheme === "dark" ? dark : docco}
-            customStyle={{
-              background: "transparent",
-              border: "none",
-              boxShadow: "none",
-            }}
-          >
-            {code.trim()}
-          </SyntaxHighlighter>
-        </div>
-      </div>
-      {toolCall.result && <PythonToolCallResult result={toolCall.result} />}
-    </section>
-  );
-}
-
-function PythonToolCallResult({ result }: { result: string }) {
-  const { resolvedTheme } = useTheme();
-  const hasError = useMemo(
-    () => result.includes("Error executing code:\n"),
-    [result],
-  );
-  const error = useMemo(() => {
-    if (hasError) {
-      const parts = result.split("```\nError: ");
-      if (parts.length > 1) {
-        return parts[1]!.trim();
-      }
-    }
-    return null;
-  }, [result, hasError]);
-  const stdout = useMemo(() => {
-    if (!hasError) {
-      const parts = result.split("```\nStdout: ");
-      if (parts.length > 1) {
-        return parts[1]!.trim();
-      }
-    }
-    return null;
-  }, [result, hasError]);
-  return (
-    <>
-      <div className="mt-4 font-medium italic">
-        {hasError ? "Error when executing the above code" : "Execution output"}
-      </div>
-      <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
-        <SyntaxHighlighter
-          language="plaintext"
-          style={resolvedTheme === "dark" ? dark : docco}
-          customStyle={{
-            color: hasError ? "red" : "inherit",
-            background: "transparent",
-            border: "none",
-            boxShadow: "none",
-          }}
-        >
-          {error ?? stdout ?? "(empty)"}
-        </SyntaxHighlighter>
-      </div>
-    </>
-  );
-}
-
 function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const tool = useMemo(() => findMCPTool(toolCall.name), [toolCall.name]);
   const { resolvedTheme } = useTheme();
@@ -549,34 +609,19 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
             </AccordionTrigger>
             <AccordionContent>
               {toolCall.result && (
-                <>
-                  <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
-                    <SyntaxHighlighter
-                      language="csv"
-                      style={resolvedTheme === "dark" ? dark : docco}
-                      customStyle={{
-                        background: "transparent",
-                        border: "none",
-                        boxShadow: "none",
-                      }}
-                    >
-                      {toolCall.result.trim()}
-                    </SyntaxHighlighter>
-                  </div>
-
-                  {/*  <Markdown>
-                   {csvToMarkdown(toolCall.result.trim().replaceAll("\\n", "\n").slice(1, -1), ",", true)} 
-                    {toolCall.result.trim().slice(1, -1).split("\\n").map((line, idx) => {
-                      if (idx === 0) {
-                        return "|笔记类型|标题|点赞数量|用户名|\n|---|---|---|---|";
-                      }
-                      if (line === "\\n") {
-                        return "";
-                      }
-                      const line_obj = line.replaceAll("|", "\\|").split(",");
-                      return `|${line_obj[2]}|${line_obj[3]}|${line_obj[4]}|${line_obj[7]}|`;
-                    }).join("\n")}
-                  </Markdown>*/} </>
+                <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
+                  <SyntaxHighlighter
+                    language="json"
+                    style={resolvedTheme === "dark" ? dark : docco}
+                    customStyle={{
+                      background: "transparent",
+                      border: "none",
+                      boxShadow: "none",
+                    }}
+                  >
+                    {toolCall.result.trim()}
+                  </SyntaxHighlighter>
+                </div>
               )}
             </AccordionContent>
           </AccordionItem>

@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { motion } from "framer-motion";
 
@@ -8,10 +7,14 @@ import { cn } from "~/lib/utils";
 import { Welcome } from "./welcome";
 
 const questions = [
-  "小红书笔记-智能家居与AI融合,如何实现家电的个性化升级?",
-  "How many years does an average Tesla battery last compared to a gasoline engine?",
-  "小红书笔记-家居与情绪管理, 如何通过颜色、绿植、香氛提升幸福感？",
-  "How many times faster is the speed of light compared to the speed of sound?",
+  "机器人如何改变农业生产方式?",
+  "小红书笔记:如何通过颜色、绿植、香氛提升幸福感？",
+  "特斯拉电池的平均使用寿命与汽油发动机相比是几年？",
+  "自然语言处理领域有哪些进展?",
+  "机器学习如何改变金融行业?",
+  "量子计算对密码学的影响是什么?",
+  "气候变化如何影响全球农业?",
+  "具身智能机器人的未来发展方向是什么?",
 ];
 export function ConversationStarter({
   className,
@@ -29,10 +32,10 @@ export function ConversationStarter({
         {questions.map((question, index) => (
           <motion.li
             key={question}
-            className="flex w-1/2 shrink-0 p-2 active:scale-105"
+            className="flex w-1/4 shrink-1 p-1 active:scale-105"
             style={{ transition: "all 0.2s ease-out" }}
-            initial={{ opacity: 0, y: 34 }}
-            animate={{ opacity: 1, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{
               duration: 0.2,

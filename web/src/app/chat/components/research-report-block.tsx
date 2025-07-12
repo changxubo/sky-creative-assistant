@@ -1,10 +1,9 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { useCallback, useRef } from "react";
 
-import { LoadingAnimation } from "~/components/deer-flow/loading-animation";
-import { Markdown } from "~/components/deer-flow/markdown";
+import { LoadingAnimation } from "~/components/core/loading-animation";
+import { Markdown } from "~/components/core/markdown";
 import ReportEditor from "~/components/editor";
 import { useReplay } from "~/core/replay";
 import { useMessage, useStore } from "~/core/store";
@@ -53,10 +52,7 @@ export function ResearchReportBlock({
   // }, [isCompleted]);
 
   return (
-    <div
-      ref={contentRef}
-      className={cn("relative flex flex-col pt-4 pb-8", className)}
-    >
+    <div ref={contentRef} className={cn("w-full pt-4 pb-8", className)}>
       {!isReplay && isCompleted && editing ? (
         <ReportEditor
           content={message?.content}

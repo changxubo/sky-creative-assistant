@@ -9,7 +9,7 @@ IF "%MODE%"=="dev" GOTO DEV
 IF "%MODE%"=="development" GOTO DEV
 
 :PROD
-echo Starting Rednote Creative Assistant in [PRODUCTION] mode...
+echo Starting DeerFlow in [PRODUCTION] mode...
 start uv run server.py
 cd web
 start pnpm start
@@ -17,7 +17,7 @@ REM Wait for user to close
 GOTO END
 
 :DEV
-echo Starting Rednote Creative Assistant in [DEVELOPMENT] mode...
+echo Starting DeerFlow in [DEVELOPMENT] mode...
 start uv run server.py --reload
 cd web
 start pnpm dev

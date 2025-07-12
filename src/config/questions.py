@@ -1,10 +1,3 @@
-# Copyright (c) 2025 Rednote Creative Assistant
-# SPDX-License-Identifier: MIT
-
-"""
-Built-in questions for Deer.
-"""
-
 # English built-in questions
 BUILT_IN_QUESTIONS = [
     "What factors are influencing AI adoption in healthcare?",

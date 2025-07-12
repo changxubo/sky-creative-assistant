@@ -1,10 +1,9 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Tooltip } from "~/components/deer-flow/tooltip";
+import { Tooltip } from "~/components/core/tooltip";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -101,9 +100,9 @@ export function SettingsDialog() {
       </Tooltip>
       <DialogContent className="sm:max-w-[850px]">
         <DialogHeader>
-          <DialogTitle>Rednote Creative Assistant Settings</DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
-            Manage your Rednote Creative Assistant settings here.
+            Manage your settings here.
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTabId}>

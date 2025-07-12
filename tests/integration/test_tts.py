@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Rednote Creative Assistant
+# Copyright (c) 2025 Sky Creative Assistant
 # SPDX-License-Identifier: MIT
 
 import json
@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 import uuid
 import base64
 
-from src.tools.tts import VolcengineTTS
+from src.tools.volcengine_tts import VolcengineTTS
 
 
 class TestVolcengineTTS:

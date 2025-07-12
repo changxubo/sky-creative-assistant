@@ -3,16 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: agent-backend
+    container_name: sky-creative-backend
     ports:
       - "8000:8000"
     env_file:
       - .env
     volumes:
-      - ./conf.yaml:/app/conf.yaml
+      - ./conf.yaml:/app/conf.yaml:ro
     restart: unless-stopped
     networks:
-      - agent-network
+      - sky-creative-network
 
   frontend:
     build:
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-    container_name: agent-frontend
+    container_name: sky-creative-frontend
     ports:
       - "3000:3000"
     env_file:
@@ -29,8 +29,8 @@ services:
       - backend
     restart: unless-stopped
     networks:
-      - agent-network
+      - sky-creative-network
 
 networks:
-  agent-network:
+  sky-creative-network:
     driver: bridge

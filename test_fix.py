@@ -15,7 +15,7 @@ mock_llm.invoke.return_value = "Mock LLM response"
 mock_llm_module = MagicMock()
 mock_llm_module.get_llm_by_type = lambda llm_type: mock_llm
 mock_llm_module.basic_llm = mock_llm
-mock_llm_module._create_llm_use_conf = lambda llm_type, conf: mock_llm
+mock_llm_module._create_llm_from_config = lambda llm_type, config: mock_llm
 
 # Set the mock module
 sys.modules["src.llms.llm"] = mock_llm_module

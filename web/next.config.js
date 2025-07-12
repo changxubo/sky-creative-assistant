@@ -2,14 +2,13 @@
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 
-// Rednote Creative Assistant leverages **Turbopack** during development for faster builds and a smoother developer experience.
+// DeerFlow leverages **Turbopack** during development for faster builds and a smoother developer experience.
 // However, in production, **Webpack** is used instead.
 //
 // This decision is based on the current recommendation to avoid using Turbopack for critical projects, as it

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Rednote Creative Assistant
+# Copyright (c) 2025 Sky Creative Assistant
 # SPDX-License-Identifier: MIT
 
 import pytest

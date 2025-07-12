@@ -1,16 +1,14 @@
-# 🦌 Rednote Creative Assistant Web UI
+# Sky Creative Web
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Originated from Open Source, give back to Open Source.
 
-This is the web UI for [`Rednote Creative Assistant`](https://github.com/bytedance/deer-flow).
+This is the web UI for [`Deer Flow`](https://github.com/bytedance/deer-flow).
 
 ## Quick Start
 
 ### Prerequisites
-
-- [`Rednote Creative Assistant`](https://github.com/bytedance/deer-flow)
 - Node.js (v22.14.0+)
 - pnpm (v10.6.2+) as package manager
 
@@ -28,7 +26,7 @@ cp .env.example .env
 
 ## How to Install
 
-Rednote Creative Assistant Web UI uses `pnpm` as its package manager.
+Sky Creative Assistant Web UI uses `pnpm` as its package manager.
 To install the dependencies, run:
 
 ```bash
@@ -66,17 +64,17 @@ First, you need read the [configuration](#configuration) below. Make sure `.env`
 Second, to build a Docker image of your own web server:
 
 ```bash
-docker build --build-arg NEXT_PUBLIC_API_URL=YOUR_DEER-FLOW_API -t deer-flow-web .
+docker build --build-arg NEXT_PUBLIC_API_URL=YOUR_DEER-FLOW_API -t sky-creative-web .
 ```
 
 Final, start up a docker container running the web server:
 
 ```bash
-# Replace deer-flow-web-app with your preferred container name
-docker run -d -t -p 3000:3000 --env-file .env --name deer-flow-web-app deer-flow-web
+# Replace sky-creative-web-app with your preferred container name
+docker run -d -t -p 3000:3000 --env-file .env --name sky-creative-web-app sky-creative-web
 
 # stop the server
-docker stop deer-flow-web-app
+docker stop sky-creative-web-app
 ```
 
 ### Docker Compose
@@ -98,7 +96,7 @@ This project is open source and available under the [MIT License](../LICENSE).
 ## Acknowledgments
 
 We extend our heartfelt gratitude to the open source community for their invaluable contributions.
-Rednote Creative Assistant is built upon the foundation of these outstanding projects:
+Sky Creative Assistant is built upon the foundation of these outstanding projects:
 
 In particular, we want to express our deep appreciation for:
 
@@ -109,4 +107,4 @@ In particular, we want to express our deep appreciation for:
 - [React Markdown](https://www.npmjs.com/package/react-markdown) for their exceptional markdown rendering and customizability
 - Last but not least, special thanks to [SToneX](https://github.com/stonexer) for his great contribution for [token-by-token visual effect](./src/core/rehype/rehype-split-words-into-spans.ts)
 
-These outstanding projects form the backbone of Rednote Creative Assistant and exemplify the transformative power of open source collaboration.
+These outstanding projects form the backbone of Sky Creative Assistant and exemplify the transformative power of open source collaboration.

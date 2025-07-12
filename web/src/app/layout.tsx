@@ -1,19 +1,16 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
-
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
 
-import { ThemeProviderWrapper } from "~/components/deer-flow/theme-provider-wrapper";
+import { ThemeProviderWrapper } from "~/components/core/theme-provider-wrapper";
 import { env } from "~/env";
 
-import { Toaster } from "../components/deer-flow/toaster";
+import { Toaster } from "../components/core/toaster";
 
 export const metadata: Metadata = {
-  title: "Rednote Creative Assistant",
+  title: "Sky Creative Assistant",
   description:
     "Deep Exploration and Efficient Research, an AI tool that combines language models with specialized tools for research tasks.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
@@ -24,7 +21,7 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (

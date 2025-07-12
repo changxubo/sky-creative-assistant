@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { Bike, Building, Film, Github, Ham, Home, Pizza } from "lucide-react";
 import { Bot } from "lucide-react";
@@ -73,7 +72,7 @@ export function CaseStudySection() {
       <SectionHeader
         anchor="case-studies"
         title="Case Studies"
-        description="See Rednote Creative Assistant in action through replays."
+        description="See DeerFlow in action through replays."
       />
       <div className="grid w-3/4 grid-cols-1 gap-2 sm:w-full sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {caseStudies.map((caseStudy) => (

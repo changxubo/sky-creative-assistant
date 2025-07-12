@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import type { Element, Root, ElementContent } from "hast";
 import { visit } from "unist-util-visit";
