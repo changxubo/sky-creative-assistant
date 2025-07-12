@@ -7,7 +7,7 @@ services:
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
       - NGROK_REGION=us
-    command: ngrok http --url=eft-vocal-termite.ngrok-free.app http://frontend:3000
+    command: ngrok http http://frontend:3000 --url=${NGROK_DOMAIN} --bind-tls=true
     restart: unless-stopped
     networks:
       - sky-creative-network
