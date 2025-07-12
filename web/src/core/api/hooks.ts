@@ -1,11 +1,14 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { useEffect, useRef, useState } from "react";
 
+import { env } from "~/env";
+
+import type { DeerFlowConfig } from "../config";
 import { useReplay } from "../replay";
 
 import { fetchReplayTitle } from "./chat";
+import { resolveServiceURL } from "./resolve-service-url";
 
 export function useReplayMetadata() {
   const { isReplay } = useReplay();
@@ -25,17 +28,45 @@ export function useReplayMetadata() {
         setError(false);
         setTitle(title ?? null);
         if (title) {
-          document.title = `${title} - Rednote Creative Assistant`;
+          document.title = `${title} - DeerFlow`;
         }
       })
       .catch(() => {
         setError(true);
         setTitle("Error: the replay is not available.");
-        document.title = "Rednote Creative Assistant";
+        document.title = "DeerFlow";
       })
       .finally(() => {
         isLoading.current = false;
       });
   }, [isLoading, isReplay, title]);
   return { title, isLoading, hasError: error };
+}
+
+export function useConfig(): {
+  config: DeerFlowConfig | null;
+  loading: boolean;
+} {
+  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<DeerFlowConfig | null>(null);
+
+  useEffect(() => {
+    if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY) {
+      setLoading(false);
+      return;
+    }
+    fetch(resolveServiceURL("./config"))
+      .then((res) => res.json())
+      .then((config) => {
+        setConfig(config);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch config", err);
+        setConfig(null);
+        setLoading(false);
+      });
+  }, []);
+
+  return { config, loading };
 }

@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 "use client";
 
@@ -66,17 +65,6 @@ const ReportEditor = ({ content, onMarkdownChange }: ReportEditorProps) => {
 
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
-      // const json = editor.getJSON();
-      // // setCharsCount(editor.storage.characterCount.words());
-      // window.localStorage.setItem(
-      //   "html-content",
-      //   highlightCodeblocks(editor.getHTML()),
-      // );
-      // window.localStorage.setItem("novel-content", JSON.stringify(json));
-      // window.localStorage.setItem(
-      //   "markdown",
-      //   editor.storage.markdown.getMarkdown(),
-      // );
       if (onMarkdownChange) {
         const markdown = editor.storage.markdown.getMarkdown();
         onMarkdownChange(markdown);
@@ -85,12 +73,6 @@ const ReportEditor = ({ content, onMarkdownChange }: ReportEditorProps) => {
     },
     500,
   );
-
-  // useEffect(() => {
-  //   const content = window.localStorage.getItem("novel-content");
-  //   if (content) setInitialContent(JSON.parse(content));
-  //   else setInitialContent(defaultEditorContent);
-  // }, []);
 
   if (!initialContent) return null;
 

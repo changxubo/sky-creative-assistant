@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import type { Edge, Node } from "@xyflow/react";
 import {
@@ -42,17 +41,17 @@ export const graph: Graph = {
     },
     {
       id: "Coordinator",
-      data: { icon: MessageSquareQuote, label: "Coordinator" },
+      data: { icon: MessageSquareQuote, label: "Coordinator (qwen3-235b)" },
       position: { x: 150, y: ROW_1 },
     },
     {
       id: "Planner",
-      data: { icon: Brain, label: "Planner" },
+      data: { icon: Brain, label: "Planner (deepseek-r1)" },
       position: { x: 150, y: ROW_2 },
     },
     {
       id: "Reporter",
-      data: { icon: FilePen, label: "Reporter" },
+      data: { icon: FilePen, label: "Reporter (qwen3/Phi-4)" },
       position: { x: 275, y: ROW_3 },
     },
     {
@@ -67,12 +66,12 @@ export const graph: Graph = {
     },
     {
       id: "Researcher",
-      data: { icon: Microscope, label: "Researcher" },
+      data: { icon: Microscope, label: "Researcher  (qwen3-235b)" },
       position: { x: -75, y: ROW_6 },
     },
     {
       id: "Coder",
-      data: { icon: SquareTerminal, label: "Coder" },
+      data: { icon: SquareTerminal, label: "PythonCoder (deepseek-r1)" },
       position: { x: 125, y: ROW_6 },
     },
     {

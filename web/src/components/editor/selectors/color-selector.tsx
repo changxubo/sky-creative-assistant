@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { Check, ChevronDown } from "lucide-react";
 import { EditorBubbleItem, useEditor } from "novel";

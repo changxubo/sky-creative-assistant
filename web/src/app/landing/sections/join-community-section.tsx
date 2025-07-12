@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { GithubFilled } from "@ant-design/icons";
 import Link from "next/link";
@@ -16,10 +15,10 @@ export function JoinCommunitySection() {
         anchor="join-community"
         title={
           <AuroraText colors={["#60A5FA", "#A5FA60", "#A560FA"]}>
-            Join the Rednote Creative Assistant Community
+            Join the DeerFlow Community
           </AuroraText>
         }
-        description="Contribute brilliant ideas to shape the future of Rednote Creative Assistant. Collaborate, innovate, and make impacts."
+        description="Contribute brilliant ideas to shape the future of DeerFlow. Collaborate, innovate, and make impacts."
       />
       <Button className="text-xl" size="lg" asChild>
         <Link href="https://github.com/bytedance/deer-flow" target="_blank">

@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { EditorBubble, removeAIHighlight, useEditor } from "novel";
 import { Fragment, type ReactNode, useEffect } from "react";

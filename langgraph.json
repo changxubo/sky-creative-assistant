@@ -1,9 +1,9 @@
 {
   "dockerfile_lines": [],
   "graphs": {
-    "research": "./src/graph/builder.py:workflow",
-    "podcast": "./src/podcast/graph/builder.py:workflow",
-    "ppt": "./src/ppt/graph/builder.py:workflow"
+    "deep_research": "./src/research.py:research_graph",
+    "podcast_generation": "./src/subagent/podcast.py:podcast_graph",
+    "ppt_generation": "./src/subagent/ppt.py:ppt_graph"
   },
   "python_version": "3.12",
   "env": "./.env",
