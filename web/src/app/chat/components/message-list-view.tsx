@@ -11,15 +11,15 @@ import {
 } from "lucide-react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 
-import { LoadingAnimation } from "~/components/deer-flow/loading-animation";
-import { Markdown } from "~/components/deer-flow/markdown";
-import { RainbowText } from "~/components/deer-flow/rainbow-text";
-import { RollingText } from "~/components/deer-flow/rolling-text";
+import { LoadingAnimation } from "~/components/core/loading-animation";
+import { Markdown } from "~/components/core/markdown";
+import { RainbowText } from "~/components/core/rainbow-text";
+import { RollingText } from "~/components/core/rolling-text";
 import {
   ScrollContainer,
   type ScrollContainerRef,
-} from "~/components/deer-flow/scroll-container";
-import { Tooltip } from "~/components/deer-flow/tooltip";
+} from "~/components/core/scroll-container";
+import { Tooltip } from "~/components/core/tooltip";
 import { Button } from "~/components/ui/button";
 import {
   Card,

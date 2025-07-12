@@ -422,86 +422,6 @@ wheels = [
 ]
 
 [[package]]
-name = "deer-flow"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "arxiv" },
-    { name = "duckduckgo-search" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "inquirerpy" },
-    { name = "ipykernel" },
-    { name = "jinja2" },
-    { name = "json-repair" },
-    { name = "langchain-community" },
-    { name = "langchain-deepseek" },
-    { name = "langchain-experimental" },
-    { name = "langchain-mcp-adapters" },
-    { name = "langchain-openai" },
-    { name = "langgraph" },
-    { name = "litellm" },
-    { name = "markdownify" },
-    { name = "mcp" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "python-dotenv" },
-    { name = "readabilipy" },
-    { name = "socksio" },
-    { name = "sse-starlette" },
-    { name = "uvicorn" },
-    { name = "volcengine" },
-    { name = "yfinance" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "black" },
-    { name = "langgraph-cli", extra = ["inmem"] },
-]
-test = [
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "arxiv", specifier = ">=2.2.0" },
-    { name = "black", marker = "extra == 'dev'", specifier = ">=24.2.0" },
-    { name = "duckduckgo-search", specifier = ">=8.0.0" },
-    { name = "fastapi", specifier = ">=0.110.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "inquirerpy", specifier = ">=0.3.4" },
-    { name = "ipykernel", specifier = ">=6.29.5" },
-    { name = "jinja2", specifier = ">=3.1.3" },
-    { name = "json-repair", specifier = ">=0.7.0" },
-    { name = "langchain-community", specifier = ">=0.3.19" },
-    { name = "langchain-deepseek", specifier = ">=0.1.3" },
-    { name = "langchain-experimental", specifier = ">=0.3.4" },
-    { name = "langchain-mcp-adapters", specifier = ">=0.0.9" },
-    { name = "langchain-openai", specifier = ">=0.3.27" },
-    { name = "langgraph", specifier = ">=0.3.5" },
-    { name = "langgraph-cli", extras = ["inmem"], marker = "extra == 'dev'", specifier = ">=0.2.10" },
-    { name = "litellm", specifier = ">=1.63.11" },
-    { name = "markdownify", specifier = ">=1.1.0" },
-    { name = "mcp", specifier = ">=1.6.0" },
-    { name = "numpy", specifier = ">=2.2.3" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.4.0" },
-    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=1.0.0" },
-    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=4.1.0" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "readabilipy", specifier = ">=0.3.0" },
-    { name = "socksio", specifier = ">=1.0.0" },
-    { name = "sse-starlette", specifier = ">=1.6.5" },
-    { name = "uvicorn", specifier = ">=0.27.1" },
-    { name = "volcengine", specifier = ">=1.0.191" },
-    { name = "yfinance", specifier = ">=0.2.54" },
-]
-provides-extras = ["dev", "test"]
-
-[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -566,6 +486,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0a/10/c23352565a6544bdc5353e0b15fc1c563352101f30e24bf500207a54df9a/filelock-3.18.0.tar.gz", hash = "sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2", size = 18075 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/36/2a115987e2d8c300a974597416d9de88f2444426de9571f4b59b2cca3acc/filelock-3.18.0-py3-none-any.whl", hash = "sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de", size = 16215 },
+]
+
+[[package]]
+name = "filetype"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bb/29/745f7d30d47fe0f251d3ad3dc2978a23141917661998763bebb6da007eb1/filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb", size = 998020 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25", size = 19970 },
 ]
 
 [[package]]
@@ -1119,6 +1048,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/1a/48/dc5544f5b919b4ff9e736ec8db71217431c585c5c87acd3ab7558cc06cee/langchain_mcp_adapters-0.0.9.tar.gz", hash = "sha256:9ecd10fc420d98b3c14115bbca3174575e0a4ea29bd125ef39d11191a72ff1a1", size = 14827 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6f/24/3a4be149e8db15936533357f987b4b89c74c7f039427d6229679dbcc53b9/langchain_mcp_adapters-0.0.9-py3-none-any.whl", hash = "sha256:7c3dedd7830de826f418706c8a2fe388afcf8daf2037a1b39d1e065a5eacb082", size = 10065 },
+]
+
+[[package]]
+name = "langchain-nvidia-ai-endpoints"
+version = "0.3.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "filetype" },
+    { name = "langchain-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b9/e7/7ed2e9e35a877eb78246652a7c8873dafb7892f6fb049dbd3f60e58250eb/langchain_nvidia_ai_endpoints-0.3.10.tar.gz", hash = "sha256:b72074763f8cb1244358fe33683b286f3ab07b8e09b20871d4d5cc72ee2be9c9", size = 37387 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6c/eb/c133e34e870ef29e82a7c412bfe31ec1e7e1bdd44f8d3679d5ed008c827b/langchain_nvidia_ai_endpoints-0.3.10-py3-none-any.whl", hash = "sha256:715ee71a3152f2811bff8ef5b2cec7edbd2e299377da6155a7f6448e87e3784d", size = 41573 },
 ]
 
 [[package]]
@@ -2279,6 +2222,88 @@ sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050 },
 ]
+
+[[package]]
+name = "sky-creative-assistant"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "arxiv" },
+    { name = "duckduckgo-search" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "inquirerpy" },
+    { name = "ipykernel" },
+    { name = "jinja2" },
+    { name = "json-repair" },
+    { name = "langchain-community" },
+    { name = "langchain-deepseek" },
+    { name = "langchain-experimental" },
+    { name = "langchain-mcp-adapters" },
+    { name = "langchain-nvidia-ai-endpoints" },
+    { name = "langchain-openai" },
+    { name = "langgraph" },
+    { name = "litellm" },
+    { name = "markdownify" },
+    { name = "mcp" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "python-dotenv" },
+    { name = "readabilipy" },
+    { name = "socksio" },
+    { name = "sse-starlette" },
+    { name = "uvicorn" },
+    { name = "volcengine" },
+    { name = "yfinance" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "black" },
+    { name = "langgraph-cli", extra = ["inmem"] },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "arxiv", specifier = ">=2.2.0" },
+    { name = "black", marker = "extra == 'dev'", specifier = ">=24.2.0" },
+    { name = "duckduckgo-search", specifier = ">=8.0.0" },
+    { name = "fastapi", specifier = ">=0.110.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "inquirerpy", specifier = ">=0.3.4" },
+    { name = "ipykernel", specifier = ">=6.29.5" },
+    { name = "jinja2", specifier = ">=3.1.3" },
+    { name = "json-repair", specifier = ">=0.7.0" },
+    { name = "langchain-community", specifier = ">=0.3.19" },
+    { name = "langchain-deepseek", specifier = ">=0.1.3" },
+    { name = "langchain-experimental", specifier = ">=0.3.4" },
+    { name = "langchain-mcp-adapters", specifier = ">=0.0.9" },
+    { name = "langchain-nvidia-ai-endpoints", specifier = ">=0.3.10" },
+    { name = "langchain-openai", specifier = ">=0.3.27" },
+    { name = "langgraph", specifier = ">=0.3.5" },
+    { name = "langgraph-cli", extras = ["inmem"], marker = "extra == 'dev'", specifier = ">=0.2.10" },
+    { name = "litellm", specifier = ">=1.63.11" },
+    { name = "markdownify", specifier = ">=1.1.0" },
+    { name = "mcp", specifier = ">=1.6.0" },
+    { name = "numpy", specifier = ">=2.2.3" },
+    { name = "pandas", specifier = ">=2.2.3" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.4.0" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=1.0.0" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=4.1.0" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "readabilipy", specifier = ">=0.3.0" },
+    { name = "socksio", specifier = ">=1.0.0" },
+    { name = "sse-starlette", specifier = ">=1.6.5" },
+    { name = "uvicorn", specifier = ">=0.27.1" },
+    { name = "volcengine", specifier = ">=1.0.191" },
+    { name = "yfinance", specifier = ">=0.2.54" },
+]
+provides-extras = ["dev", "test"]
 
 [[package]]
 name = "sniffio"

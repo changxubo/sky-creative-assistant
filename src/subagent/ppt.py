@@ -201,7 +201,7 @@ def compose_presentation_content(state: PowerPointWorkflowState) -> Dict[str, An
         logger.info(f"Using LLM model: {AGENT_LLM_MAP['ppt_composer']}")
         
         # Prepare messages for LLM invocation
-        system_prompt = get_prompt_template("ppt/ppt_composer")
+        system_prompt = get_prompt_template("ppt_composer")
         messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=input_content),

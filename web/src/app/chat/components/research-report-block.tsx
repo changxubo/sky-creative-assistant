@@ -2,8 +2,8 @@
 
 import { useCallback, useRef } from "react";
 
-import { LoadingAnimation } from "~/components/deer-flow/loading-animation";
-import { Markdown } from "~/components/deer-flow/markdown";
+import { LoadingAnimation } from "~/components/core/loading-animation";
+import { Markdown } from "~/components/core/markdown";
 import ReportEditor from "~/components/editor";
 import { useReplay } from "~/core/replay";
 import { useMessage, useStore } from "~/core/store";
