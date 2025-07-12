@@ -1,5 +1,3 @@
-
-
 import { PythonOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { LRUCache } from "lru-cache";
@@ -420,8 +418,7 @@ function PythonToolCallResult({ result }: { result: string }) {
   );
 }
 const __noteCache = new LRUCache<string, string>({ max: 100 });
-type RednoteResult =
-  | {
+type RednotePageResult ={
     id: string;
     modelType: string;
     xsecToken: string;
@@ -444,7 +441,7 @@ type RednoteResult =
       };
     }
   }
-    | {
+type RednoteImageResult = {
       note_id: string;
       title: string;
       desc: string;
@@ -459,17 +456,18 @@ type RednoteResult =
       },
       images: [],
       video: {}
-    };
+    }
+type RednoteResult =
+  | RednotePageResult | RednoteImageResult;
+
 function RednoteMCPCall({ toolCall }: { toolCall: ToolCallRuntime }) {
   const searching = useMemo(() => {
     return toolCall.result === undefined;
   }, [toolCall.result]);
   function hasNoteCard(result: RednoteResult): result is Extract<RednoteResult, { modelType: string }> {
-    return (result as any).modelType !== undefined;
+    return (result as RednotePageResult).modelType !== undefined;
   }
-  function hasType(result: RednoteResult): result is Extract<RednoteResult, { type: string }> {
-    return (result as any).type !== undefined;
-  }
+  
   const searchResults = useMemo<RednoteResult[]>(() => {
     let results: RednoteResult[] | undefined = undefined;
     try {

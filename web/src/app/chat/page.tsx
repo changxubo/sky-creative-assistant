@@ -9,12 +9,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Button } from "~/components/ui/button";
-
+import { NewChat } from "../../components/core/icons/new-chat";
 import { Logo } from "../../components/core/logo";
 import { ThemeToggle } from "../../components/core/theme-toggle";
 import { Tooltip } from "../../components/core/tooltip";
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
-import { NewChat } from "../../components/core/icons/new-chat";
+
 const Main = dynamic(() => import("./main"), {
   ssr: false,
   loading: () => (
