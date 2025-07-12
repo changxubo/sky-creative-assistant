@@ -1,9 +1,3 @@
-# Copyright (c) 2025 Rednote Creative Assistant
-# SPDX-License-Identifier: MIT
-
-"""
-Server script for running the Agent API.
-"""
 
 import argparse
 import logging
@@ -32,7 +26,7 @@ signal.signal(signal.SIGINT, handle_shutdown)
 
 if __name__ == "__main__":
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Run the Agent API server")
+    parser = argparse.ArgumentParser(description="Run the Deep Research Agent server")
     parser.add_argument(
         "--reload",
         action="store_true",
@@ -66,7 +60,7 @@ if __name__ == "__main__":
         reload = True
 
     try:
-        logger.info(f"Starting Agent API server on {args.host}:{args.port}")
+        logger.info(f"Starting Deep Research Agent server on {args.host}:{args.port}")
         uvicorn.run(
             "src.server:app",
             host=args.host,

@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { BadgeInfo } from "lucide-react";
 
@@ -12,3 +11,4 @@ export const AboutTab: Tab = () => {
   return <Markdown>{about}</Markdown>;
 };
 AboutTab.icon = BadgeInfo;
+AboutTab.displayName = "About";

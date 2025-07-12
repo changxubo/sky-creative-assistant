@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import type { Option } from "../messages";
 
@@ -38,6 +37,7 @@ export interface MessageChunkEvent
     "message_chunk",
     {
       content?: string;
+      reasoning_content?: string;
     }
   > {}
 

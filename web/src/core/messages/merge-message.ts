@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import type {
   ChatEvent,
@@ -42,6 +41,11 @@ function mergeTextMessage(message: Message, event: MessageChunkEvent) {
   if (event.data.content) {
     message.content += event.data.content;
     message.contentChunks.push(event.data.content);
+  }
+  if (event.data.reasoning_content) {
+    message.reasoningContent = (message.reasoningContent ?? "") + event.data.reasoning_content;
+    message.reasoningContentChunks = message.reasoningContentChunks ?? [];
+    message.reasoningContentChunks.push(event.data.reasoning_content);
   }
 }
 

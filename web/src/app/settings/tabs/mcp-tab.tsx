@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { motion } from "framer-motion";
 import { Blocks, PencilRuler, Trash } from "lucide-react";
@@ -74,7 +73,7 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
           <AddMCPServerDialog onAdd={handleAddServers} />
         </div>
         <div className="text-muted-foreground markdown text-sm">
-          The Model Context Protocol boosts Rednote Creative Assistant by integrating external
+          The Model Context Protocol boosts DeerFlow by integrating external
           tools for tasks like private domain searches, web browsing, food
           ordering, and more. Click here to
           <a
@@ -179,6 +178,7 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
   );
 };
 MCPTab.icon = Blocks;
+MCPTab.displayName = "MCP Servers";
 MCPTab.badge = "";
 
 function mergeServers(

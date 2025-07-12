@@ -1,10 +1,3 @@
-# Copyright (c) 2025 Rednote Creative Assistant
-# SPDX-License-Identifier: MIT
-
-"""
-Entry point script for the Rednote Creative Assistant project.
-"""
-
 import argparse
 import asyncio
 
@@ -98,7 +91,7 @@ def main(
 
 if __name__ == "__main__":
     # Set up argument parser
-    parser = argparse.ArgumentParser(description="Run the Deer")
+    parser = argparse.ArgumentParser(description="Run the Agent")
     parser.add_argument("query", nargs="*", help="The query to process")
     parser.add_argument(
         "--interactive",

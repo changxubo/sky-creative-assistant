@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -101,9 +100,9 @@ export function SettingsDialog() {
       </Tooltip>
       <DialogContent className="sm:max-w-[850px]">
         <DialogHeader>
-          <DialogTitle>Rednote Agent Settings</DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
-            Manage your Rednote Agent settings here.
+            Manage your settings here.
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTabId}>

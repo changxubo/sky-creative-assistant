@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { StarFilledIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
@@ -14,7 +13,7 @@ export async function SiteHeader() {
       <div className="container flex h-15 items-center justify-between px-3">
         <div className="text-xl font-medium">
           <span className="mr-1 text-2xl">🦌</span>
-          <span>Rednote Creative Assistant</span>
+          <span>DeerFlow</span>
         </div>
         <div className="relative flex items-center">
           <div

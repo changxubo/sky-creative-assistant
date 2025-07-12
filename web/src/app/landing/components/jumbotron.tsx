@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { GithubFilled } from "@ant-design/icons";
 import { ChevronRight } from "lucide-react";
@@ -39,7 +38,7 @@ export function Jumbotron() {
           <AuroraText>at Your Fingertips</AuroraText>
         </h1>
         <p className="max-w-4xl p-2 text-center text-sm opacity-85 md:text-2xl">
-          Meet Rednote Creative Assistant, your personal Deep Research assistant. With powerful
+          Meet DeerFlow, your personal Deep Research assistant. With powerful
           tools like search engines, web crawlers, Python and MCP services, it
           delivers instant insights, comprehensive reports, and even captivating
           podcasts.

@@ -1,16 +1,14 @@
-# 🦌 Rednote Creative Assistant Web UI
+# Sky Creative Web
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Originated from Open Source, give back to Open Source.
 
-This is the web UI for [`Rednote Creative Assistant`](https://github.com/bytedance/deer-flow).
+This is the web UI for [`Deer Flow`](https://github.com/bytedance/deer-flow).
 
 ## Quick Start
 
 ### Prerequisites
-
-- [`Rednote Creative Assistant`](https://github.com/bytedance/deer-flow)
 - Node.js (v22.14.0+)
 - pnpm (v10.6.2+) as package manager
 
@@ -66,17 +64,17 @@ First, you need read the [configuration](#configuration) below. Make sure `.env`
 Second, to build a Docker image of your own web server:
 
 ```bash
-docker build --build-arg NEXT_PUBLIC_API_URL=YOUR_DEER-FLOW_API -t deer-flow-web .
+docker build --build-arg NEXT_PUBLIC_API_URL=YOUR_DEER-FLOW_API -t sky-creative-web .
 ```
 
 Final, start up a docker container running the web server:
 
 ```bash
-# Replace deer-flow-web-app with your preferred container name
-docker run -d -t -p 3000:3000 --env-file .env --name deer-flow-web-app deer-flow-web
+# Replace sky-creative-web-app with your preferred container name
+docker run -d -t -p 3000:3000 --env-file .env --name sky-creative-web-app sky-creative-web
 
 # stop the server
-docker stop deer-flow-web-app
+docker stop sky-creative-web-app
 ```
 
 ### Docker Compose

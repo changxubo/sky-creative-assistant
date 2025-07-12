@@ -1,5 +1,4 @@
-// Copyright (c) 2025 Rednote Creative Assistant
-// SPDX-License-Identifier: MIT
+
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Settings } from "lucide-react";
@@ -25,7 +24,6 @@ import type { Tab } from "./types";
 
 const generalFormSchema = z.object({
   autoAcceptedPlan: z.boolean(),
-  enableBackgroundInvestigation: z.boolean(),
   maxPlanIterations: z.number().min(1, {
     message: "Max plan iterations must be at least 1.",
   }),
@@ -35,6 +33,10 @@ const generalFormSchema = z.object({
   maxSearchResults: z.number().min(1, {
     message: "Max search results must be at least 1.",
   }),
+  // Others
+  enableBackgroundInvestigation: z.boolean(),
+  enableDeepThinking: z.boolean(),
+  reportStyle: z.enum(["academic", "popular_science", "news", "social_media"]),
 });
 
 export const GeneralTab: Tab = ({
@@ -176,5 +178,5 @@ export const GeneralTab: Tab = ({
     </div>
   );
 };
-GeneralTab.displayName = "";
+GeneralTab.displayName = "General";
 GeneralTab.icon = Settings;
