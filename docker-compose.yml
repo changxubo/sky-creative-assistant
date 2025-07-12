@@ -6,8 +6,11 @@ services:
       - "4040:4040"
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+      - NGROK_DOMAIN=${NGROK_DOMAIN}
       - NGROK_REGION=us
-    command: ngrok http --url=${NGROK_DOMAIN} 3000
+    command: start --all
+    volumes:
+      - ./ngrok.yml:/etc/ngrok/ngrok.yml:ro
     restart: unless-stopped
     networks:
       - sky-creative-network
