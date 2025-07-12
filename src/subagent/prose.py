@@ -129,7 +129,7 @@ def prose_zap_node(state: ProseState) -> Dict[str, str]:
         raise ValueError("Custom command is required for zap operation")
     
     human_message = f"For this text: {content}.\nYou have to respect the command: {command}"
-    prose_content = _invoke_prose_model("prose/prose_zap", human_message)
+    prose_content = _invoke_prose_model("prose_zap", human_message)
     
     logger.info("Successfully generated zap prose content")
     return {"output": prose_content}
@@ -155,7 +155,7 @@ def prose_shorter_node(state: ProseState) -> Dict[str, str]:
         raise ValueError("Content is required for shortening operation")
     
     human_message = f"The existing text is: {content}"
-    prose_content = _invoke_prose_model("prose/prose_shorter", human_message)
+    prose_content = _invoke_prose_model("prose_shorter", human_message)
     
     logger.info("Successfully generated shorter prose content")
     return {"output": prose_content}
@@ -180,7 +180,7 @@ def prose_continue_node(state: ProseState) -> Dict[str, str]:
     if not content:
         raise ValueError("Content is required for continuation operation")
     
-    prose_content = _invoke_prose_model("prose/prose_continue", content)
+    prose_content = _invoke_prose_model("prose_continue", content)
     
     logger.info("Successfully generated prose continuation")
     return {"output": prose_content}
@@ -206,7 +206,7 @@ def prose_fix_node(state: ProseState) -> Dict[str, str]:
         raise ValueError("Content is required for fix operation")
     
     human_message = f"The existing text is: {content}"
-    prose_content = _invoke_prose_model("prose/prose_fix", human_message)
+    prose_content = _invoke_prose_model("prose_fix", human_message)
     
     logger.info("Successfully generated fixed prose content")
     return {"output": prose_content}
@@ -232,7 +232,7 @@ def prose_improve_node(state: ProseState) -> Dict[str, str]:
         raise ValueError("Content is required for improvement operation")
     
     human_message = f"The existing text is: {content}"
-    prose_content = _invoke_prose_model("prose/prose_improver", human_message)
+    prose_content = _invoke_prose_model("prose_improver", human_message)
     
     logger.info("Successfully generated improved prose content")
     return {"output": prose_content}
@@ -258,7 +258,7 @@ def prose_longer_node(state: ProseState) -> Dict[str, str]:
         raise ValueError("Content is required for expansion operation")
     
     human_message = f"The existing text is: {content}"
-    prose_content = _invoke_prose_model("prose/prose_longer", human_message)
+    prose_content = _invoke_prose_model("prose_longer", human_message)
     
     logger.info("Successfully generated longer prose content")
     return {"output": prose_content}

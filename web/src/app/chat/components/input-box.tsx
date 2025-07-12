@@ -5,14 +5,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Lightbulb, X } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import { Detective } from "~/components/deer-flow/icons/detective";
-import { SendMessage } from "~/components/deer-flow/icons/send-message";
-import { Search } from "~/components/deer-flow/icons/search";
+import { Detective } from "~/components/core/icons/detective";
+import { SendMessage } from "~/components/core/icons/send-message";
+import { Search } from "~/components/core/icons/search";
 import MessageInput, {
   type MessageInputRef,
-} from "~/components/deer-flow/message-input";
-import { ReportStyleDialog } from "~/components/deer-flow/report-style-dialog";
-import { Tooltip } from "~/components/deer-flow/tooltip";
+} from "~/components/core/message-input";
+import { ReportStyleDialog } from "~/components/core/report-style-dialog";
+import { Tooltip } from "~/components/core/tooltip";
 import { BorderBeam } from "~/components/magicui/border-beam";
 import { Button } from "~/components/ui/button";
 import { enhancePrompt } from "~/core/api";

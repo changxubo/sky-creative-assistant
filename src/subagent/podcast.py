@@ -158,7 +158,7 @@ def generate_podcast_script(state: PodcastState) -> dict:
     # Generate script using system prompt and user input
     script = model.invoke(
         [
-            SystemMessage(content=get_prompt_template("podcast/podcast_script_writer")),
+            SystemMessage(content=get_prompt_template("podcast_script_writer")),
             HumanMessage(content=state["input"]),
         ],
     )

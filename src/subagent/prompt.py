@@ -28,7 +28,7 @@ from src.prompts.template import apply_prompt_template
 logger = logging.getLogger(__name__)
 
 # Constants for better maintainability
-ENHANCEMENT_TEMPLATE_PATH = "prompt_enhancer/prompt_enhancer"
+ENHANCEMENT_TEMPLATE_PATH = "prompt_enhancer"
 ENHANCER_NODE_NAME = "enhancer"
 
 # Common response prefixes that should be removed from enhanced prompts

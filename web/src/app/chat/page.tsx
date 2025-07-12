@@ -10,11 +10,11 @@ import { Suspense } from "react";
 
 import { Button } from "~/components/ui/button";
 
-import { Logo } from "../../components/deer-flow/logo";
-import { ThemeToggle } from "../../components/deer-flow/theme-toggle";
-import { Tooltip } from "../../components/deer-flow/tooltip";
+import { Logo } from "../../components/core/logo";
+import { ThemeToggle } from "../../components/core/theme-toggle";
+import { Tooltip } from "../../components/core/tooltip";
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
-import { NewChat } from "../../components/deer-flow/icons/new-chat";
+import { NewChat } from "../../components/core/icons/new-chat";
 const Main = dynamic(() => import("./main"), {
   ssr: false,
   loading: () => (

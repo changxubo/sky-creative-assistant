@@ -2,6 +2,8 @@
 ## Introduction
 With NVIDIA AI Enterprise to accelerate Agentic AI Agent development, Rednote Creative Assistant is a powerful AI assistant designed to help you conduct deep research, generate comprehensive reports, and create engaging podcasts. It leverages NVIDIA NIM models and integrates seamlessly with Rednote's Model Context Protocol (MCP) services.
 
+![Home](./assets/home-page.png)
+
 ## Key Technologies
 - **NVIDIA NIM Models**: Utilizes NVIDIA's advanced AI models for natural language understanding and generation, including the latest qwen3 models for basic and reasoning tasks,  and microsoft latest multimodal model phi4 for vision tasks .
 - **Multi-agent Collaboration(MAC)**: Implement multi-agent system with langgraph, Supports multiple specialized agents for complex tasks, including a Developer Agent, Researcher Agent, Podcast Agent, and Publisher Agent.
