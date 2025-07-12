@@ -2,10 +2,9 @@
 
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Lightbulb, X } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import {  Lightbulb, X } from "lucide-react";
+import { useCallback,  useRef, useState } from "react";
 
-import { Detective } from "~/components/core/icons/detective";
 import { Search } from "~/components/core/icons/search";
 import { SendMessage } from "~/components/core/icons/send-message";
 import MessageInput, {

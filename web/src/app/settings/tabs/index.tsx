@@ -2,7 +2,6 @@
 
 import { Settings, type LucideIcon } from "lucide-react";
 
-import { AboutTab } from "./about-tab";
 import { GeneralTab } from "./general-tab";
 import { MCPTab } from "./mcp-tab";
 
