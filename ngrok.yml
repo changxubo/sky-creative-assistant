@@ -5,10 +5,13 @@ agent:
 
 endpoints:
   - name: web
-    url: http://frontend:3000
+    url: ${NGROK_DOMAIN}
     metadata: '{ "id": "frontend" }'
     description: "ngrok tunnel for web app"
+    upstream:
+      url: http://frontend:3000
   - name: dashboard
-    url: http://ngrok:4040
+    upstream:
+      url: http://ngrok:4040
     metadata: '{ "id": "dashboard" }'
     description: "ngrok dashboard"
