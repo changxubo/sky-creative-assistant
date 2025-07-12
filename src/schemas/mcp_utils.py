@@ -15,14 +15,14 @@ async def _get_tools_from_client_session(
 ) -> List:
     """
     Helper function to get tools from a Model Context Protocol (MCP) client session.
-    
+
     This function establishes a connection to an MCP server through a client context manager,
     initializes the session, and retrieves the available tools.
 
     Args:
         client_context_manager (Any): A context manager that returns (read, write) functions
                                     for communicating with the MCP server
-        timeout_seconds (int, optional): Timeout in seconds for the read operation. 
+        timeout_seconds (int, optional): Timeout in seconds for the read operation.
                                        Defaults to 10 seconds.
 
     Returns:
@@ -40,11 +40,11 @@ async def _get_tools_from_client_session(
             ) as session:
                 # Initialize the connection to the MCP server
                 await session.initialize()
-                
+
                 # Retrieve available tools from the server
                 listed_tools = await session.list_tools()
                 return listed_tools.tools
-                
+
     except Exception as e:
         logger.error(f"Failed to retrieve tools from MCP client session: {str(e)}")
         raise
@@ -60,11 +60,11 @@ async def load_mcp_tools(
 ) -> List:
     """
     Load tools from a Model Context Protocol (MCP) server.
-    
+
     This function supports two types of MCP server connections:
     1. stdio: Standard input/output based connection using command execution
     2. sse: Server-Sent Events based connection using HTTP URLs
-    
+
     Args:
         server_type (str): The type of MCP server connection. Must be either "stdio" or "sse"
         command (Optional[str]): The command to execute (required for stdio type).
@@ -82,16 +82,17 @@ async def load_mcp_tools(
         List: A list of available tools from the MCP server
 
     Raises:
-        HTTPException: 
+        HTTPException:
             - 400: If required parameters are missing or server_type is unsupported
             - 500: If there's an error loading the tools from the server
     """
     # Validate server type early
     if server_type not in ["stdio", "sse"]:
         raise HTTPException(
-            status_code=400, detail=f"Unsupported server type: {server_type}. Must be 'stdio' or 'sse'"
+            status_code=400,
+            detail=f"Unsupported server type: {server_type}. Must be 'stdio' or 'sse'",
         )
-    
+
     try:
         if server_type == "stdio":
             # Validate required parameters for stdio connection
@@ -131,6 +132,6 @@ async def load_mcp_tools(
         # Log unexpected errors and convert to HTTPException
         logger.exception(f"Error loading MCP tools from {server_type} server: {str(e)}")
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to load tools from {server_type} server: {str(e)}"
+            status_code=500,
+            detail=f"Failed to load tools from {server_type} server: {str(e)}",
         )

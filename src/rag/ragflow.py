@@ -9,16 +9,17 @@ from src.rag.types import Chunk, Document, Resource, Retriever
 
 class RAGFlowError(Exception):
     """Custom exception for RAGFlow-related errors."""
+
     pass
 
 
 class RAGFlowProvider(Retriever):
     """
     RAGFlowProvider is a document retrieval provider that interfaces with RAGFlow API.
-    
+
     This provider enables querying documents and listing resources from RAGFlow,
     a RAG (Retrieval-Augmented Generation) system for document management and retrieval.
-    
+
     Attributes:
         api_url (str): The base URL for the RAGFlow API
         api_key (str): Authentication key for API access
@@ -28,7 +29,7 @@ class RAGFlowProvider(Retriever):
     def __init__(self) -> None:
         """
         Initialize the RAGFlowProvider with configuration from environment variables.
-        
+
         Raises:
             ValueError: If required environment variables are not set
         """
@@ -36,7 +37,7 @@ class RAGFlowProvider(Retriever):
         api_url = os.getenv("RAGFLOW_API_URL")
         if not api_url:
             raise ValueError("RAGFLOW_API_URL environment variable is not set")
-        self.api_url = api_url.rstrip('/')  # Remove trailing slash for consistency
+        self.api_url = api_url.rstrip("/")  # Remove trailing slash for consistency
 
         # Validate and set API key
         api_key = os.getenv("RAGFLOW_API_KEY")
@@ -62,22 +63,22 @@ class RAGFlowProvider(Retriever):
     ) -> List[Document]:
         """
         Query relevant documents from RAGFlow based on the provided query and resources.
-        
+
         Args:
             query (str): The search query to find relevant documents
             resources (Optional[List[Resource]]): List of resources to search within.
                                                 If None or empty, searches all available resources.
-        
+
         Returns:
             List[Document]: A list of documents with relevant chunks
-        
+
         Raises:
             RAGFlowError: If the API request fails or returns an error
             ValueError: If the query is empty or invalid
         """
         if not query or not query.strip():
             raise ValueError("Query cannot be empty")
-        
+
         # Use empty list if resources is None to avoid mutable default argument
         if resources is None:
             resources = []
@@ -113,10 +114,10 @@ class RAGFlowProvider(Retriever):
         try:
             # Make API request
             response = requests.post(
-                f"{self.api_url}/api/v1/retrieval", 
-                headers=headers, 
+                f"{self.api_url}/api/v1/retrieval",
+                headers=headers,
                 json=payload,
-                timeout=30  # Add timeout for better error handling
+                timeout=30,  # Add timeout for better error handling
             )
 
             if response.status_code != 200:
@@ -125,7 +126,7 @@ class RAGFlowProvider(Retriever):
                 )
 
             result = response.json()
-            
+
         except requests.exceptions.RequestException as e:
             raise RAGFlowError(f"Network error occurred: {e}")
         except ValueError as e:
@@ -137,13 +138,13 @@ class RAGFlowProvider(Retriever):
     def list_resources(self, query: Optional[str] = None) -> List[Resource]:
         """
         List available resources (datasets) from RAGFlow.
-        
+
         Args:
             query (Optional[str]): Optional filter query to search for specific resources by name
-        
+
         Returns:
             List[Resource]: A list of available resources
-        
+
         Raises:
             RAGFlowError: If the API request fails or returns an error
         """
@@ -160,10 +161,10 @@ class RAGFlowProvider(Retriever):
         try:
             # Make API request
             response = requests.get(
-                f"{self.api_url}/api/v1/datasets", 
-                headers=headers, 
+                f"{self.api_url}/api/v1/datasets",
+                headers=headers,
                 params=params,
-                timeout=30  # Add timeout for better error handling
+                timeout=30,  # Add timeout for better error handling
             )
 
             if response.status_code != 200:
@@ -172,7 +173,7 @@ class RAGFlowProvider(Retriever):
                 )
 
             result = response.json()
-            
+
         except requests.exceptions.RequestException as e:
             raise RAGFlowError(f"Network error occurred: {e}")
         except ValueError as e:
@@ -181,15 +182,15 @@ class RAGFlowProvider(Retriever):
         # Parse response and build resources
         resources = []
         data_items = result.get("data", [])
-        
+
         for item in data_items:
             if not isinstance(item, dict):
                 continue  # Skip invalid items
-                
+
             item_id = item.get("id")
             if not item_id:
                 continue  # Skip items without ID
-                
+
             resource = Resource(
                 uri=f"rag://dataset/{item_id}",
                 title=item.get("name", ""),
@@ -202,10 +203,10 @@ class RAGFlowProvider(Retriever):
     def _parse_documents_response(self, result: Dict[str, Any]) -> List[Document]:
         """
         Parse the API response and convert it to Document objects.
-        
+
         Args:
             result (Dict[str, Any]): The JSON response from the API
-        
+
         Returns:
             List[Document]: A list of parsed documents
         """
@@ -222,11 +223,11 @@ class RAGFlowProvider(Retriever):
         for doc_data in doc_aggs:
             if not isinstance(doc_data, dict):
                 continue
-                
+
             doc_id = doc_data.get("doc_id")
             if not doc_id:
                 continue
-                
+
             docs[doc_id] = Document(
                 id=doc_id,
                 title=doc_data.get("doc_name", ""),
@@ -239,14 +240,14 @@ class RAGFlowProvider(Retriever):
             for chunk_data in chunks_data:
                 if not isinstance(chunk_data, dict):
                     continue
-                    
+
                 document_id = chunk_data.get("document_id")
                 if not document_id or document_id not in docs:
                     continue
-                    
+
                 content = chunk_data.get("content", "")
                 similarity = chunk_data.get("similarity", 0.0)
-                
+
                 # Validate chunk data
                 if isinstance(content, str) and isinstance(similarity, (int, float)):
                     chunk = Chunk(content=content, similarity=float(similarity))
@@ -258,41 +259,41 @@ class RAGFlowProvider(Retriever):
 def _parse_resource_uri(uri: str) -> Tuple[str, str]:
     """
     Parse a resource URI to extract dataset ID and document ID.
-    
+
     Args:
         uri (str): The resource URI in format "rag://dataset/{dataset_id}#{document_id}"
-    
+
     Returns:
         Tuple[str, str]: A tuple containing (dataset_id, document_id)
                         document_id may be empty string if not specified
-    
+
     Raises:
         ValueError: If the URI format is invalid
     """
     if not uri:
         raise ValueError("URI cannot be empty")
-    
+
     try:
         parsed = urlparse(uri)
     except Exception as e:
         raise ValueError(f"Failed to parse URI: {e}")
-    
+
     if parsed.scheme != "rag":
         raise ValueError(f"Invalid URI scheme: expected 'rag', got '{parsed.scheme}'")
-    
+
     if not parsed.path:
         raise ValueError("URI path cannot be empty")
-    
+
     # Split path and extract dataset ID
-    path_parts = parsed.path.strip('/').split('/')
+    path_parts = parsed.path.strip("/").split("/")
     if len(path_parts) < 2 or path_parts[0] != "dataset":
         raise ValueError("Invalid URI format: expected 'rag://dataset/{dataset_id}'")
-    
+
     dataset_id = path_parts[1]
     if not dataset_id:
         raise ValueError("Dataset ID cannot be empty")
-    
+
     # Extract document ID from fragment (optional)
     document_id = parsed.fragment or ""
-    
+
     return dataset_id, document_id

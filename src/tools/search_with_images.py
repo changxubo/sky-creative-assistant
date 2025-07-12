@@ -15,17 +15,17 @@ from src.tools.search_wrapper import (
 
 class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[override, override]
     """Enhanced Tavily Search tool that includes image search capabilities.
-    
+
     This class extends the base TavilySearchResults to support image search
     functionality, including image descriptions. It provides both synchronous
     and asynchronous search capabilities with comprehensive result formatting.
-    
+
     Attributes:
         include_image_descriptions (bool): Whether to include image descriptions
             in the search results. Default is False.
         api_wrapper (EnhancedTavilySearchAPIWrapper): The API wrapper instance
             used to interact with the Tavily Search API.
-    
+
     Example:
         >>> tool = TavilySearchResultsWithImages(
         ...     max_results=5,
@@ -35,7 +35,7 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         ...     include_image_descriptions=True
         ... )
         >>> results = tool.invoke({'query': 'latest AI developments'})
-    
+
     Setup:
         Install ``langchain-openai`` and ``tavily-python``, and set environment variable ``TAVILY_API_KEY``.
 
@@ -127,17 +127,17 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> Tuple[Union[List[Dict[str, Any]], str], Dict[str, Any]]:
         """Execute synchronous search query using Tavily API.
-        
+
         Args:
             query (str): The search query string to execute
             run_manager (Optional[CallbackManagerForToolRun]): Callback manager
                 for tool execution monitoring
-        
+
         Returns:
             Tuple[Union[List[Dict[str, Any]], str], Dict[str, Any]]: A tuple containing:
                 - Cleaned search results or error message string
                 - Raw API response dictionary
-        
+
         Raises:
             Exception: Re-raises any exceptions from the API wrapper as string representation
         """
@@ -145,7 +145,7 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         if not query or not query.strip():
             error_msg = "Search query cannot be empty or whitespace only"
             return error_msg, {}
-        
+
         try:
             # Execute search with all configured parameters
             raw_results = self.api_wrapper.raw_results(
@@ -162,13 +162,13 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         except Exception as e:
             # Return string representation of exception for debugging
             return repr(e), {}
-        
+
         # Process and clean the raw results
         cleaned_results = self.api_wrapper.clean_results_with_images(raw_results)
-        
+
         # Debug output for synchronous execution
         print("sync", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
-        
+
         return cleaned_results, raw_results
 
     async def _arun(
@@ -177,17 +177,17 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> Tuple[Union[List[Dict[str, Any]], str], Dict[str, Any]]:
         """Execute asynchronous search query using Tavily API.
-        
+
         Args:
             query (str): The search query string to execute
             run_manager (Optional[AsyncCallbackManagerForToolRun]): Async callback
                 manager for tool execution monitoring
-        
+
         Returns:
             Tuple[Union[List[Dict[str, Any]], str], Dict[str, Any]]: A tuple containing:
                 - Cleaned search results or error message string
                 - Raw API response dictionary
-        
+
         Raises:
             Exception: Re-raises any exceptions from the API wrapper as string representation
         """
@@ -195,7 +195,7 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         if not query or not query.strip():
             error_msg = "Search query cannot be empty or whitespace only"
             return error_msg, {}
-        
+
         try:
             # Execute async search with all configured parameters
             raw_results = await self.api_wrapper.raw_results_async(
@@ -212,11 +212,11 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         except Exception as e:
             # Return string representation of exception for debugging
             return repr(e), {}
-        
+
         # Process and clean the raw results
         cleaned_results = self.api_wrapper.clean_results_with_images(raw_results)
-        
+
         # Debug output for asynchronous execution
         print("async", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
-        
+
         return cleaned_results, raw_results

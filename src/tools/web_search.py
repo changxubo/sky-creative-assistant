@@ -42,22 +42,22 @@ LoggedArxivSearchTool = create_logged_tool(ArxivQueryRun)
 def get_web_search_tool(max_search_results: int) -> Any:
     """
     Get the appropriate search tool based on the selected search engine configuration.
-    
+
     This function acts as a factory method that returns the configured search tool
     with logging capabilities. It validates input parameters and handles different
     search engine configurations.
-    
+
     Args:
         max_search_results (int): Maximum number of search results to return.
                                 Must be between 1 and 100 (inclusive).
-    
+
     Returns:
-        Union[LoggedTavilySearchTool, LoggedDuckDuckGoSearchTool, 
-              LoggedBraveSearchTool, LoggedArxivSearchTool]: 
+        Union[LoggedTavilySearchTool, LoggedDuckDuckGoSearchTool,
+              LoggedBraveSearchTool, LoggedArxivSearchTool]:
             A logged search tool instance configured for the selected search engine.
-    
+
     Raises:
-        ValueError: If max_search_results is outside valid range or if the 
+        ValueError: If max_search_results is outside valid range or if the
                    selected search engine is not supported.
         EnvironmentError: If required API keys are missing for Brave Search.
     """
@@ -66,18 +66,18 @@ def get_web_search_tool(max_search_results: int) -> Any:
         raise ValueError(
             f"max_search_results must be an integer, got {type(max_search_results)}"
         )
-    
+
     if not (MIN_SEARCH_RESULTS <= max_search_results <= MAX_SEARCH_RESULTS):
         raise ValueError(
             f"max_search_results must be between {MIN_SEARCH_RESULTS} and "
             f"{MAX_SEARCH_RESULTS}, got {max_search_results}"
         )
-    
+
     logger.debug(
         f"Creating search tool for engine: {SELECTED_SEARCH_ENGINE}, "
         f"max_results: {max_search_results}"
     )
-    
+
     # Tavily search engine configuration
     if SELECTED_SEARCH_ENGINE == SearchEngine.TAVILY.value:
         return LoggedTavilySearchTool(
@@ -87,14 +87,14 @@ def get_web_search_tool(max_search_results: int) -> Any:
             include_images=True,
             include_image_descriptions=True,
         )
-    
+
     # DuckDuckGo search engine configuration
     elif SELECTED_SEARCH_ENGINE == SearchEngine.DUCKDUCKGO.value:
         return LoggedDuckDuckGoSearchTool(
             name=DEFAULT_SEARCH_NAME,
             num_results=max_search_results,
         )
-    
+
     # Brave search engine configuration
     elif SELECTED_SEARCH_ENGINE == SearchEngine.BRAVE_SEARCH.value:
         brave_api_key = os.getenv("BRAVE_SEARCH_API_KEY")
@@ -102,7 +102,7 @@ def get_web_search_tool(max_search_results: int) -> Any:
             raise EnvironmentError(
                 "BRAVE_SEARCH_API_KEY environment variable is required for Brave Search"
             )
-        
+
         return LoggedBraveSearchTool(
             name=DEFAULT_SEARCH_NAME,
             search_wrapper=BraveSearchWrapper(
@@ -110,7 +110,7 @@ def get_web_search_tool(max_search_results: int) -> Any:
                 search_kwargs={"count": max_search_results},
             ),
         )
-    
+
     # ArXiv search engine configuration
     elif SELECTED_SEARCH_ENGINE == SearchEngine.ARXIV.value:
         return LoggedArxivSearchTool(
@@ -121,7 +121,7 @@ def get_web_search_tool(max_search_results: int) -> Any:
                 load_all_available_meta=True,
             ),
         )
-    
+
     # Unsupported search engine
     else:
         available_engines = [engine.value for engine in SearchEngine]

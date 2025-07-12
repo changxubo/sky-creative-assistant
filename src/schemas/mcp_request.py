@@ -6,10 +6,10 @@ from pydantic import BaseModel, Field
 class MCPServerMetadataRequest(BaseModel):
     """
     Request model for MCP (Model Context Protocol) server metadata.
-    
+
     This class represents a request to retrieve metadata information from an MCP server.
     It supports both stdio and SSE (Server-Sent Events) transport types.
-    
+
     Attributes:
         transport: The type of MCP server connection ('stdio' or 'sse')
         command: The command to execute for stdio transport type
@@ -20,36 +20,32 @@ class MCPServerMetadataRequest(BaseModel):
     """
 
     transport: str = Field(
-        ..., 
+        ...,
         description="The type of MCP server connection (stdio or sse)",
-        pattern="^(stdio|sse)$"  # Validation to ensure only valid transport types
+        pattern="^(stdio|sse)$",  # Validation to ensure only valid transport types
     )
     command: Optional[str] = Field(
-        None, 
-        description="The command to execute (required for stdio transport type)"
+        None, description="The command to execute (required for stdio transport type)"
     )
     args: Optional[List[str]] = Field(
-        None, 
-        description="Command arguments (used with stdio transport type)"
+        None, description="Command arguments (used with stdio transport type)"
     )
     url: Optional[str] = Field(
-        None, 
-        description="The URL of the SSE server (required for sse transport type)"
+        None, description="The URL of the SSE server (required for sse transport type)"
     )
     env: Optional[Dict[str, str]] = Field(
-        None, 
-        description="Environment variables to be passed to the MCP server"
+        None, description="Environment variables to be passed to the MCP server"
     )
     timeout_seconds: Optional[int] = Field(
-        None, 
+        None,
         description="Optional custom timeout in seconds for the operation",
-        gt=0  # Validation to ensure positive timeout values
+        gt=0,  # Validation to ensure positive timeout values
     )
 
     def validate_transport_requirements(self) -> None:
         """
         Validate that required fields are present based on transport type.
-        
+
         Raises:
             ValueError: If required fields are missing for the specified transport type
         """
@@ -62,10 +58,10 @@ class MCPServerMetadataRequest(BaseModel):
 class MCPServerMetadataResponse(BaseModel):
     """
     Response model for MCP (Model Context Protocol) server metadata.
-    
+
     This class represents the response containing metadata information from an MCP server,
     including the server configuration and available tools.
-    
+
     Attributes:
         transport: The type of MCP server connection used
         command: The command executed (for stdio transport)
@@ -76,34 +72,29 @@ class MCPServerMetadataResponse(BaseModel):
     """
 
     transport: str = Field(
-        ..., 
-        description="The type of MCP server connection (stdio or sse)"
+        ..., description="The type of MCP server connection (stdio or sse)"
     )
     command: Optional[str] = Field(
-        None, 
-        description="The command executed (for stdio transport type)"
+        None, description="The command executed (for stdio transport type)"
     )
     args: Optional[List[str]] = Field(
-        None, 
-        description="Command arguments used (for stdio transport type)"
+        None, description="Command arguments used (for stdio transport type)"
     )
     url: Optional[str] = Field(
-        None, 
-        description="The URL of the SSE server (for sse transport type)"
+        None, description="The URL of the SSE server (for sse transport type)"
     )
     env: Optional[Dict[str, str]] = Field(
-        None, 
-        description="Environment variables used by the MCP server"
+        None, description="Environment variables used by the MCP server"
     )
     tools: List[Dict[str, Any]] = Field(
-        default_factory=list, 
-        description="List of available tools provided by the MCP server"
+        default_factory=list,
+        description="List of available tools provided by the MCP server",
     )
 
     def get_tool_count(self) -> int:
         """
         Get the number of available tools.
-        
+
         Returns:
             int: The number of tools available from the MCP server
         """
@@ -112,7 +103,7 @@ class MCPServerMetadataResponse(BaseModel):
     def get_tool_names(self) -> List[str]:
         """
         Extract tool names from the tools list.
-        
+
         Returns:
             List[str]: List of tool names, or empty list if no tools available
         """

@@ -1,4 +1,3 @@
-
 # English built-in questions
 BUILT_IN_QUESTIONS = [
     "What factors are influencing AI adoption in healthcare?",

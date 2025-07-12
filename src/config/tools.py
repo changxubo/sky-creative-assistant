@@ -18,11 +18,11 @@ load_dotenv()
 class SearchEngine(enum.Enum):
     """
     Enumeration of supported search engines.
-    
+
     This enum defines the available search engine options that can be
     configured for the application's search functionality.
     """
-    
+
     TAVILY = "tavily"
     DUCKDUCKGO = "duckduckgo"
     BRAVE_SEARCH = "brave_search"
@@ -32,11 +32,11 @@ class SearchEngine(enum.Enum):
 class RAGProvider(enum.Enum):
     """
     Enumeration of supported RAG (Retrieval-Augmented Generation) providers.
-    
+
     This enum defines the available RAG provider options for the
     application's knowledge retrieval functionality.
     """
-    
+
     RAGFLOW = "ragflow"
     VIKINGDB_KNOWLEDGE_BASE = "vikingdb_knowledge_base"
 
@@ -44,6 +44,3 @@ class RAGProvider(enum.Enum):
 # Tool configuration constants
 SELECTED_SEARCH_ENGINE: str = os.getenv("SEARCH_API", SearchEngine.TAVILY.value)
 SELECTED_RAG_PROVIDER: Optional[str] = os.getenv("RAG_PROVIDER")
-
-
-

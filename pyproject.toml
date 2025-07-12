@@ -37,6 +37,7 @@ dependencies = [
     "ipykernel>=6.29.5",
     "langchain-nvidia-ai-endpoints>=0.3.10",
     "pytest>=8.3.5",
+    "black[jupyter]>=25.1.0",
 ]
 
 [project.optional-dependencies]

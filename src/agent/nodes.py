@@ -461,9 +461,7 @@ async def _setup_and_execute_agent_step(
                 try:
                     for tool in client.get_tools():
                         if tool.name in enabled_tools:
-                            tool.description = (
-                                f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
-                            )
+                            tool.description = f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
                             loaded_tools.append(tool)
                 except Exception as e:
                     logger.warning(f"Failed to load MCP tools: {e}")

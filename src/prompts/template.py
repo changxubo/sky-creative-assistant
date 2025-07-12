@@ -10,7 +10,7 @@ from src.config.configuration import Configuration
 
 # Initialize Jinja2 environment with optimized settings
 jinja_env = Environment(
-    loader=FileSystemLoader(os.path.dirname(__file__)+"/templates"),
+    loader=FileSystemLoader(os.path.dirname(__file__) + "/templates"),
     autoescape=select_autoescape(),
     trim_blocks=True,
     lstrip_blocks=True,
@@ -38,7 +38,7 @@ def get_prompt_template(prompt_name: str) -> str:
     """
     if not prompt_name or not isinstance(prompt_name, str):
         raise ValueError("prompt_name must be a non-empty string")
-    
+
     try:
         template = jinja_env.get_template(f"{prompt_name}.md")
         return template.render()
@@ -49,9 +49,7 @@ def get_prompt_template(prompt_name: str) -> str:
 
 
 def apply_prompt_template(
-    prompt_name: str, 
-    state: AgentState, 
-    configurable: Optional[Configuration] = None
+    prompt_name: str, state: AgentState, configurable: Optional[Configuration] = None
 ) -> List[Dict[str, str]]:
     """
     Apply template variables to a prompt template and return formatted messages.
@@ -64,7 +62,7 @@ def apply_prompt_template(
                           Must be a non-empty string.
         state (AgentState): Current agent state containing variables to substitute.
                            Must contain a 'messages' key with a list of messages.
-        configurable (Optional[Configuration]): Optional configuration object 
+        configurable (Optional[Configuration]): Optional configuration object
                                                containing additional variables.
 
     Returns:
@@ -79,10 +77,10 @@ def apply_prompt_template(
     # Input validation
     if not prompt_name or not isinstance(prompt_name, str):
         raise ValueError("prompt_name must be a non-empty string")
-    
+
     if not isinstance(state, dict):
         raise ValueError("state must be a dictionary")
-    
+
     # Ensure state has messages key with proper fallback
     if "messages" not in state:
         state["messages"] = []
@@ -107,7 +105,7 @@ def apply_prompt_template(
         # Load and render template with state variables
         template = jinja_env.get_template(f"{prompt_name}.md")
         system_prompt = template.render(**state_vars)
-        #print(f"System prompt generated: {system_prompt[:100]}...")  # Debug output
+        # print(f"System prompt generated: {system_prompt[:100]}...")  # Debug output
         # Return system message followed by existing messages
         return [{"role": "system", "content": system_prompt}] + state["messages"]
     except TemplateNotFound as e:

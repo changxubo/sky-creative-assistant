@@ -7,10 +7,10 @@ from pydantic import BaseModel, Field, validator
 class StepType(str, Enum):
     """
     Enumeration defining the types of steps available in a planning workflow.
-    
+
     This enum categorizes steps into two main types to help organize and
     process different kinds of operations within a plan execution context.
-    
+
     Attributes:
         RESEARCH: Steps that involve gathering information, data collection,
                  or external searches. These steps typically require network
@@ -27,11 +27,11 @@ class StepType(str, Enum):
 class Step(BaseModel):
     """
     Represents a single executable step within a planning workflow.
-    
+
     This class encapsulates all the information needed to execute a specific
     step in a plan, including its requirements, description, and execution
     results. Each step is self-contained and can be executed independently.
-    
+
     Attributes:
         need_search (bool): Flag indicating whether this step requires external
                            search or data collection operations.
@@ -45,40 +45,40 @@ class Step(BaseModel):
     """
 
     need_search: bool = Field(
-        ..., 
-        description="Must be explicitly set - indicates if step requires external search operations"
+        ...,
+        description="Must be explicitly set - indicates if step requires external search operations",
     )
     title: str = Field(
-        ..., 
-        min_length=1, 
+        ...,
+        min_length=1,
         max_length=200,
-        description="Concise, descriptive title of the step"
+        description="Concise, descriptive title of the step",
     )
     description: str = Field(
-        ..., 
+        ...,
         min_length=10,
-        description="Detailed description specifying exactly what data to collect or process"
+        description="Detailed description specifying exactly what data to collect or process",
     )
     step_type: StepType = Field(
-        default=StepType.RESEARCH , 
-        description="Type classification indicating the nature of the step operation"
+        default=StepType.RESEARCH,
+        description="Type classification indicating the nature of the step operation",
     )
     execution_res: Optional[str] = Field(
-        default=None, 
-        description="Results or output data from step execution (populated after completion)"
+        default=None,
+        description="Results or output data from step execution (populated after completion)",
     )
 
-    @validator('title')
+    @validator("title")
     def validate_title(cls, v):
         """
         Validates that the title is meaningful and properly formatted.
-        
+
         Args:
             v (str): The title value to validate
-            
+
         Returns:
             str: The validated and potentially cleaned title
-            
+
         Raises:
             ValueError: If title is empty or contains only whitespace
         """
@@ -90,16 +90,16 @@ class Step(BaseModel):
 class Plan(BaseModel):
     """
     Represents a comprehensive execution plan consisting of multiple coordinated steps.
-    
+
     This class serves as the main container for planning workflows, organizing
     multiple steps into a coherent execution sequence. It includes metadata
     about the plan's context, completeness, and locale-specific requirements.
-    
+
     The plan supports both research and processing steps, allowing for complex
     workflows that combine data gathering and analysis operations.
-    
+
     Attributes:
-        locale (str): Language/region locale code (e.g., 'en-US', 'zh-CN') 
+        locale (str): Language/region locale code (e.g., 'en-US', 'zh-CN')
                      determining the language for plan execution and results.
         has_enough_context (bool): Flag indicating whether sufficient context
                                   is available to execute the plan effectively.
@@ -112,71 +112,77 @@ class Plan(BaseModel):
 
     locale: str = Field(
         ...,
-        pattern=r'^[a-z]{2}(-[A-Z]{2})?$',
-        description="Language/region code (e.g., 'en-US', 'zh-CN') based on user's language preference"
+        pattern=r"^[a-z]{2}(-[A-Z]{2})?$",
+        description="Language/region code (e.g., 'en-US', 'zh-CN') based on user's language preference",
     )
     has_enough_context: bool = Field(
         ...,
-        description="Indicates if sufficient context is available for effective plan execution"
+        description="Indicates if sufficient context is available for effective plan execution",
     )
     thought: str = Field(
         ...,
         min_length=20,
-        description="Strategic reasoning and thought process behind the plan creation"
+        description="Strategic reasoning and thought process behind the plan creation",
     )
     title: str = Field(
         ...,
         min_length=5,
         max_length=200,
-        description="Descriptive title summarizing the plan's main objective"
+        description="Descriptive title summarizing the plan's main objective",
     )
     steps: List[Step] = Field(
-        #default_factory=list,
+        # default_factory=list,
         default=[],
         max_items=10,
         min_items=0,
-        description="Ordered list of research and processing steps to gather context and achieve objectives"
+        description="Ordered list of research and processing steps to gather context and achieve objectives",
     )
 
-    @validator('steps')
+    @validator("steps")
     def validate_steps_not_empty(cls, v):
         """
         Validates that the plan contains at least one step.
-        
+
         Args:
             v (List[Step]): The list of steps to validate
-            
+
         Returns:
             List[Step]: The validated list of steps
-            
+
         Raises:
             ValueError: If the steps list is empty
         """
-        #if not v:
+        # if not v:
         #    raise ValueError("Plan must contain at least one step")
         return v
 
-    @validator('locale')
+    @validator("locale")
     def validate_locale_format(cls, v):
         """
         Validates that the locale follows standard format conventions.
-        
+
         Args:
             v (str): The locale string to validate
-            
+
         Returns:
             str: The validated locale string
-            
+
         Raises:
             ValueError: If locale format is invalid
         """
         if not v or len(v) < 2:
-            raise ValueError("Locale must be at least 2 characters (e.g., 'en' or 'en-US')")
-        return v.lower() if '-' not in v else f"{v.split('-')[0].lower()}-{v.split('-')[1].upper()}"
+            raise ValueError(
+                "Locale must be at least 2 characters (e.g., 'en' or 'en-US')"
+            )
+        return (
+            v.lower()
+            if "-" not in v
+            else f"{v.split('-')[0].lower()}-{v.split('-')[1].upper()}"
+        )
 
     class Config:
         """Configuration for the Plan model with enhanced examples."""
-        
+
         json_schema_extra = {
             "examples": [
                 {
@@ -219,7 +225,7 @@ class Plan(BaseModel):
                                 "statistics and comparative analysis."
                             ),
                             "step_type": "processing",
-                        }
+                        },
                     ],
                 }
             ]

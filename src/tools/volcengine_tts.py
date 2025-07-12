@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 class VolcengineTTS:
     """
     Client for Volcengine Text-to-Speech API.
-    
+
     This class provides a comprehensive interface to the Volcengine TTS service,
     allowing conversion of text to speech with configurable audio parameters.
-    
+
     Attributes:
         appid (str): Platform application ID for API authentication
         access_token (str): Access token for API authorization
@@ -49,7 +49,7 @@ class VolcengineTTS:
             cluster (str, optional): TTS cluster name. Defaults to "volcano_tts"
             voice_type (str, optional): Voice type identifier. Defaults to "BV700_V2_streaming"
             host (str, optional): API host domain. Defaults to "openspeech.bytedance.com"
-            
+
         Raises:
             ValueError: If required parameters are empty or None
         """
@@ -58,18 +58,18 @@ class VolcengineTTS:
             raise ValueError("appid cannot be empty or None")
         if not access_token or not access_token.strip():
             raise ValueError("access_token cannot be empty or None")
-            
+
         self.appid = appid.strip()
         self.access_token = access_token.strip()
         self.cluster = cluster
         self.voice_type = voice_type
         self.host = host
         self.api_url = f"https://{host}/api/v1/tts"
-        
+
         # Fixed header format - removed semicolon which could cause authentication issues
         self.header = {
             "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def text_to_speech(
@@ -104,36 +104,36 @@ class VolcengineTTS:
                 - response (Dict): Full API response (if successful)
                 - audio_data (str): Base64-encoded audio data (if successful)
                 - error (str): Error description (if failed)
-                
+
         Raises:
             ValueError: If input parameters are invalid
         """
         # Validate input parameters
         if not text or not text.strip():
             return {
-                "success": False, 
-                "error": "Text cannot be empty or None", 
-                "audio_data": None
+                "success": False,
+                "error": "Text cannot be empty or None",
+                "audio_data": None,
             }
-            
+
         # Validate numeric parameters ranges
         if not (0.5 <= speed_ratio <= 2.0):
             return {
                 "success": False,
                 "error": "speed_ratio must be between 0.5 and 2.0",
-                "audio_data": None
+                "audio_data": None,
             }
         if not (0.1 <= volume_ratio <= 3.0):
             return {
                 "success": False,
-                "error": "volume_ratio must be between 0.1 and 3.0", 
-                "audio_data": None
+                "error": "volume_ratio must be between 0.1 and 3.0",
+                "audio_data": None,
             }
         if not (0.5 <= pitch_ratio <= 2.0):
             return {
                 "success": False,
                 "error": "pitch_ratio must be between 0.5 and 2.0",
-                "audio_data": None
+                "audio_data": None,
             }
 
         # Generate unique user ID if not provided
@@ -168,34 +168,38 @@ class VolcengineTTS:
         try:
             # Sanitize text for logging (remove line breaks that could break logs)
             sanitized_text_for_log = text.replace("\r\n", "").replace("\n", "")
-            logger.debug(f"Sending TTS request for text: {sanitized_text_for_log[:50]}...")
-            
+            logger.debug(
+                f"Sending TTS request for text: {sanitized_text_for_log[:50]}..."
+            )
+
             # Make API request with proper error handling
             response = requests.post(
-                self.api_url, 
-                data=json.dumps(request_payload), 
+                self.api_url,
+                data=json.dumps(request_payload),
                 headers=self.header,
-                timeout=30  # Added timeout to prevent hanging requests
+                timeout=30,  # Added timeout to prevent hanging requests
             )
-            
+
             # Parse response JSON with error handling
             try:
                 response_json = response.json()
             except json.JSONDecodeError as json_error:
                 logger.error(f"Failed to parse JSON response: {json_error}")
                 return {
-                    "success": False, 
-                    "error": f"Invalid JSON response: {json_error}", 
-                    "audio_data": None
+                    "success": False,
+                    "error": f"Invalid JSON response: {json_error}",
+                    "audio_data": None,
                 }
 
             # Check HTTP status code
             if response.status_code != 200:
-                logger.error(f"TTS API HTTP error {response.status_code}: {response_json}")
+                logger.error(
+                    f"TTS API HTTP error {response.status_code}: {response_json}"
+                )
                 return {
-                    "success": False, 
-                    "error": f"HTTP {response.status_code}: {response_json}", 
-                    "audio_data": None
+                    "success": False,
+                    "error": f"HTTP {response.status_code}: {response_json}",
+                    "audio_data": None,
                 }
 
             # Validate response structure
@@ -225,29 +229,25 @@ class VolcengineTTS:
 
         except requests.exceptions.Timeout:
             logger.error("TTS API request timed out")
-            return {
-                "success": False, 
-                "error": "Request timeout", 
-                "audio_data": None
-            }
+            return {"success": False, "error": "Request timeout", "audio_data": None}
         except requests.exceptions.ConnectionError as conn_error:
             logger.error(f"TTS API connection error: {conn_error}")
             return {
-                "success": False, 
-                "error": f"Connection error: {conn_error}", 
-                "audio_data": None
+                "success": False,
+                "error": f"Connection error: {conn_error}",
+                "audio_data": None,
             }
         except requests.exceptions.RequestException as req_error:
             logger.error(f"TTS API request error: {req_error}")
             return {
-                "success": False, 
-                "error": f"Request error: {req_error}", 
-                "audio_data": None
+                "success": False,
+                "error": f"Request error: {req_error}",
+                "audio_data": None,
             }
         except Exception as unexpected_error:
             logger.exception(f"Unexpected error in TTS API call: {unexpected_error}")
             return {
-                "success": False, 
-                "error": f"Unexpected error: {unexpected_error}", 
-                "audio_data": None
+                "success": False,
+                "error": f"Unexpected error: {unexpected_error}",
+                "audio_data": None,
             }

@@ -24,18 +24,19 @@ from langchain_openai.chat_models.base import (
     warnings,
 )
 
+
 def _convert_delta_to_message_chunk(
     delta_dict: Mapping[str, Any], default_class: Type[BaseMessageChunk]
 ) -> BaseMessageChunk:
     """Convert a delta dictionary to a message chunk.
-    
+
     Args:
         delta_dict: Dictionary containing delta information from OpenAI response
         default_class: Default message chunk class to use if role is not specified
-        
+
     Returns:
         BaseMessageChunk: Appropriate message chunk based on role and content
-        
+
     Raises:
         KeyError: If required keys are missing from the delta dictionary
     """
@@ -43,14 +44,14 @@ def _convert_delta_to_message_chunk(
     role = cast(str, delta_dict.get("role", ""))
     content = cast(str, delta_dict.get("content") or "")
     additional_kwargs: Dict[str, Any] = {}
-    
+
     # Handle function calls
     if function_call_data := delta_dict.get("function_call"):
         function_call = dict(function_call_data)
         if "name" in function_call and function_call["name"] is None:
             function_call["name"] = ""
         additional_kwargs["function_call"] = function_call
-    
+
     # Handle tool calls
     tool_call_chunks = []
     if raw_tool_calls := delta_dict.get("tool_calls"):
@@ -102,25 +103,26 @@ def _convert_delta_to_message_chunk(
     else:
         return default_class(content=content, id=message_id)  # type: ignore
 
+
 def _convert_chunk_to_generation_chunk(
-    chunk: Dict[str, Any], 
-    default_chunk_class: Type[BaseMessageChunk], 
-    base_generation_info: Optional[Dict[str, Any]]
+    chunk: Dict[str, Any],
+    default_chunk_class: Type[BaseMessageChunk],
+    base_generation_info: Optional[Dict[str, Any]],
 ) -> Optional[ChatGenerationChunk]:
     """Convert a streaming chunk to a generation chunk.
-    
+
     Args:
         chunk: Raw chunk data from OpenAI streaming response
         default_chunk_class: Default message chunk class to use
         base_generation_info: Base generation information to include
-        
+
     Returns:
         Optional[ChatGenerationChunk]: Generated chunk or None if chunk should be skipped
     """
     # Skip content.delta type chunks from beta.chat.completions.stream
     if chunk.get("type") == "content.delta":
         return None
-    
+
     token_usage = chunk.get("usage")
     choices = (
         chunk.get("choices", [])
@@ -131,7 +133,7 @@ def _convert_chunk_to_generation_chunk(
     usage_metadata: Optional[UsageMetadata] = (
         _create_usage_metadata(token_usage) if token_usage else None
     )
-    
+
     # Handle empty choices
     if not choices:
         generation_chunk = ChatGenerationChunk(
@@ -169,9 +171,10 @@ def _convert_chunk_to_generation_chunk(
     )
     return generation_chunk
 
+
 class ChatOpenAIReasoning(ChatOpenAI):
     """Extended ChatOpenAI model with reasoning capabilities.
-    
+
     This class extends the base ChatOpenAI model to support OpenAI's reasoning models
     that include reasoning_content in their responses. It handles the extraction and
     preservation of reasoning content during both streaming and non-streaming operations.
@@ -183,11 +186,11 @@ class ChatOpenAIReasoning(ChatOpenAI):
         generation_info: Optional[Dict[str, Any]] = None,
     ) -> ChatResult:
         """Create a chat result from the OpenAI response.
-        
+
         Args:
             response: The response from OpenAI API
             generation_info: Additional generation information
-            
+
         Returns:
             ChatResult: The formatted chat result with reasoning content if available
         """
@@ -199,20 +202,24 @@ class ChatOpenAIReasoning(ChatOpenAI):
 
         # Extract reasoning content if available
         try:
-            if (hasattr(response, 'choices') and 
-                response.choices and 
-                hasattr(response.choices[0], 'message') and
-                hasattr(response.choices[0].message, "reasoning_content")):
-                
+            if (
+                hasattr(response, "choices")
+                and response.choices
+                and hasattr(response.choices[0], "message")
+                and hasattr(response.choices[0].message, "reasoning_content")
+            ):
+
                 reasoning_content = response.choices[0].message.reasoning_content
                 if reasoning_content and chat_result.generations:
-                    chat_result.generations[0].message.additional_kwargs["reasoning_content"] = reasoning_content
+                    chat_result.generations[0].message.additional_kwargs[
+                        "reasoning_content"
+                    ] = reasoning_content
         except (IndexError, AttributeError):
             # If reasoning content extraction fails, continue without it
             pass
 
         return chat_result
-    
+
     def _stream(
         self,
         messages: List[BaseMessage],
@@ -221,16 +228,16 @@ class ChatOpenAIReasoning(ChatOpenAI):
         **kwargs: Any,
     ) -> Iterator[ChatGenerationChunk]:
         """Create a streaming generator for chat completions.
-        
+
         Args:
             messages: List of messages to send to the model
             stop: Optional list of stop sequences
             run_manager: Optional callback manager for LLM runs
             **kwargs: Additional keyword arguments for the API call
-            
+
         Yields:
             ChatGenerationChunk: Individual chunks from the streaming response
-            
+
         Raises:
             openai.BadRequestError: If the API request is invalid
         """
@@ -266,19 +273,19 @@ class ChatOpenAIReasoning(ChatOpenAI):
                     # Convert chunk to dict if it's a model object
                     if not isinstance(chunk, dict):
                         chunk = chunk.model_dump()
-                    
+
                     generation_chunk = _convert_chunk_to_generation_chunk(
                         chunk,
                         default_chunk_class,
                         base_generation_info if is_first_chunk else {},
                     )
-                    
+
                     if generation_chunk is None:
                         continue
-                    
+
                     # Update default chunk class for subsequent chunks
                     default_chunk_class = generation_chunk.message.__class__
-                    
+
                     # Handle log probabilities for callback
                     logprobs = (generation_chunk.generation_info or {}).get("logprobs")
                     if run_manager:
@@ -287,16 +294,15 @@ class ChatOpenAIReasoning(ChatOpenAI):
                             chunk=generation_chunk,
                             logprobs=logprobs,
                         )
-                    
+
                     is_first_chunk = False
                     yield generation_chunk
-                    
+
         except openai.BadRequestError as e:
             _handle_openai_bad_request(e)
-        
+
         # Handle final completion for response_format requests
-        if (hasattr(response, "get_final_completion") and 
-            "response_format" in payload):
+        if hasattr(response, "get_final_completion") and "response_format" in payload:
             try:
                 final_completion = response.get_final_completion()
                 generation_chunk = self._get_generation_chunk_from_completion(

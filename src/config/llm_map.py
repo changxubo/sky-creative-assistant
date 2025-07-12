@@ -13,7 +13,7 @@ LLMCapabilityType = Literal["basic", "reasoning", "vision"]
 
 def get_available_llm_types() -> Set[LLMCapabilityType]:
     """Get all available LLM capability types.
-    
+
     Returns:
         Set[LLMCapabilityType]: Set of all available LLM capability types.
     """
@@ -22,10 +22,10 @@ def get_available_llm_types() -> Set[LLMCapabilityType]:
 
 def get_agent_llm_type(agent_name: str) -> Optional[LLMCapabilityType]:
     """Get the LLM capability type for a specific agent.
-    
+
     Args:
         agent_name (str): Name of the agent to look up.
-        
+
     Returns:
         Optional[LLMCapabilityType]: The LLM capability type for the agent,
             or None if agent is not found.
@@ -35,10 +35,10 @@ def get_agent_llm_type(agent_name: str) -> Optional[LLMCapabilityType]:
 
 def is_valid_agent(agent_name: str) -> bool:
     """Check if an agent name is valid and exists in the mapping.
-    
+
     Args:
         agent_name (str): Name of the agent to validate.
-        
+
     Returns:
         bool: True if agent exists in the mapping, False otherwise.
     """
@@ -51,19 +51,21 @@ def is_valid_agent(agent_name: str) -> bool:
 # - "reasoning": Complex logical reasoning and analysis
 # - "vision": Visual content processing and analysis
 AGENT_LLM_CAPABILITY_MAP: Dict[str, LLMCapabilityType] = {
-    "coordinator": "basic",        # Orchestrates workflow between agents
-    "planner": "reasoning",        # Requires strategic planning and reasoning
-    "researcher": "basic",         # Information gathering and synthesis
-    "coder": "reasoning",          # Code analysis and generation requires logic
-    "reporter": "basic",           # Document generation and formatting
-    "podcast_script_writer": "basic",      # Creative writing and script generation
-    "ppt_composer": "vision",      # Presentation creation with visual elements
-    "prose_writer": "basic",       # Creative and technical writing
-    "prompt_enhancer": "reasoning", # Optimization requires analytical thinking
+    "coordinator": "basic",  # Orchestrates workflow between agents
+    "planner": "reasoning",  # Requires strategic planning and reasoning
+    "researcher": "basic",  # Information gathering and synthesis
+    "coder": "reasoning",  # Code analysis and generation requires logic
+    "reporter": "basic",  # Document generation and formatting
+    "podcast_script_writer": "basic",  # Creative writing and script generation
+    "ppt_composer": "vision",  # Presentation creation with visual elements
+    "prose_writer": "basic",  # Creative and technical writing
+    "prompt_enhancer": "reasoning",  # Optimization requires analytical thinking
 }
 
 
 # Backward compatibility aliases - DEPRECATED: Use new names above
 # TODO: Update all imports to use new names and remove these aliases
 LLMType = LLMCapabilityType  # Deprecated: Use LLMCapabilityType instead
-AGENT_LLM_MAP = AGENT_LLM_CAPABILITY_MAP  # Deprecated: Use AGENT_LLM_CAPABILITY_MAP instead
+AGENT_LLM_MAP = (
+    AGENT_LLM_CAPABILITY_MAP  # Deprecated: Use AGENT_LLM_CAPABILITY_MAP instead
+)

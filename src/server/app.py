@@ -12,7 +12,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    cast
+    cast,
 )
 from uuid import uuid4
 
@@ -869,8 +869,7 @@ async def mcp_server_metadata(
             )
 
         logger.info(f"Successfully loaded {len(tools)} tools from MCP server")
-        
-        
+
         # Create response
         response = MCPServerMetadataResponse(
             transport=request.transport,
