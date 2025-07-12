@@ -1,4 +1,5 @@
 # Sky Creative Assistant 
+
 ## Introduction
 With NVIDIA AI Enterprise to accelerate Agentic AI Agent development, Rednote Creative Assistant is a powerful AI assistant designed to help you conduct deep research, generate comprehensive reports, and create engaging podcasts. It leverages NVIDIA NIM models and integrates seamlessly with Rednote's Model Context Protocol (MCP) services.
 
