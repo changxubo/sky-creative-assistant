@@ -135,7 +135,7 @@ function MessageListItem({
   onToggleResearch?: () => void;
 }) {
   const message = useMessage(messageId);
-  const background = message?.content || "";
+  const background = message?.content ?? "";
   const hasMainContent = Boolean(
     message?.content && message?.content.trim() !== "",
   );

@@ -5,8 +5,8 @@ import { Geist } from "next/font/google";
 import Script from "next/script";
 import { type ReactNode } from "react";
 
-import { Toaster } from "~/components/core/toaster";
 import { ThemeProviderWrapper } from "~/components/core/theme-provider-wrapper";
+import { Toaster } from "~/components/core/toaster";
 import { env } from "~/env";
 
 export const metadata: Metadata = {

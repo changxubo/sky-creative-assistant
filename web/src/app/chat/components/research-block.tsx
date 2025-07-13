@@ -1,21 +1,13 @@
-// React imports
+import { Check, Copy, Download, Headphones, Pencil, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-// Library imports
-import { Check, Copy, Download, Headphones, Pencil, Undo2, X } from "lucide-react";
-
-// UI Component imports
+import { ScrollContainer } from "~/components/core/scroll-container";
+import { Tooltip } from "~/components/core/tooltip";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { ScrollContainer } from "~/components/core/scroll-container";
-import { Tooltip } from "~/components/core/tooltip";
-
-// Core imports
 import { useReplay } from "~/core/replay";
 import { closeResearch, listenToPodcast, useStore } from "~/core/store";
-
-// Utilities
 import { cn } from "~/lib/utils";
 
 // Local component imports
