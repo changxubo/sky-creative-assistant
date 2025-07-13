@@ -1,29 +1,20 @@
-// React imports
-import { useCallback, useRef, useState, Suspense } from "react";
-
-import Link from "next/link";
-
-// Third-party library imports
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, X } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useRef, useState, Suspense } from "react";
 
-// Local component imports
+import { NewChat } from "~/components/core/icons/new-chat";
 import { Search } from "~/components/core/icons/search";
 import { SendMessage } from "~/components/core/icons/send-message";
 import MessageInput, {
   type MessageInputRef,
 } from "~/components/core/message-input";
 import { ReportStyleDialog } from "~/components/core/report-style-dialog";
-import { Tooltip } from "~/components/core/tooltip";
-import { NewChat } from "~/components/core/icons/new-chat";
 import { ThemeToggle } from "~/components/core/theme-toggle";
+import { Tooltip } from "~/components/core/tooltip";
 import { BorderBeam } from "~/components/magicui/border-beam";
 import { Button } from "~/components/ui/button";
-
-import { SettingsDialog } from "../../settings/dialogs/settings-dialog";
-
-// API and core imports
 import { enhancePrompt } from "~/core/api";
 import { useConfig } from "~/core/api/hooks";
 import type { Option, Resource } from "~/core/messages";
@@ -32,9 +23,9 @@ import {
   setEnableDeepThinking,
   useSettingsStore,
 } from "~/core/store";
-
-// Utility imports
 import { cn } from "~/lib/utils";
+
+import { SettingsDialog } from "../../settings/dialogs/settings-dialog";
 
 interface InputBoxProps {
   className?: string;
@@ -143,12 +134,6 @@ export function InputBox({
       setIsEnhancing(false);
     }
   }, [currentPrompt, isEnhancing, reportStyle]);
-
-  const handleCancelOperation = useCallback(() => {
-    if (responding && onCancel) {
-      onCancel();
-    }
-  }, [responding, onCancel]);
 
   const handleToggleDeepThinking = useCallback(() => {
     setEnableDeepThinking(!enableDeepThinking);

@@ -1,11 +1,8 @@
-// React imports
-import { useCallback, useEffect, useRef, useState } from "react";
-
-// Library imports
 import { motion } from "framer-motion";
 import { FastForward, Play } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-// UI Component imports
+import { RainbowText } from "~/components/core/rainbow-text";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -13,20 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { RainbowText } from "~/components/core/rainbow-text";
-
-// Core imports
 import { fastForwardReplay } from "~/core/api";
 import { useReplayMetadata } from "~/core/api/hooks";
 import type { Option, Resource } from "~/core/messages";
 import { useReplay } from "~/core/replay";
 import { sendMessage, useMessageIds, useStore } from "~/core/store";
-
-// Environment and utilities
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
-// Local component imports
 import { ConversationStarter } from "./conversation-starter";
 import { InputBox } from "./input-box";
 import { MessageListView } from "./message-list-view";
