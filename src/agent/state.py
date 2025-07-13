@@ -11,6 +11,7 @@ class State(MessagesState):
     locale: str = "zh-CN"
     research_topic: str = ""
     observations: list[str] = []
+    investigations:str = ""
     resources: list[Resource] = []
     plan_iterations: int = 0
     current_plan: Plan | str = None

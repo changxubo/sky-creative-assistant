@@ -1,6 +1,6 @@
-
-
 import Link from "next/link";
+
+import { AuroraText } from "~/components/magicui/aurora-text";
 
 export function Logo() {
   return (
@@ -8,7 +8,7 @@ export function Logo() {
       className="opacity-70 transition-opacity duration-300 hover:opacity-100"
       href="/"
     >
-     Sky Creative Assistant
+     <AuroraText>Sky Creative Assistant</AuroraText>
     </Link> 
   );
 }

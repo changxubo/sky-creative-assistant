@@ -4,12 +4,12 @@ agent:
   authtoken: ${NGROK_AUTH_TOKEN}
 
 endpoints:
-  - name: web
-    url: ${NGROK_DOMAIN}
-    metadata: '{ "id": "frontend" }'
+  - name: nginx
+    url: https://eft-vocal-termite.ngrok-free.app
+    metadata: '{ "id": "nginx" }'
     description: "ngrok tunnel for web app"
     upstream:
-      url: http://frontend:3000
+      url: http://nginx:80
   - name: dashboard
     upstream:
       url: http://ngrok:4040

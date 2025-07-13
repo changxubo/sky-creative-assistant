@@ -187,6 +187,7 @@ async def _astream_workflow_generator(
             "final_report": "",
             "current_plan": None,
             "observations": [],
+            "investigations": "",
             "auto_accepted_plan": auto_accepted_plan,
             "enable_background_investigation": enable_background_investigation,
             "research_topic": messages[-1].get("content", "") if messages else "",
@@ -227,13 +228,29 @@ async def _astream_workflow_generator(
                         "content": event_data["__interrupt__"][0].value,
                         "finish_reason": "interrupt",
                         "options": [
-                            {"text": "Edit plan", "value": "edit_plan"},
-                            {"text": "Start research", "value": "accepted"},
+                            {"text": "修改计划", "value": "edit_plan"},
+                            {"text": "开始研究", "value": "accepted"},
                         ],
                     },
                 )
                 continue
-
+            
+            if isinstance(event_data, dict) and "background_investigator_test" in event_data:
+                # Process message events
+                message_chunk = cast(
+                    BaseMessage, event_data["background_investigator"]["messages"][0]
+                )
+                yield _make_event(
+                    "message_chunk",
+                    {
+                        "thread_id": thread_id,
+                        "agent": "background_investigator",
+                        "id": "run--"+message_chunk.id,
+                        "role": "assistant",
+                        "content": event_data["background_investigator"]["investigations"],
+                    },
+                )
+                continue
             # Skip non-message events
             if not isinstance(event_data, tuple):
                 continue

@@ -46,7 +46,9 @@ def background_investigation_node(state: State, config: RunnableConfig):
     logger.info("background investigation node is running.")
     configurable = Configuration.from_runnable_config(config)
     query = state.get("research_topic")
+    goto = "planner"
     background_investigation_results = None
+    llm = get_llm_by_type(AGENT_LLM_MAP["coordinator"])
     if SELECTED_SEARCH_ENGINE == SearchEngine.TAVILY.value:
         searched_content = LoggedTavilySearchTool(
             max_results=configurable.max_search_results
@@ -55,11 +57,36 @@ def background_investigation_node(state: State, config: RunnableConfig):
             background_investigation_results = [
                 f"## {elem['title']}\n\n{elem['content']}" for elem in searched_content
             ]
-            return {
-                "background_investigation_results": "\n\n".join(
-                    background_investigation_results
-                )
-            }
+            messages = [
+                {
+                    "role": "system",
+                    "content": "You are a background investigator. Your task is to collect background information related to the user's query.",
+                },
+                {
+                    "role": "user",
+                    "content": "background investigation results of user query:"
+                    + "\n\n".join(background_investigation_results),
+                },
+                {
+                    "role": "user",
+                    "content": "Please summarize the background information collected from the search results.",
+                },
+            ]
+            response = llm.invoke(messages)
+            full_response = response.model_dump_json(indent=4, exclude_none=True)
+            return Command(
+                update={
+                    "investigations": full_response,
+                    "messages": [
+                        AIMessage(
+                            content="__background_investigation_results__",
+                            name="background_investigator",
+                        )
+                    ],
+                },
+                goto=goto,
+            )
+            # return {"background_investigation_results": "\n\n".join( background_investigation_results)}
         else:
             logger.error(
                 f"Tavily search returned malformed response: {searched_content}"
@@ -68,11 +95,36 @@ def background_investigation_node(state: State, config: RunnableConfig):
         background_investigation_results = get_web_search_tool(
             configurable.max_search_results
         ).invoke(query)
-    return {
-        "background_investigation_results": json.dumps(
-            background_investigation_results, ensure_ascii=False
-        )
-    }
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a background investigator. Your task is to collect background information related to the user's query.",
+        },
+        {
+            "role": "user",
+            "content": "background investigation results of user query:"
+            + json.dumps(background_investigation_results, ensure_ascii=False),
+        },
+        {
+            "role": "user",
+            "content": "Please summarize the background information collected from the search results.",
+        },
+    ]
+    response = llm.invoke(messages)
+    full_response = response.model_dump_json(indent=4, exclude_none=True)
+    return Command(
+        update={
+            "investigations": full_response,
+            "messages": [
+                AIMessage(
+                    content="__background_investigation_results__",
+                    name="background_investigator",
+                )
+            ],
+        },
+        goto=goto,
+    )
+    # return {"background_investigation_results": json.dumps(background_investigation_results, ensure_ascii=False)}
 
 
 def planner_node(
@@ -84,15 +136,13 @@ def planner_node(
     plan_iterations = state["plan_iterations"] if state.get("plan_iterations", 0) else 0
     messages = apply_prompt_template("planner", state, configurable)
 
-    if state.get("enable_background_investigation") and state.get(
-        "background_investigation_results"
-    ):
+    if state.get("enable_background_investigation") and state.get("investigations"):
         messages += [
             {
                 "role": "user",
                 "content": (
                     "background investigation results of user query:\n"
-                    + state["background_investigation_results"]
+                    + state["investigations"]
                     + "\n"
                 ),
             }
@@ -219,7 +269,7 @@ def coordinator_node(
     logger.debug(f"Current state messages: {state['messages']}")
 
     goto = "__end__"
-    locale = state.get("locale", "en-US")  # Default locale if not specified
+    locale = state.get("locale", "zh-CN")  # Default locale if not specified
     research_topic = state.get("research_topic", "")
 
     if len(response.tool_calls) > 0:

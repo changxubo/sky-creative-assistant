@@ -7,6 +7,7 @@ export interface Message {
   threadId: string;
   agent?:
     | "coordinator"
+    | "background_investigator"
     | "planner"
     | "researcher"
     | "coder"

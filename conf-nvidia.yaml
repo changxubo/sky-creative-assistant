@@ -1,0 +1,29 @@
+# [!NOTE]
+# Read the `docs/configuration_guide.md` carefully, and update the configurations to match your specific settings and requirements.
+# - Replace `api_key` with your own credentials
+# - Replace `base_url` and `model` name if you want to use a custom model
+
+BASIC_MODEL:
+  base_url: https://integrate.api.nvidia.com/v1
+  model: "qwen/qwen3-235b-a22b"
+  api_key: nvapi-key
+  temperature: 0.2
+  #max_tokens: 40960
+  top_p: 0.70
+  streaming: true
+REASONING_MODEL:
+  base_url: https://integrate.api.nvidia.com/v1
+  #model: "deepseek-ai/deepseek-r1-0528"
+  model: "qwen/qwen3-235b-a22b"
+  api_key: nvapi-key
+  temperature: 0.6
+  #max_tokens: 8192
+  top_p: 0.70
+  streaming: true
+VISION_MODEL:
+  base_url: https://integrate.api.nvidia.com/v1
+  model: "microsoft/phi-4-multimodal-instruct"
+  api_key: nvapi-key
+  temperature: 0.10
+  #max_tokens: 512
+  top_p: 0.7
