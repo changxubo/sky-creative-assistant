@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { useMemo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { FavIcon } from "~/components/core/fav-icon";
 import Image from "~/components/core/image";
@@ -355,7 +355,7 @@ function PythonToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
         <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
           <SyntaxHighlighter
             language="python"
-            style={resolvedTheme === "dark" ? dark : docco}
+            style={resolvedTheme === "dark" ? atomDark : docco}
             customStyle={{
               background: "transparent",
               border: "none",
@@ -403,7 +403,7 @@ function PythonToolCallResult({ result }: { result: string }) {
       <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
         <SyntaxHighlighter
           language="plaintext"
-          style={resolvedTheme === "dark" ? dark : docco}
+          style={resolvedTheme === "dark" ? atomDark : docco}
           customStyle={{
             color: hasError ? "red" : "inherit",
             background: "transparent",
@@ -610,7 +610,7 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                 <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
                   <SyntaxHighlighter
                     language="json"
-                    style={resolvedTheme === "dark" ? dark : docco}
+                    style={resolvedTheme === "dark" ? atomDark : docco}
                     customStyle={{
                       background: "transparent",
                       border: "none",

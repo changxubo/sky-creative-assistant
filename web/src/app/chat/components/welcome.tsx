@@ -2,21 +2,32 @@ import { motion } from "framer-motion";
 
 import { cn } from "~/lib/utils";
 
-export function Welcome({ className }: { className?: string }) {
+/**
+ * Props interface for the Welcome component
+ */
+interface WelcomeProps {
+  /** Optional CSS class name for custom styling */
+  className?: string;
+}
+
+/**
+ * Welcome component that displays an animated greeting message
+ * for the Sky Creative Assistant application
+ */
+export function Welcome({ className }: WelcomeProps) {
   return (
     <motion.div
       className={cn("flex flex-col", className)}
-      style={{ transition: "all 0.2s ease-out" }}
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <h3 className="mb-2 text-center text-3xl font-medium">
-        👋 Hello, Creator!
+        👋 Hello, sky walker!
       </h3>
-      <div className="text-muted-foreground px-4 text-center text-lg">
-        欢迎使用Sky Creative Assistant，这是一个基于NVIDIA NIM深度研究助手，多Agent协同Qwen3,Deepseek,Phi-4模型推理，帮助您在网络上搜索、浏览信息、生成图表和图片处理复杂创作任务。
+      <div className="px-4 text-center text-lg text-muted-foreground">
+        欢迎使用Research Assistant，一个深度创作助手，使用Qwen3,Deepseek,Phi-4模型和Multi-Agent协同，帮助您在联网搜索、浏览信息、生成图表和图片处理复杂创作任务。
       </div>
-      
     </motion.div>
   );
 }

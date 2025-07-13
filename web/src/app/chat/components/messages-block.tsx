@@ -1,10 +1,11 @@
+// React imports
+import { useCallback, useEffect, useRef, useState } from "react";
 
-
+// Library imports
 import { motion } from "framer-motion";
 import { FastForward, Play } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
 
-import { RainbowText } from "~/components/core/rainbow-text";
+// UI Component imports
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -12,20 +13,39 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { RainbowText } from "~/components/core/rainbow-text";
+
+// Core imports
 import { fastForwardReplay } from "~/core/api";
 import { useReplayMetadata } from "~/core/api/hooks";
 import type { Option, Resource } from "~/core/messages";
 import { useReplay } from "~/core/replay";
 import { sendMessage, useMessageIds, useStore } from "~/core/store";
+
+// Environment and utilities
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
+// Local component imports
 import { ConversationStarter } from "./conversation-starter";
 import { InputBox } from "./input-box";
 import { MessageListView } from "./message-list-view";
 import { Welcome } from "./welcome";
 
-export function MessagesBlock({ className }: { className?: string }) {
+interface MessagesBlockProps {
+  className?: string;
+}
+
+interface MessageSendOptions {
+  interruptFeedback?: string;
+  resources?: Array<Resource>;
+}
+
+interface FeedbackState {
+  option: Option;
+}
+
+export function MessagesBlock({ className }: MessagesBlockProps) {
   const messageIds = useMessageIds();
   const messageCount = messageIds.length;
   const responding = useStore((state) => state.responding);
@@ -33,17 +53,16 @@ export function MessagesBlock({ className }: { className?: string }) {
   const { title: replayTitle, hasError: replayHasError } = useReplayMetadata();
   const [replayStarted, setReplayStarted] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [feedback, setFeedback] = useState<{ option: Option } | null>(null);
-  const handleSend = useCallback(
+  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
+  
+  const handleSendMessage = useCallback(
     async (
       message: string,
-      options?: {
-        interruptFeedback?: string;
-        resources?: Array<Resource>;
-      },
+      options?: MessageSendOptions,
     ) => {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
+      
       try {
         await sendMessage(
           message,
@@ -56,54 +75,91 @@ export function MessagesBlock({ className }: { className?: string }) {
             abortSignal: abortController.signal,
           },
         );
-      } catch {}
+      } catch (error) {
+        // Log the error for debugging while maintaining user experience
+        console.error('Failed to send message:', error);
+        // Consider showing user-friendly error message or retry mechanism
+      } finally {
+        // Clean up the abort controller reference
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+        }
+      }
     },
     [feedback],
   );
-  const handleCancel = useCallback(() => {
+  const handleCancelMessage = useCallback(() => {
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
   }, []);
-  const handleFeedback = useCallback(
-    (feedback: { option: Option }) => {
+
+  const handleSetFeedback = useCallback(
+    (feedback: FeedbackState) => {
       setFeedback(feedback);
     },
-    [setFeedback],
+    [],
   );
-  const handleRemoveFeedback = useCallback(() => {
+
+  const handleClearFeedback = useCallback(() => {
     setFeedback(null);
-  }, [setFeedback]);
-  const handleStartReplay = useCallback(() => {
+  }, []);
+
+  const handleStartReplaySession = useCallback(() => {
     setReplayStarted(true);
-    void sendMessage();
-  }, [setReplayStarted]);
+    // Handle potential errors in replay initialization
+    try {
+      void sendMessage();
+    } catch (error) {
+      console.error('Failed to start replay session:', error);
+      setReplayStarted(false);
+    }
+  }, []);
   const [fastForwarding, setFastForwarding] = useState(false);
-  const handleFastForwardReplay = useCallback(() => {
-    setFastForwarding(!fastForwarding);
-    fastForwardReplay(!fastForwarding);
+  
+  // Cleanup effect to abort any pending requests on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, []);
+  
+  const handleToggleFastForwardReplay = useCallback(() => {
+    const newFastForwardState = !fastForwarding;
+    setFastForwarding(newFastForwardState);
+    
+    try {
+      fastForwardReplay(newFastForwardState);
+    } catch (error) {
+      console.error('Failed to toggle fast forward replay:', error);
+      // Revert state if the API call fails
+      setFastForwarding(fastForwarding);
+    }
   }, [fastForwarding]);
   return (
     <div className={cn("flex h-full flex-col", className)}>
       <MessageListView
         className="flex flex-grow"
-        onFeedback={handleFeedback}
-        onSendMessage={handleSend}
+        onFeedback={handleSetFeedback}
+        onSendMessage={handleSendMessage}
       />
       {!isReplay ? (
         <div className="relative flex h-32 shrink-0 pb-4">
           {!responding && messageCount === 0 && (
             <ConversationStarter
               className="absolute top-[-238px] left-0"
-              onSend={handleSend}
+              onSend={handleSendMessage}
             />
           )}
           <InputBox
             className="h-full w-full"
             responding={responding}
             feedback={feedback}
-            onSend={handleSend}
-            onCancel={handleCancel}
-            onRemoveFeedback={handleRemoveFeedback}
+            onSend={handleSendMessage}
+            onCancel={handleCancelMessage}
+            onRemoveFeedback={handleClearFeedback}
           />
         </div>
       ) : (
@@ -157,10 +213,10 @@ export function MessagesBlock({ className }: { className?: string }) {
                     <CardDescription>
                       <RainbowText animated={responding}>
                         {responding
-                          ? "DeerFlow is now replaying the conversation..."
+                          ? "DeepResearch is now replaying the conversation..."
                           : replayStarted
                             ? "The replay has been stopped."
-                            : `You're now in DeerFlow's replay mode. Click the "Play" button on the right to start.`}
+                            : `You're now in DeepResearch's replay mode. Click the "Play" button on the right to start.`}
                       </RainbowText>
                     </CardDescription>
                   </CardHeader>
@@ -171,14 +227,14 @@ export function MessagesBlock({ className }: { className?: string }) {
                       <Button
                         className={cn(fastForwarding && "animate-pulse")}
                         variant={fastForwarding ? "default" : "outline"}
-                        onClick={handleFastForwardReplay}
+                        onClick={handleToggleFastForwardReplay}
                       >
                         <FastForward size={16} />
                         Fast Forward
                       </Button>
                     )}
                     {!replayStarted && (
-                      <Button className="w-24" onClick={handleStartReplay}>
+                      <Button className="w-24" onClick={handleStartReplaySession}>
                         <Play size={16} />
                         Play
                       </Button>
@@ -196,6 +252,7 @@ export function MessagesBlock({ className }: { className?: string }) {
                   href="https://github.com/bytedance/deer-flow"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Visit the DeepResearch GitHub repository"
                 >
                   click here
                 </a>{" "}

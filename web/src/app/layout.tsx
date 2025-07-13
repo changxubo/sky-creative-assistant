@@ -3,16 +3,15 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
+import { type ReactNode } from "react";
 
+import { Toaster } from "~/components/core/toaster";
 import { ThemeProviderWrapper } from "~/components/core/theme-provider-wrapper";
 import { env } from "~/env";
 
-import { Toaster } from "../components/core/toaster";
-
 export const metadata: Metadata = {
   title: "Sky Creative Assistant",
-  description:
-    "Deep Exploration and Efficient Research, an AI tool that combines language models with specialized tools for research tasks.",
+  description:"Multi-agent system and MCP tools using NVIDIA NIM and Langchain.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -21,9 +20,11 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+interface RootLayoutProps {
+  readonly children: ReactNode;
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <head>
@@ -31,10 +32,14 @@ export default async function RootLayout({
           https://github.com/markdown-it/markdown-it/issues/1082#issuecomment-2749656365 */}
         <Script id="markdown-it-fix" strategy="beforeInteractive">
           {`
-            if (typeof window !== 'undefined' && typeof window.isSpace === 'undefined') {
-              window.isSpace = function(code) {
-                return code === 0x20 || code === 0x09 || code === 0x0A || code === 0x0B || code === 0x0C || code === 0x0D;
-              };
+            try {
+              if (typeof window !== 'undefined' && typeof window.isSpace === 'undefined') {
+                window.isSpace = function(code) {
+                  return code === 0x20 || code === 0x09 || code === 0x0A || code === 0x0B || code === 0x0C || code === 0x0D;
+                };
+              }
+            } catch (error) {
+              console.warn('Failed to initialize markdown-it fix:', error);
             }
           `}
         </Script>
@@ -50,9 +55,17 @@ export default async function RootLayout({
         }
         {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY && env.AMPLITUDE_API_KEY && (
           <>
-            <Script src="https://cdn.amplitude.com/script/d2197dd1df3f2959f26295bb0e7e849f.js"></Script>
+            <Script
+              src="https://cdn.amplitude.com/script/d2197dd1df3f2959f26295bb0e7e849f.js"
+              strategy="lazyOnload"
+            />
             <Script id="amplitude-init" strategy="lazyOnload">
-              {`window.amplitude.init('${env.AMPLITUDE_API_KEY}', {"fetchRemoteConfig":true,"autocapture":true});`}
+              {`
+                window.amplitude.init('${env.AMPLITUDE_API_KEY.replace(/'/g, "\\'")}', {
+                  "fetchRemoteConfig": true,
+                  "autocapture": true
+                });
+              `}
             </Script>
           </>
         )}

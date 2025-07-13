@@ -1,31 +1,46 @@
-
-
-import { Check, Copy, Headphones, Pencil, Undo2, X, Download } from "lucide-react";
+// React imports
 import { useCallback, useEffect, useState } from "react";
 
-import { ScrollContainer } from "~/components/core/scroll-container";
-import { Tooltip } from "~/components/core/tooltip";
+// Library imports
+import { Check, Copy, Download, Headphones, Pencil, Undo2, X } from "lucide-react";
+
+// UI Component imports
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { ScrollContainer } from "~/components/core/scroll-container";
+import { Tooltip } from "~/components/core/tooltip";
+
+// Core imports
 import { useReplay } from "~/core/replay";
 import { closeResearch, listenToPodcast, useStore } from "~/core/store";
+
+// Utilities
 import { cn } from "~/lib/utils";
 
+// Local component imports
 import { ResearchActivitiesBlock } from "./research-activities-block";
 import { ResearchReportBlock } from "./research-report-block";
+
+// Types
+interface ResearchBlockProps {
+  className?: string;
+  researchId: string | null;
+}
+
+type TabValue = "report" | "activities";
 
 export function ResearchBlock({
   className,
   researchId = null,
-}: {
-  className?: string;
-  researchId: string | null;
-}) {
+}: ResearchBlockProps) {
   const reportId = useStore((state) =>
     researchId ? state.researchReportIds.get(researchId) : undefined,
   );
-  const [activeTab, setActiveTab] = useState("activities");
+  const [activeTab, setActiveTab] = useState<TabValue>("activities");
+  const [editing, setEditing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  
   const hasReport = useStore((state) =>
     researchId ? state.researchReportIds.has(researchId) : false,
   );
@@ -33,77 +48,116 @@ export function ResearchBlock({
     reportId ? (state.messages.get(reportId)?.isStreaming ?? false) : false,
   );
   const { isReplay } = useReplay();
+  // Auto-switch to report tab when report becomes available
   useEffect(() => {
     if (hasReport) {
       setActiveTab("report");
     }
   }, [hasReport]);
 
-  const handleGeneratePodcast = useCallback(async () => {
-    if (!researchId) {
-      return;
-    }
-    await listenToPodcast(researchId);
-  }, [researchId]);
-
-  const [editing, setEditing] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const handleCopy = useCallback(() => {
-    if (!reportId) {
-      return;
-    }
-    const report = useStore.getState().messages.get(reportId);
-    if (!report) {
-      return;
-    }
-    void navigator.clipboard.writeText(report.content);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 1000);
-  }, [reportId]);
-
-  // Download report as markdown
-  const handleDownload = useCallback(() => {
-    if (!reportId) {
-      return;
-    }
-    const report = useStore.getState().messages.get(reportId);
-    if (!report) {
-      return;
-    }
-    const now = new Date();
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-    const filename = `research-report-${timestamp}.md`;
-    const blob = new Blob([report.content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 0);
-  }, [reportId]);
-
-    
-  const handleEdit = useCallback(() => {
-    setEditing((editing) => !editing);
-  }, []);
-
-  // When the research id changes, set the active tab to activities
+  // Reset to activities tab when research changes or report is unavailable
   useEffect(() => {
     if (!hasReport) {
       setActiveTab("activities");
     }
   }, [hasReport, researchId]);
 
+  const handleGeneratePodcastFromResearch = useCallback(async () => {
+    if (!researchId) {
+      console.warn('Cannot generate podcast: researchId is null');
+      return;
+    }
+    
+    try {
+      await listenToPodcast(researchId);
+    } catch (error) {
+      console.error('Failed to generate podcast:', error);
+      // Could add user notification here
+    }
+  }, [researchId]);
+
+  const handleCopyReportToClipboard = useCallback(() => {
+    if (!reportId) {
+      console.warn('Cannot copy report: reportId is null');
+      return;
+    }
+    
+    const report = useStore.getState().messages.get(reportId);
+    if (!report) {
+      console.warn('Cannot copy report: report not found');
+      return;
+    }
+    
+    navigator.clipboard.writeText(report.content)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error('Failed to copy report to clipboard:', error);
+        // Could add user notification here
+      });
+  }, [reportId]);
+
+  const handleDownloadReportAsMarkdown = useCallback(() => {
+    if (!reportId) {
+      console.warn('Cannot download report: reportId is null');
+      return;
+    }
+    
+    const report = useStore.getState().messages.get(reportId);
+    if (!report) {
+      console.warn('Cannot download report: report not found');
+      return;
+    }
+    
+    try {
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+      
+      // Sanitize filename to prevent path traversal
+      const filename = `research-report-${timestamp}.md`;
+      
+      const blob = new Blob([report.content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = filename;
+      downloadLink.style.display = 'none';
+      
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      
+      // Clean up immediately
+      setTimeout(() => {
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+      }, 0);
+    } catch (error) {
+      console.error('Failed to download report:', error);
+      // Could add user notification here
+    }
+  }, [reportId]);
+
+  const handleToggleEditMode = useCallback(() => {
+    setEditing((prevEditing) => !prevEditing);
+  }, []);
+
+  const handleCloseResearchPanel = useCallback(() => {
+    try {
+      closeResearch();
+    } catch (error) {
+      console.error('Failed to close research panel:', error);
+    }
+  }, []);
+
   return (
-    <div className={cn("h-full w-full", className)}>
-      <Card className={cn("relative h-full w-full pt-4", className)}>
+    <div className={cn("flex h-full w-full flex-col", className)}>
+      <Card className={cn("relative h-full w-full pt-4 border-0 shadow-none", className)}>
         <div className="absolute right-4 flex h-9 items-center justify-center">
           {hasReport && !reportStreaming && (
             <>
@@ -113,7 +167,7 @@ export function ResearchBlock({
                   size="icon"
                   variant="ghost"
                   disabled={isReplay}
-                  onClick={handleGeneratePodcast}
+                  onClick={handleGeneratePodcastFromResearch}
                 >
                   <Headphones />
                 </Button>
@@ -124,7 +178,7 @@ export function ResearchBlock({
                   size="icon"
                   variant="ghost"
                   disabled={isReplay}
-                  onClick={handleEdit}
+                  onClick={handleToggleEditMode}
                 >
                   {editing ? <Undo2 /> : <Pencil />}
                 </Button>
@@ -134,7 +188,7 @@ export function ResearchBlock({
                   className="text-gray-400"
                   size="icon"
                   variant="ghost"
-                  onClick={handleCopy}
+                  onClick={handleCopyReportToClipboard}
                 >
                   {copied ? <Check /> : <Copy />}
                 </Button>
@@ -144,7 +198,7 @@ export function ResearchBlock({
                   className="text-gray-400"
                   size="icon"
                   variant="ghost"
-                  onClick={handleDownload}
+                  onClick={handleDownloadReportAsMarkdown}
                 >
                   <Download />
                 </Button>
@@ -156,9 +210,7 @@ export function ResearchBlock({
               className="text-gray-400"
               size="sm"
               variant="ghost"
-              onClick={() => {
-                closeResearch();
-              }}
+              onClick={handleCloseResearchPanel}
             >
               <X />
             </Button>
@@ -167,7 +219,7 @@ export function ResearchBlock({
         <Tabs
           className="flex h-full w-full flex-col"
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value)}
+          onValueChange={(value) => setActiveTab(value as TabValue)}
         >
           <div className="flex w-full justify-center">
             <TabsList className="">
@@ -190,7 +242,7 @@ export function ResearchBlock({
             hidden={activeTab !== "report"}
           >
             <ScrollContainer
-              className="px-5pb-20 h-full"
+              className="h-full px-5 pb-20"
               scrollShadowColor="var(--card)"
               autoScrollToBottom={!hasReport || reportStreaming}
             >

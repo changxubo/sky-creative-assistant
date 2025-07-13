@@ -107,7 +107,7 @@ def _build_base_graph() -> StateGraph:
     builder.add_node("human_feedback", human_feedback_node)
 
     # Set up direct edges (unconditional flow)
-    builder.add_edge("background_investigator", "planner")
+    #builder.add_edge("background_investigator", "planner")
     builder.add_edge("reporter", END)
 
     # Set up conditional edges for dynamic routing
