@@ -5,7 +5,7 @@ agent:
 
 endpoints:
   - name: nginx
-    url: ${NGROK_DOMAIN}
+    url: https://eft-vocal-termite.ngrok-free.app
     metadata: '{ "id": "nginx" }'
     description: "ngrok tunnel for web app"
     upstream:
