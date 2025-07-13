@@ -19,7 +19,7 @@ venv/
 
 # user conf
 conf.yaml
-conf*.yaml
+conf-nvidia.yaml
 .idea/
 .langgraph_api/
 
