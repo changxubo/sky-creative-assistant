@@ -42,6 +42,7 @@ VISION_MODEL:
   top_p: 0.7
 ```
 ![Settings](./assets/settings.png)
+![Settings](./assets/settings-1.png)
 ```json
 {
   "mcpServers":{
