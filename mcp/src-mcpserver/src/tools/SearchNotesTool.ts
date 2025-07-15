@@ -32,16 +32,15 @@ interface SearchnotesInput {
 }
 
 class SearchnotesTool extends MCPTool<SearchnotesInput> {
-  name = "search_notes";
-  description = `Search for relevant Xiaohongshu notes based on keywords.
-  Note type (note_type) options are:
-      0 All types
-      1 Video notes
-      2 Image and text notes
-  Search results can be sorted using one of the following sort options:
-    general Comprehensive sorting
-    time_descending Newest sorting
-    popularity_descending Most popular sorting
+  name = "Search Xiaohongshu Notes";
+  description = `Search for relevant Xiaohongshu notes based on keywords. Note type (note_type) options are:
+0 All types
+1 Video notes
+2 Image and text notes
+Search results can be sorted using one of the following sort options:
+general Comprehensive sorting
+time_descending Newest sorting
+popularity_descending Most popular sorting
   `;
 
   schema = {
@@ -163,7 +162,7 @@ class SearchnotesTool extends MCPTool<SearchnotesInput> {
         const download_result = downloadCsvData(fileName, result_csv);
         return download_result['error'] ? `Failed to save data: ${download_result['error']}` : `Data saved. Count: ${results_all.length}. File: ${download_result.link}`;
       }
-      return results_all;
+      return result_csv;
     } catch (e) {
       // @ts-ignore
       return 'Failed to search notes data: ' + e.message;

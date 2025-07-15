@@ -12,7 +12,7 @@ interface GetnotecommentsInput {
 }
 
 class GetnotecommentsTool extends MCPTool<GetnotecommentsInput> {
-  name = "get_note_comments";
+  name = "Get Note Comments List";
   description = "Get comment list data for a specified Xiaohongshu note. Users can specify the number to retrieve (use -1 to get all). Users can also specify whether to export and download the data. Note: All parameters must be filled in, otherwise data cannot be retrieved.";
 
   schema = {

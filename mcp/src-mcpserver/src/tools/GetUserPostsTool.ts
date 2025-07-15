@@ -11,7 +11,7 @@ interface GetuserpostsInput {
 }
 
 class GetuserpostsTool extends MCPTool<GetuserpostsInput> {
-  name = "get_user_posts";
+  name = "Get User Notes List";
   description = "Get the list of published notes for a specified user. All parameters are required.";
 
   schema = {
@@ -83,7 +83,7 @@ class GetuserpostsTool extends MCPTool<GetuserpostsInput> {
       const download_result = downloadCsvData(fileName, result_csv);
       return download_result['error'] ? `Failed to save data: ${download_result['error']}` : `Data saved. Count: ${results.length}. File: ${download_result.link}`;
     }
-    return results;
+    return result_csv;
 
   }
 }

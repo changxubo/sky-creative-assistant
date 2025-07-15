@@ -30,7 +30,7 @@ interface SearchuserInput {
 }
 
 class SearchuserTool extends MCPTool<SearchuserInput> {
-  name = "search_users";
+  name = "Search Xiaohongshu Users";
   description = "Search for specific users based on keywords. The returned data may include multiple results, which can be filtered by criteria such as verification status or follower count to help users select an appropriate account. If there are multiple similar results, please remind the user to choose one. The xsec_token in the returned data is very important and may need to be passed to the next tool call";
 
   schema = {

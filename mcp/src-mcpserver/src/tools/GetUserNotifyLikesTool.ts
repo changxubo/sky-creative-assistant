@@ -9,7 +9,7 @@ interface GetusernotifylikesInput {
 }
 
 class GetusernotifylikesTool extends MCPTool<GetusernotifylikesInput> {
-  name = "get_likes_notifications";
+  name = "Get Likes and Collections Notifications";
   description = "Get the current user's message notifications in the likes and collections category. For example, which users have recently liked my notes, or collected my notes, can be retrieved with this tool. If the cursor parameter is empty, please pass an empty string";
 
   schema = {

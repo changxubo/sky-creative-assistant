@@ -18,6 +18,7 @@ Act as a typescript code review assistant and perform the following:
    - AUDIT: Security vulnerabilities in API route
    - CHECK: Authentication middleware and input sanitization
    - OPTIMIZE DATA FETCHING: Convert client-side fetch to getServerSideProps
+   - COMMENT: Add JSDoc and inline comments for clarity(use english)
 
 
 // REVIEW: Check for potential bugs in this component

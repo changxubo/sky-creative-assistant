@@ -7,7 +7,7 @@ interface GetfilecontentsInput {
 }
 
 class GetfilecontentsTool extends MCPTool<GetfilecontentsInput> {
-  name = "get_file_contents";
+  name = "Get Local File Contents";
   description = "Get the contents of a local file at the specified path, returns the file's string data";
 
   schema = {

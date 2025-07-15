@@ -11,7 +11,7 @@ interface GetfeeddataInput {
 }
 
 class GetfeeddataTool extends MCPTool<GetfeeddataInput> {
-  name = "get_note_details";
+  name = "Get Note Details";
   description = "Get detailed data for a specific note, note_id and xsec_token are both required";
 
   schema = {
@@ -77,8 +77,7 @@ class GetfeeddataTool extends MCPTool<GetfeeddataInput> {
         }
       }
       // Convert to csv
-      //return JSON.stringify(noteData);
-      return noteData;
+      return JSON.stringify(noteData);
     } catch (e) {
       // @ts-ignore
       return 'Failed to get note data! ' + e.message;

@@ -8,7 +8,7 @@ interface CollectnoteactionInput {
 }
 
 class CollectnoteactionTool extends MCPTool<CollectnoteactionInput> {
-  name = "note_collection_action";
+  name = "Note Collection Action";
   description = "Collect or uncollect Xiaohongshu notes based on note ID";
 
   schema = {

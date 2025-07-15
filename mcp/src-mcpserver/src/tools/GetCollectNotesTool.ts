@@ -1,18 +1,18 @@
 import { MCPTool } from "@aicu/mcp-framework";
 import { z } from "zod";
 
-const { httpGet, sleep, jsonToCsv, downloadCsvData } = require("../xhs-browser.js");
+const { httpGet, sleep, jsonToCsv, downloadCsvData, getJoinedTest } = require("../xhs-browser.js");
 
-interface GetlikenotesInput {
+interface GetcollectnotesInput {
   user_id: string;
   count: number;
   xsec_token: string;
   download: boolean;
 }
 
-class GetlikenotesTool extends MCPTool<GetlikenotesInput> {
-  name = "get_user_liked_notes";
-  description = "Get a list of notes liked by the specified user. If the user needs to get their own account's list, please first get the current account's ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.";
+class GetcollectnotesTool extends MCPTool<GetcollectnotesInput> {
+  name = "Get User Collected Notes List";
+  description = "Get a list of notes collected by the specified user. If the user needs to get their own account's list, please first get the current account's ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.";
   schema = {
     user_id: {
       type: z.string(),
@@ -34,14 +34,13 @@ class GetlikenotesTool extends MCPTool<GetlikenotesInput> {
     }
   };
 
-  async execute(input: GetlikenotesInput) {
+  async execute(input: GetcollectnotesInput) {
     let { user_id, count, xsec_token, download } = input;
     const results: any[] = [];
     let cursor = '';
-
     while (true) {
       try {
-        const res = await httpGet(`/api/sns/web/v1/note/like/page?num=10&cursor=${cursor}&user_id=${user_id}&image_formats=jpg,webp,avif&xsec_token=${encodeURIComponent(xsec_token)}&xsec_source=pc_feed`);
+        const res = await httpGet(`/api/sns/web/v2/note/collect/page?num=10&cursor=${cursor}&user_id=${user_id}&image_formats=jpg,webp,avif&xsec_token=${encodeURIComponent(xsec_token)}&xsec_source=pc_feed`);
         if (!res['notes'] || res['notes'].length === 0) break;
         // @ts-ignore
         res['notes'].map(note => {
@@ -83,4 +82,4 @@ class GetlikenotesTool extends MCPTool<GetlikenotesInput> {
   }
 }
 
-module.exports = GetlikenotesTool;
+module.exports = GetcollectnotesTool;

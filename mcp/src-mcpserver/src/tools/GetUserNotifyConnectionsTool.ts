@@ -8,7 +8,7 @@ interface GetusernotifyconnectionsInput {
 }
 
 class GetusernotifyconnectionsTool extends MCPTool<GetusernotifyconnectionsInput> {
-  name = "get_new_followers";
+  name = "Get New Followers List";
   description = "Get user message notifications in the new followers category. For example, which users have recently followed me can be retrieved with this tool. Two parameters are required, count and cursor. The cursor is a pointer for the next page of data, which is the cursor returned when the data is fetched. If this is the first request, please pass an empty string (all parameter names must be passed)";
 
   schema = {

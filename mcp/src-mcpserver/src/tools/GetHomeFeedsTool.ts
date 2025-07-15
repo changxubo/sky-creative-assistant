@@ -9,7 +9,7 @@ interface GethomefeedsInput {
 }
 
 class GethomefeedsTool extends MCPTool<GethomefeedsInput> {
-  name = "get_recommended_notes";
+  name = "Get Recommended Notes List";
   description = `Get the post list from Xiaohongshu website homepage。
 Category data as follows (csv format)：
 id,name
@@ -107,7 +107,7 @@ Please pass all tool parameters, default parameters are: count=10, category=home
         const download_result = downloadCsvData(fileName, result_csv);
         return download_result['error'] ? `数据保存失败：${download_result['error']}` : `数据已保存。条数：${results_all.length}。文件：${download_result.link}`;
       }
-      return results_all;
+      return result_csv;
     } catch (e: any) {
       return '获取数据列表失败了！错误信息：' + e.message;
     }
