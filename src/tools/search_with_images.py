@@ -167,7 +167,7 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         cleaned_results = self.api_wrapper.clean_results_with_images(raw_results)
 
         # Debug output for synchronous execution
-        print("sync", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
+        #print("sync", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
 
         return cleaned_results, raw_results
 
@@ -217,6 +217,6 @@ class TavilySearchResultsWithImages(TavilySearchResults):  # type: ignore[overri
         cleaned_results = self.api_wrapper.clean_results_with_images(raw_results)
 
         # Debug output for asynchronous execution
-        print("async", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
+        #print("async", json.dumps(cleaned_results, indent=2, ensure_ascii=False))
 
         return cleaned_results, raw_results

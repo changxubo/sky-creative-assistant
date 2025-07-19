@@ -26,7 +26,7 @@ export function Welcome({ className }: WelcomeProps) {
         👋 Hello, sky walker!
       </h3>
       <div className="px-4 text-center text-lg text-muted-foreground">
-        欢迎使用Research Assistant，一个深度创作助手，使用Qwen3,Deepseek,Phi-4模型和Multi-Agent协同，帮助您在联网搜索、浏览信息、生成图表和图片处理复杂创作任务。
+        欢迎使用Sky Creative Assistant，一个深度创作助手，使用Qwen3,Deepseek,Phi-4模型和Multi-Agent协同，帮助您在联网搜索、浏览信息、生成图表和图片处理复杂创作任务。
       </div>
     </motion.div>
   );

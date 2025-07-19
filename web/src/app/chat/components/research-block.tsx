@@ -220,10 +220,10 @@ export function ResearchBlock({
                 value="report"
                 disabled={!hasReport}
               >
-                Note
+                Report
               </TabsTrigger>
               <TabsTrigger className="px-8" value="activities">
-                Research
+                Activities
               </TabsTrigger>
             </TabsList>
           </div>

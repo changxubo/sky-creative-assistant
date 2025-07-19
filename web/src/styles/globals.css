@@ -218,3 +218,19 @@ textarea {
 button {
   cursor: pointer;
 }
+
+div.research-markdown {
+  font-size: 0.875rem;
+}
+
+div.user-markdown {
+  font-size: 0.875rem;
+}
+
+div.think-markdown{
+  font-size: 0.775rem;
+}
+
+div.think-markdown hr{
+  margin: 0.5rem 0;
+}

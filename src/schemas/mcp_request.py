@@ -54,6 +54,21 @@ class MCPServerMetadataRequest(BaseModel):
         elif self.transport == "sse" and not self.url:
             raise ValueError("URL is required for sse transport type")
 
+class MCPTool(BaseModel):
+    """
+    Represents a tool available from an MCP server.
+
+    Attributes:
+        name: The name of the tool
+        description: A brief description of what the tool does
+        inputSchema: The schema defining the input parameters for the tool
+    """
+
+    name: str = Field(..., description="The name of the tool")
+    description: str = Field(..., description="A brief description of the tool's functionality")
+    inputSchema: Dict[str, Any] = Field(
+        ..., description="The schema defining the input parameters for the tool"
+    )
 
 class MCPServerMetadataResponse(BaseModel):
     """
@@ -86,7 +101,7 @@ class MCPServerMetadataResponse(BaseModel):
     env: Optional[Dict[str, str]] = Field(
         None, description="Environment variables used by the MCP server"
     )
-    tools: List[Dict[str, Any]] = Field(
+    tools: List = Field(
         default_factory=list,
         description="List of available tools provided by the MCP server",
     )

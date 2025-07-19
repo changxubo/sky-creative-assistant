@@ -1,5 +1,7 @@
 # Standard library imports
+
 import base64
+from datetime import datetime
 import json
 import logging
 import os
@@ -10,8 +12,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Tuple,
-    Union,
     cast,
 )
 from uuid import uuid4
@@ -22,12 +22,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from langchain_core.messages import AIMessageChunk, BaseMessage, ToolMessage
 from langgraph.types import Command
+from langgraph.store.memory import InMemoryStore
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+
+# from langgraph.checkpoint.postgres import PostgresSaver
+from psycopg_pool import AsyncConnectionPool
+from langgraph.checkpoint.mongodb import AsyncMongoDBSaver
 
 # Local imports
 from src.config.report_style import ReportStyle
 from src.config.tools import SELECTED_RAG_PROVIDER
 from src.agent.graph import build_graph_with_memory
 from src.models.chat import get_configured_llm_models
+from src.schemas.replay_request import ReplaysRequest, ReplaysResponse
 from src.subagent.podcast import build_graph as build_podcast_graph
 from src.subagent.ppt import build_graph as build_ppt_graph
 from src.subagent.prompt import build_graph as build_prompt_enhancer_graph
@@ -50,8 +57,10 @@ from src.schemas.rag_request import (
     RAGResourceRequest,
     RAGResourcesResponse,
 )
+from src.schemas.replay_request import Replay
 from src.tools import VolcengineTTS
 from src.tools.riva_tts import RivaTTS
+from src.agent.checkpoint import chat_stream_message, search_replays, get_replay_by_id,sanitize_args
 
 # Constants
 INTERNAL_SERVER_ERROR_DETAIL = "Internal Server Error"
@@ -78,6 +87,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+in_memory_store = InMemoryStore()
 
 graph = build_graph_with_memory()
 
@@ -110,6 +120,74 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
         if not request.messages:
             raise HTTPException(status_code=400, detail="Messages cannot be empty")
 
+        # initialize checkpointer and store
+        pg_db_uri = os.getenv("POSTGRES_URI", "")
+        mg_db_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+        if pg_db_uri != "":
+            logger.info("start async postgres checkpointer")
+            connection_kwargs = {
+                "autocommit": True,
+                "prepare_threshold": 0,
+            }
+            # async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
+            async with AsyncConnectionPool(
+                pg_db_uri, kwargs=connection_kwargs
+            ) as conn:  # this has been updated
+                checkpointer = AsyncPostgresSaver(conn)
+                await checkpointer.setup()
+                # graph = workflow.compile(checkpointer=checkpointer, store=in_memory_store)
+                graph.checkpointer = checkpointer
+                graph.store = in_memory_store
+                return StreamingResponse(
+                    _astream_workflow_generator(
+                        request.model_dump()["messages"],
+                        thread_id,
+                        request.resources,
+                        request.max_plan_iterations,
+                        request.max_step_num,
+                        request.max_search_results,
+                        request.auto_accepted_plan,
+                        request.interrupt_feedback,
+                        request.mcp_settings,
+                        request.enable_background_investigation,
+                        request.report_style,
+                        request.enable_deep_thinking,
+                    ),
+                    media_type="text/event-stream",
+                    headers={
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                        "X-Accel-Buffering": "no",  # Disable nginx buffering
+                    },
+                )
+        elif pg_db_uri != "":
+            logger.info("start async postgres checkpointer.")
+            async with AsyncMongoDBSaver.from_conn_string(mg_db_uri) as checkpointer:
+                # graph = workflow.compile(checkpointer=checkpointer, store=in_memory_store)
+                graph.checkpointer = checkpointer
+                graph.store = in_memory_store
+                return StreamingResponse(
+                    _astream_workflow_generator(
+                        request.model_dump()["messages"],
+                        thread_id,
+                        request.resources,
+                        request.max_plan_iterations,
+                        request.max_step_num,
+                        request.max_search_results,
+                        request.auto_accepted_plan,
+                        request.interrupt_feedback,
+                        request.mcp_settings,
+                        request.enable_background_investigation,
+                        request.report_style,
+                        request.enable_deep_thinking,
+                    ),
+                    media_type="text/event-stream",
+                    headers={
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                        "X-Accel-Buffering": "no",  # Disable nginx buffering
+                    },
+                )
         return StreamingResponse(
             _astream_workflow_generator(
                 request.model_dump()["messages"],
@@ -135,7 +213,6 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     except Exception as e:
         logger.exception(f"Error in chat stream endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=INTERNAL_SERVER_ERROR_DETAIL)
-
 
 async def _astream_workflow_generator(
     messages: List[Dict[str, Any]],
@@ -179,7 +256,21 @@ async def _astream_workflow_generator(
         if not messages:
             yield _make_event("error", {"error": "No messages provided"})
             return
-
+        for message in messages:
+            if isinstance(message, dict) and "content" in message:
+                json_data = json.dumps(
+                    {
+                        "thread_id": thread_id,
+                        "id": "run--" + message.get("id", uuid4().hex),
+                        "role": "user",
+                        "content": message.get("content", ""),
+                    },
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+                chat_stream_message(
+                    thread_id, f"event: message_chunk\ndata: {json_data}\n\n", "none"
+                )
         # Prepare workflow input
         workflow_input = {
             "messages": messages,
@@ -191,6 +282,8 @@ async def _astream_workflow_generator(
             "auto_accepted_plan": auto_accepted_plan,
             "enable_background_investigation": enable_background_investigation,
             "research_topic": messages[-1].get("content", "") if messages else "",
+            "enable_deep_thinking": enable_deep_thinking,
+            "reasoning_content": "",
         }
 
         # Handle interrupt feedback
@@ -202,7 +295,8 @@ async def _astream_workflow_generator(
             workflow_input = Command(resume=resume_message)
 
         # Stream workflow execution
-        async for agent_info, _, event_data in graph.astream(
+        logger.info(f"Starting workflow with thread_id: {thread_id}")
+        async for agent, _, event_data in graph.astream(
             workflow_input,
             config={
                 "thread_id": thread_id,
@@ -216,54 +310,68 @@ async def _astream_workflow_generator(
             },
             stream_mode=["messages", "updates"],
             subgraphs=True,
+            # checkpoint_during= True,
         ):
             # Handle interruption events
-            if isinstance(event_data, dict) and "__interrupt__" in event_data:
-                yield _make_event(
-                    "interrupt",
-                    {
-                        "thread_id": thread_id,
-                        "id": event_data["__interrupt__"][0].ns[0],
-                        "role": "assistant",
-                        "content": event_data["__interrupt__"][0].value,
-                        "finish_reason": "interrupt",
-                        "options": [
-                            {"text": "修改计划", "value": "edit_plan"},
-                            {"text": "开始研究", "value": "accepted"},
-                        ],
-                    },
-                )
+            if isinstance(event_data, dict):
+                if "__interrupt__" in event_data:
+                    yield _make_event(
+                        "interrupt",
+                        {
+                            "thread_id": thread_id,
+                            "id": event_data["__interrupt__"][0].ns[0],
+                            "role": "assistant",
+                            "content": event_data["__interrupt__"][0].value,
+                            "finish_reason": "interrupt",
+                            "options": [
+                                {"text": "Edit Plan", "value": "edit_plan"},
+                                {"text": "Start Research", "value": "accepted"},
+                            ],
+                        },
+                    )
                 continue
-            
-            if isinstance(event_data, dict) and "background_investigator_test" in event_data:
+
+            if (
+                isinstance(event_data, dict)
+                and "background_investigator_finished" in event_data
+            ):
                 # Process message events
                 message_chunk = cast(
-                    BaseMessage, event_data["background_investigator"]["messages"][0]
+                    BaseMessage,
+                    event_data["background_investigator"]["messages"][0],
                 )
                 yield _make_event(
                     "message_chunk",
                     {
                         "thread_id": thread_id,
                         "agent": "background_investigator",
-                        "id": "run--"+message_chunk.id,
+                        "id": "run--" + message_chunk.id,
                         "role": "assistant",
-                        "content": event_data["background_investigator"]["investigations"],
+                        "content": event_data["background_investigator"][
+                            "investigations"
+                        ],
                     },
                 )
-                continue
-            # Skip non-message events
-            if not isinstance(event_data, tuple):
                 continue
 
             # Process message events
             message_chunk, message_metadata = cast(
-                Tuple[BaseMessage, Dict[str, Any]], event_data
+                tuple[BaseMessage, dict[str, Any]], event_data
             )
-
+            # Handle empty agent tuple gracefully
+            agent_name = "unknown"
+            if agent and len(agent) > 0:
+                agent_name = agent[0].split(":")[0] if ":" in agent[0] else agent[0]
+            else:
+                agent_name = message_metadata.get("langgraph_node", "unknown")
             # Build event stream message
             event_stream_message: Dict[str, Any] = {
                 "thread_id": thread_id,
-                "agent": agent_info[0].split(":")[0] if agent_info else "unknown",
+                "checkpoint_ns": message_metadata.get("checkpoint_ns", ""),
+                "langgraph_node": message_metadata.get("langgraph_node", ""),
+                "langgraph_path": message_metadata.get("langgraph_path", ""),
+                "langgraph_step": message_metadata.get("langgraph_step", ""),
+                "agent": agent_name,
                 "id": message_chunk.id,
                 "role": "assistant",
                 "content": message_chunk.content,
@@ -292,22 +400,43 @@ async def _astream_workflow_generator(
                 if message_chunk.tool_calls:
                     # AI Message - Tool Call
                     event_stream_message["tool_calls"] = message_chunk.tool_calls
-                    event_stream_message["tool_call_chunks"] = (
-                        message_chunk.tool_call_chunks
-                    )
+                    chunks = []
+                    # Convert special characters in args like [],{},<>,& and etc.
+                    for chunk in message_chunk.tool_call_chunks:
+                        chunks.append(
+                            {
+                                "name": chunk.get("name", ""),
+                                "args": sanitize_args( chunk.get("args", "")),
+                                "id": chunk.get("id", ""),
+                                "index": chunk.get("index", 0),
+                                "type": chunk.get("type", ""),
+                            }
+                        )
+                    event_stream_message["tool_call_chunks"] = chunks
                     yield _make_event("tool_calls", event_stream_message)
 
                 elif message_chunk.tool_call_chunks:
                     # AI Message - Tool Call Chunks
-                    event_stream_message["tool_call_chunks"] = (
-                        message_chunk.tool_call_chunks
-                    )
+                    chunks = []
+                    # Convert special characters in args like [],{},<>,& and etc.
+                    for chunk in message_chunk.tool_call_chunks:
+                        chunks.append(
+                            {
+                                 "name": chunk.get("name", ""),
+                                "args": sanitize_args( chunk.get("args", "")),
+                                "id": chunk.get("id", ""),
+                                "index": chunk.get("index", 0),
+                                "type": chunk.get("type", ""),
+                            }
+                        )
+                    event_stream_message["tool_call_chunks"] =chunks
                     yield _make_event("tool_call_chunks", event_stream_message)
 
                 else:
                     # AI Message - Raw message tokens
-                    yield _make_event("message_chunk", event_stream_message)
-
+                    message_event = _make_event("message_chunk", event_stream_message)
+                    if message_event != "":
+                        yield message_event
     except Exception as e:
         logger.exception(f"Error in workflow generator: {str(e)}")
         yield _make_event("error", {"error": str(e)})
@@ -327,10 +456,23 @@ def _make_event(event_type: str, data: Dict[str, Any]) -> str:
     # Remove empty content to reduce payload size
     if data.get("content") == "":
         data.pop("content", None)
-
+    # skip empty data: content,reasoning_content,finish_reason
+    if event_type == "message_chunk":
+        if (
+            data.get("content", "") == ""
+            and data.get("reasoning_content", "") == ""
+            and data.get("finish_reason", "") == ""
+        ):
+            return ""
     # Ensure JSON serialization with proper encoding
     try:
-        json_data = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+        json_data = json.dumps(data, ensure_ascii=False)
+        finish_reason = data.get("finish_reason", "")
+        chat_stream_message(
+            data.get("thread_id", ""),
+            f"event: {event_type}\ndata: {json_data}\n\n",
+            finish_reason,
+        )
         return f"event: {event_type}\ndata: {json_data}\n\n"
     except (TypeError, ValueError) as e:
         logger.error(f"Error serializing event data: {e}")
@@ -977,4 +1119,66 @@ async def get_server_config() -> ConfigResponse:
 
     except Exception as e:
         logger.exception(f"Error getting server config: {str(e)}")
+        raise HTTPException(status_code=500, detail=INTERNAL_SERVER_ERROR_DETAIL)
+
+
+# set response contenttype text/plain
+@app.get("/api/replay/{thread_id}", response_model=str)
+async def get_replay(thread_id: str) -> Response:
+    """
+    Get the replay content for a specific thread ID.
+
+    Args:
+        thread_id: Unique identifier for the replay thread
+
+    Returns:
+        str: Base64 encoded replay content
+    """
+    try:
+        # Search for the replay by thread ID
+        content = get_replay_by_id(thread_id)
+
+        if not content:
+            raise HTTPException(status_code=404, detail="Replay not found")
+
+        return Response(
+            content=content,
+            media_type="text/plain",
+            headers={"Content-Type": "text/plain; charset=utf-8"},
+        )
+
+    except Exception as e:
+        logger.exception(f"Error getting replay: {str(e)}")
+        raise HTTPException(status_code=500, detail=INTERNAL_SERVER_ERROR_DETAIL)
+
+
+@app.get("/api/replays", response_model=ReplaysResponse)
+async def get_replays(request: Annotated[ReplaysRequest, Query()]) -> ReplaysResponse:
+    """
+    Get replays based on the provided request parameters.
+
+    Args:
+        request: ReplaysRequest containing query parameters
+
+    Returns:
+        ReplaysResponse: List of replays matching the request criteria
+    """
+    try:
+        replays = search_replays(limit=request.limit, sort=request.sort)
+        response = []
+        for replay in replays:
+            response.append(
+                Replay(
+                    id=replay.get("thread_id", ""),
+                    title=replay.get("research_topic", ""),
+                    count=replay.get("messages", 0),
+                    date=replay.get("ts", ""),
+                    category=replay.get("report_style", ""),
+                )
+            )
+        # Build replay response
+        replays_response = ReplaysResponse(data=response)
+        return replays_response
+    except Exception as e:
+        logger.exception(f"Error getting replays: {str(e)}")
         raise HTTPException(status_code=500, detail=INTERNAL_SERVER_ERROR_DETAIL)

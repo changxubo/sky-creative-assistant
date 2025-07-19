@@ -7,9 +7,9 @@ import { Welcome } from "./welcome";
 // Predefined conversation starter questions with diverse topics
 const CONVERSATION_STARTER_QUESTIONS = [
   "机器人如何改变农业生产方式?",
-  "小红书笔记:如何通过颜色、绿植、香氛提升幸福感？",
+  //"如何通过颜色、绿植、香氛提升幸福感？",
   "特斯拉电池的平均使用寿命与汽油发动机相比是几年？",
-  "自然语言处理领域有哪些进展?",
+  //"自然语言处理领域有哪些进展?",
   "机器学习如何改变金融行业?",
   "量子计算对密码学的影响是什么?",
   "气候变化如何影响全球农业?",
@@ -54,7 +54,7 @@ export function ConversationStarter({
         {CONVERSATION_STARTER_QUESTIONS.map((question: string, index: number) => (
           <motion.li
             key={question}
-            className="flex w-1/4 shrink-1 p-1 active:scale-105"
+            className="flex w-1/2 shrink-1 p-1 active:scale-105"
             style={{ transition: "all 0.2s ease-out" }}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,7 @@ export function ConversationStarter({
           >
             <button
               type="button"
-              className="bg-card text-muted-foreground w-full cursor-pointer rounded-2xl border px-4 py-4 text-left opacity-75 transition-all duration-300 hover:opacity-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="bg-card text-muted-foreground w-full cursor-pointer rounded-2xl border px-4 py-4 text-center opacity-75 transition-all duration-300 hover:opacity-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               onClick={() => handleQuestionSelect(question, onSend)}
               aria-label={`Ask question: ${question}`}
             >

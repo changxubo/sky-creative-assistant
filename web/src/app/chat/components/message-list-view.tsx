@@ -10,6 +10,9 @@ import {
   Lightbulb,
   ListTodo,
   NotebookPen,
+  Grid2X2Check,
+  Grid2X2X,
+  Share2
 } from "lucide-react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 
@@ -94,6 +97,7 @@ export function MessageListView({
       ref={scrollContainerRef}
     >
       <ul className="flex flex-col">
+        <div className="flex h-8 w-full shrink-0"></div>
         {messageIds.map((messageId) => (
           <MessageListItem
             key={messageId}
@@ -142,9 +146,11 @@ function MessageListItem({
   const isStreaming = message?.isStreaming;
 
   const researchIds = useStore((state) => state.researchIds);
+
   const startOfResearch = useMemo(() => {
     return researchIds.includes(messageId);
   }, [researchIds, messageId]);
+  //console.log(researchIds, messageId, startOfResearch);
   if (message) {
     if (
       message.role === "user" ||
@@ -206,7 +212,7 @@ function MessageListItem({
                 <Markdown
                   className={cn(
                     message.role === "user" &&
-                    "prose-invert not-dark:text-secondary dark:text-inherit",
+                    "prose-invert not-dark:text-secondary dark:text-inherit user-markdown",
                   )}
                 >
                   {message?.content}
@@ -219,7 +225,7 @@ function MessageListItem({
       if (content) {
         return (
           <motion.li
-            className="mt-10"
+            className={message.role === "user" ? "mb-4" : "mt-0"}
             key={messageId}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -278,9 +284,9 @@ function ResearchCard({
   const openResearchId = useStore((state) => state.openResearchId);
   const state = useMemo(() => {
     if (hasReport) {
-      return reportGenerating ? "正在生成报告..." : "报告已生成";
+      return reportGenerating ? "Generating report..." : "Report generated";
     }
-    return "正在执行任务...";
+    return "Multi-Agents working...";
   }, [hasReport, reportGenerating]);
   const msg = useResearchMessage(researchId);
   const title = useMemo(() => {
@@ -289,6 +295,14 @@ function ResearchCard({
     }
     return undefined;
   }, [msg]);
+  const handleShare = () => {
+    navigator.clipboard.writeText(
+      `${location.origin}/chat?replay=${msg?.threadId}&db=true`,
+    ).catch((error) => {
+      console.error("Failed to copy share link:", error);
+    });
+    alert("Share Link Copied!");
+  };
   const handleOpen = useCallback(() => {
     if (openResearchId === researchId) {
       closeResearch();
@@ -303,12 +317,12 @@ function ResearchCard({
   const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
 
   const hasMainContent = true;
-  const isStreaming = true;
+  const isStreaming = reportGenerating;
 
   React.useEffect(() => {
     if (hasMainContent && !hasAutoCollapsed) {
-      setIsOpen(false);
-      setHasAutoCollapsed(true);
+      setIsOpen(true);
+      setHasAutoCollapsed(false);
     }
   }, [hasMainContent, hasAutoCollapsed]);
 
@@ -318,7 +332,7 @@ function ResearchCard({
         <Button
           variant="ghost"
           className={cn(
-            "h-auto w-full justify-start rounded-es-none border px-6 py-4 text-left transition-all duration-200",
+            "h-auto w-full justify-start rounded-none rounded-ss-2xl border px-6 py-4 text-left transition-all duration-200",
             "hover:bg-accent hover:text-accent-foreground",
             "border-0 bg-card",
           )}
@@ -337,7 +351,7 @@ function ResearchCard({
                 "text-foreground",
               )}
             >
-              使用工具生成报告
+              {'Thought > Act > Observation'}
             </span>
             {isStreaming && <LoadingAnimation className="ml-2 scale-75" />}
             <div className="flex-grow" />
@@ -356,11 +370,11 @@ function ResearchCard({
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-0">
-        <Card className={cn("w-full rounded-es-none shadow-none border-0", className)}>
+        <Card className={cn("w-full rounded-none shadow-none border-0 pt-0", className)}>
           <CardHeader className="hidden">
             <CardTitle>
-              <RainbowText animated={state !== "报告已生成"}>
-                {title !== undefined && title !== "" ? title : "研究报告"}
+              <RainbowText animated={state !== "Report generated"}>
+                {title !== undefined && title !== "" ? title : "Report"}
               </RainbowText>
             </CardTitle>
           </CardHeader>
@@ -369,11 +383,22 @@ function ResearchCard({
               <RollingText className="text-muted-foreground flex-grow text-sm">
                 {state}
               </RollingText>
+              {state === "Report generated" && (
+                // share button
+                <Button
+                  className="mr-2"
+                  variant="outline"
+                  onClick={handleShare}
+                >
+                  <Share2 /> Share
+                </Button>
+              )}
               <Button
                 variant={!openResearchId ? "default" : "outline"}
                 onClick={handleOpen}
               >
-                {researchId !== openResearchId ? "显示任务" : "隐藏任务"}
+                {researchId !== openResearchId ? <Grid2X2Check size={16} /> : <Grid2X2X size={16} />}
+                {researchId !== openResearchId ? "Open" : "Close"}
               </Button>
             </div>
           </CardFooter>
@@ -400,8 +425,8 @@ function BackgroundBlock({
 
   React.useEffect(() => {
     if (hasMainContent && !hasAutoCollapsed) {
-      setIsOpen(false);
-      setHasAutoCollapsed(true);
+      setIsOpen(true);
+      setHasAutoCollapsed(false);
     }
   }, [hasMainContent, hasAutoCollapsed]);
 
@@ -417,7 +442,7 @@ function BackgroundBlock({
           <Button
             variant="ghost"
             className={cn(
-              "h-auto w-full justify-start rounded-2xl rounded-es-none border px-6 py-4 text-left transition-all duration-200",
+              "h-auto w-full justify-start rounded-none rounded-ss-2xl border px-6 py-4 text-left transition-all duration-200",
               "hover:bg-accent hover:text-accent-foreground",
               "border-0 bg-card",
             )}
@@ -436,7 +461,7 @@ function BackgroundBlock({
                   "text-foreground",
                 )}
               >
-                调查问题相关背景
+                Background Investigation
               </span>
               {isStreaming && <LoadingAnimation className="ml-2 scale-75" />}
               <div className="flex-grow" />
@@ -457,7 +482,7 @@ function BackgroundBlock({
         <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-0">
           <Card
             className={cn(
-              "transition-all duration-200 rounded-none shadow-none border-0",
+              "transition-all duration-200 rounded-none shadow-none border-0 pt-0",
             )}
           >
             <CardContent>
@@ -472,7 +497,7 @@ function BackgroundBlock({
                 >
                   <Markdown
                     className={cn(
-                      "prose dark:prose-invert max-w-none transition-colors duration-200",
+                      "prose dark:prose-invert max-w-none transition-colors duration-200 think-markdown",
                       isStreaming ? "prose-primary" : "opacity-80",
                     )}
                     animated={isStreaming}
@@ -505,8 +530,8 @@ function ThoughtBlock({
 
   React.useEffect(() => {
     if (hasMainContent && !hasAutoCollapsed) {
-      setIsOpen(false);
-      setHasAutoCollapsed(true);
+      setIsOpen(true);
+      setHasAutoCollapsed(false);
     }
   }, [hasMainContent, hasAutoCollapsed]);
 
@@ -515,14 +540,14 @@ function ThoughtBlock({
   }
 
   return (
-    <div className={cn("mb-6 w-full", className)}>
+    <div className={cn("mb-0 w-full", className)}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
 
           <Button
             variant="ghost"
             className={cn(
-              "h-auto w-full justify-start rounded-2xl rounded-es-none border px-6 py-4 text-left transition-all duration-200",
+              "h-auto w-full justify-start rounded-none border px-6 py-4 text-left transition-all duration-200",
               "hover:bg-accent hover:text-accent-foreground",
               "border-0 bg-card",
             )}
@@ -541,7 +566,7 @@ function ThoughtBlock({
                   "text-foreground",
                 )}
               >
-                深入分析课题
+                Deep Think
               </span>
               {isStreaming && <LoadingAnimation className="ml-2 scale-75" />}
               <div className="flex-grow" />
@@ -562,7 +587,7 @@ function ThoughtBlock({
         <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-0">
           <Card
             className={cn(
-              "transition-all duration-200 rounded-none shadow-none border-0",
+              "transition-all duration-200 rounded-none shadow-none border-0 pt-0",
             )}
           >
             <CardContent>
@@ -577,7 +602,7 @@ function ThoughtBlock({
                 >
                   <Markdown
                     className={cn(
-                      "prose dark:prose-invert max-w-none transition-colors duration-200",
+                      "prose dark:prose-invert max-w-none transition-colors duration-200 think-markdown",
                       isStreaming ? "prose-primary" : "opacity-80",
                     )}
                     animated={isStreaming}
@@ -594,7 +619,7 @@ function ThoughtBlock({
   );
 }
 
-const GREETINGS = ["很酷", "听起来很厉害", "看上去不错", "非常棒", "欢迎"];
+const GREETINGS = ["Cool", "Sounds greate", "Perfect", "Very good", "Awesome"];
 function PlanCard({
   className,
   message,
@@ -635,7 +660,7 @@ function PlanCard({
   const handleAccept = useCallback(async () => {
     if (onSendMessage) {
       onSendMessage(
-        `${GREETINGS[Math.floor(Math.random() * GREETINGS.length)]}! ${Math.random() > 0.5 ? "让我们开始执行吧." : "开始执行."}`,
+        `${GREETINGS[Math.floor(Math.random() * GREETINGS.length)]}! ${Math.random() > 0.5 ? "Let's get started" : "Let's do it"}`,
         {
           interruptFeedback: "accepted",
         },
@@ -649,13 +674,13 @@ function PlanCard({
 
   React.useEffect(() => {
     if (hasMainContent && !hasAutoCollapsed) {
-      setIsOpen(false);
-      setHasAutoCollapsed(true);
+      setIsOpen(true);
+      setHasAutoCollapsed(false);
     }
   }, [hasMainContent, hasAutoCollapsed]);
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full mb-4", className)}>
       {reasoningContent && (
         <ThoughtBlock
           content={reasoningContent}
@@ -674,7 +699,7 @@ function PlanCard({
               <Button
                 variant="ghost"
                 className={cn(
-                  "h-auto w-full justify-start rounded-2xl rounded-es-none border px-6 py-4 text-left transition-all duration-200",
+                  "h-auto w-full justify-start rounded-none border px-6 py-4 text-left transition-all duration-200",
                   "hover:bg-accent hover:text-accent-foreground",
                   "border-0 bg-card",
                 )}
@@ -693,7 +718,7 @@ function PlanCard({
                       "text-foreground",
                     )}
                   >
-                    制定详细计划
+                    Research Plan
                   </span>
                   {isStreaming && <LoadingAnimation className="ml-2 scale-75" />}
                   <div className="flex-grow" />
@@ -712,19 +737,19 @@ function PlanCard({
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-0">
-              <Card className="w-full rounded-es-none border-0 shadow-none">
+              <Card className="w-full rounded-none border-0 shadow-none pt-0">
                 <CardHeader className="hidden">
                   <CardTitle>
                     <Markdown animated={message.isStreaming}>
                       {`#### ${plan.title !== undefined && plan.title !== ""
                         ? plan.title
-                        : "深度调研计划"
+                        : "Deep Research"
                         }`}
                     </Markdown>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Markdown className="opacity-80" animated={message.isStreaming}>
+                  <Markdown className="opacity-80 think-markdown" animated={message.isStreaming}>
                     {plan.thought}
                   </Markdown>
                   {plan.steps && (
@@ -732,12 +757,12 @@ function PlanCard({
                       {plan.steps.map((step, i) => (
                         <li key={`step-${i}`}>
                           <h5 className="mb text-lg font-medium">
-                            <Markdown animated={message.isStreaming}>
+                            <Markdown animated={message.isStreaming} className="think-markdown">
                               {step.title}
                             </Markdown>
                           </h5>
                           <div className="text-muted-foreground text-sm">
-                            <Markdown animated={message.isStreaming}>
+                            <Markdown animated={message.isStreaming} className="think-markdown">
                               {step.description}
                             </Markdown>
                           </div>

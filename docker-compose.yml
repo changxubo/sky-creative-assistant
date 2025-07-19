@@ -55,7 +55,23 @@ services:
     restart: unless-stopped
     networks:
       - sky-creative-network
+  mongo:
+    image: mongo:latest
+    container_name: sky-creative-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - sky-creative-network
 
 networks:
   sky-creative-network:
     driver: bridge
+
+volumes:
+  mongo_data:

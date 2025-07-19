@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import ReactMarkdown, {
   type Options as ReactMarkdownOptions,
 } from "react-markdown";
+
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -19,6 +20,7 @@ import Image from "./image";
 import { Tooltip } from "./tooltip";
 import { Link } from "./link";
 
+
 export function Markdown({
   className,
   children,
@@ -26,6 +28,7 @@ export function Markdown({
   enableCopy,
   animated = false,
   checkLinkCredibility = false,
+
   ...props
 }: ReactMarkdownOptions & {
   className?: string;
@@ -33,6 +36,7 @@ export function Markdown({
   style?: React.CSSProperties;
   animated?: boolean;
   checkLinkCredibility?: boolean;
+ 
 }) {
   const components: ReactMarkdownOptions["components"] = useMemo(() => {
     return {
@@ -48,13 +52,15 @@ export function Markdown({
       ),
     };
   }, [checkLinkCredibility]);
-
+  
   const rehypePlugins = useMemo(() => {
+ 
     if (animated) {
       return [rehypeKatex, rehypeSplitWordsIntoSpans];
     }
     return [rehypeKatex];
   }, [animated]);
+  
   return (
     <div className={cn(className, "prose dark:prose-invert")} style={style}>
       <ReactMarkdown

@@ -27,7 +27,7 @@ class Configuration:
         report_style: Output report formatting style (academic, business, etc.)
         enable_deep_thinking: Flag to enable enhanced reasoning capabilities
     """
-
+    thread_id: str= field(default="")
     resources: list[Resource] = field(
         default_factory=list
     )  # Resources to be used for the research

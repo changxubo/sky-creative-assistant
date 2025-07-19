@@ -1,4 +1,4 @@
-# rednote-mcp-server
+# xhs-mcp-server
 
 ```bash
 $ npm i --legacy-peer-deps

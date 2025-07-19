@@ -1,10 +1,8 @@
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, X } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useRef, useState, Suspense } from "react";
 
-import { NewChat } from "~/components/core/icons/new-chat";
 import { Search } from "~/components/core/icons/search";
 import { SendMessage } from "~/components/core/icons/send-message";
 import MessageInput, {
@@ -25,6 +23,7 @@ import {
 } from "~/core/store";
 import { cn } from "~/lib/utils";
 
+import { ReplaysDialog } from "../../settings/dialogs/replays-dialog";
 import { SettingsDialog } from "../../settings/dialogs/settings-dialog";
 
 interface InputBoxProps {
@@ -276,7 +275,7 @@ export function InputBox({
                 onClick={handleToggleDeepThinking}
                 aria-label={`Toggle deep thinking mode ${enableDeepThinking ? 'off' : 'on'}`}
               >
-                <Lightbulb /> 深度思考
+                <Lightbulb /> Deep Think
               </Button>
             </Tooltip>
           )}
@@ -306,23 +305,16 @@ export function InputBox({
               onClick={handleToggleBackgroundInvestigation}
               aria-label={`Toggle investigation mode ${backgroundInvestigation ? 'off' : 'on'}`}
             >
-              <Search /> 联网搜索
+              <Search /> Investigation
             </Button>
           </Tooltip>
           <ReportStyleDialog />
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Tooltip title="Start New Chat">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              aria-label="Start a new chat conversation"
-            >
-              <Link href="/" target="_self">
-                <NewChat />
-              </Link>
-            </Button>
+          <Tooltip title="History">
+            <Suspense fallback={<div className="w-10 h-10" />}>
+              <ReplaysDialog />
+            </Suspense>
           </Tooltip>
           <Tooltip title="Themes">
             <ThemeToggle />
@@ -337,7 +329,7 @@ export function InputBox({
               variant="ghost"
               size="icon"
               className={cn(
-                "hover:bg-accent h-10 w-10",
+                "hover:bg-accent h-10 w-10 hidden",
                 isEnhancing && "animate-pulse",
                 enhanceError && "border-red-500/50",
               )}

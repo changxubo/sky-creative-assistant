@@ -72,7 +72,7 @@ function ActivityMessage({ messageId }: { messageId: string }) {
     if (message.agent !== "reporter" && message.agent !== "planner") {
       return (
         <div className="px-4 py-2">
-          <Markdown animated checkLinkCredibility>
+          <Markdown animated checkLinkCredibility className="research-markdown">
             {message.content}
           </Markdown>
         </div>
@@ -147,7 +147,7 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
     [searchResults],
   );
   const imageResults = useMemo(
-    () => searchResults?.filter((result) => result.type === "image"),
+    () => searchResults?.filter((result) => result.type === "image" ),
     [searchResults],
   );
   return (
@@ -216,11 +216,11 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
               >
                 <a
                   className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
-                  href={searchResult.image_url}
+                  href={searchResult.image_url.includes("x-raw-image")? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
                   target="_blank"
                 >
                   <Image
-                    src={searchResult.image_url}
+                    src={searchResult.image_url.includes("x-raw-image")? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
                     alt={searchResult.image_description}
                     className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
                     imageClassName="hover:scale-110"

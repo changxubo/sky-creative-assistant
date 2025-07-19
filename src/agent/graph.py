@@ -1,5 +1,6 @@
 # Third-party imports
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.store.memory import InMemoryStore
 from langgraph.graph import StateGraph, START, END
 
 # Local imports
@@ -112,11 +113,7 @@ def _build_base_graph() -> StateGraph:
 
     # Set up conditional edges for dynamic routing
     # The research_team node uses conditional logic to determine next step
-    builder.add_conditional_edges(
-        "research_team",
-        continue_to_running_research_team,
-        ["planner", "researcher", "coder"],
-    )
+    builder.add_conditional_edges("research_team",continue_to_running_research_team,["planner", "researcher", "coder"])
 
     return builder
 
@@ -144,15 +141,20 @@ def build_graph_with_memory():
         build_graph(): For stateless execution without memory persistence
     """
     # Initialize persistent memory for conversation history
+    
     # TODO: Implement compatibility with SQLite and PostgreSQL backends
     # for production-grade persistence and scalability
+    # Create the memory saver with PostgreSQL connection
+    
     memory_saver = MemorySaver()
-
+    in_memory_store = InMemoryStore()
+    
     # Build the base graph structure
     base_graph_builder = _build_base_graph()
-
+    
     # Compile with memory checkpointer for state persistence
-    return base_graph_builder.compile(checkpointer=memory_saver)
+    return base_graph_builder.compile(checkpointer=memory_saver,store=in_memory_store)
+    
 
 
 def build_graph():
@@ -183,8 +185,5 @@ def build_graph():
     # Compile without checkpointer for stateless execution
     return base_graph_builder.compile()
 
-
-# Create a default graph instance for immediate use
-# This provides a ready-to-use workflow for applications that don't need
-# to customize the graph building process
-graph = build_graph()
+def build_graph_with_base():
+    return _build_base_graph()
