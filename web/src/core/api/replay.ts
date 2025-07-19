@@ -28,7 +28,7 @@ export async function queryReplayById(thread_id: string) {
   })
     .then((res) => res.text())
     .then((res) => {
-      return res as string;
+      return res;
     })
     .catch(() => {
       return "";
@@ -48,7 +48,7 @@ export async function queryReplayByPath(path: string,options: { abortSignal?: Ab
   })
     .then((res) => res.text())
     .then((res) => {
-      return res as string;
+      return res;
     })
     .catch(() => {
       return `Failed to fetch replay by path: ${path}`;

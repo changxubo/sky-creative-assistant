@@ -225,7 +225,7 @@ function MessageListItem({
       if (content) {
         return (
           <motion.li
-            className={ message.role === "user"? "mb-4" : "mt-0"}
+            className={message.role === "user" ? "mb-4" : "mt-0"}
             key={messageId}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -295,6 +295,14 @@ function ResearchCard({
     }
     return undefined;
   }, [msg]);
+  const handleShare = () => {
+    navigator.clipboard.writeText(
+      `${location.origin}/chat?replay=${msg?.threadId}&db=true`,
+    ).catch((error) => {
+      console.error("Failed to copy share link:", error);
+    });
+    alert("Share Link Copied!");
+  };
   const handleOpen = useCallback(() => {
     if (openResearchId === researchId) {
       closeResearch();
@@ -375,26 +383,21 @@ function ResearchCard({
               <RollingText className="text-muted-foreground flex-grow text-sm">
                 {state}
               </RollingText>
-              { state === "Report generated" &&(
+              {state === "Report generated" && (
                 // share button
-                  <Button
-                    className="mr-2"
-                    variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${location.origin}/chat?replay=${msg?.threadId}&db=true`,
-                      );
-                      alert("Share Link Copied!");
-                    }}
-                  >
-                    <Share2 /> Share
-                  </Button>
+                <Button
+                  className="mr-2"
+                  variant="outline"
+                  onClick={handleShare}
+                >
+                  <Share2 /> Share
+                </Button>
               )}
               <Button
                 variant={!openResearchId ? "default" : "outline"}
                 onClick={handleOpen}
               >
-                {researchId !== openResearchId? <Grid2X2Check size={16} /> : <Grid2X2X size={16} />}
+                {researchId !== openResearchId ? <Grid2X2Check size={16} /> : <Grid2X2X size={16} />}
                 {researchId !== openResearchId ? "Open" : "Close"}
               </Button>
             </div>

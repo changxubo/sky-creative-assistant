@@ -7,7 +7,7 @@ import { env } from "~/env";
 
 export function Rednote() {
   return (
-    <section className="flex h-[35vh] w-full flex-col items-center justify-center pb-1">
+    <section className="flex h-[27vh] w-full flex-col items-center justify-center pb-1">
        
       <div className="relative z-10 flex flex-col items-center justify-center gap-2">
         <h1 className="text-center text-3xl font-bold md:text-3xl">

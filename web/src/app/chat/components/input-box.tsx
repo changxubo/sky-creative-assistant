@@ -23,8 +23,8 @@ import {
 } from "~/core/store";
 import { cn } from "~/lib/utils";
 
-import { SettingsDialog } from "../../settings/dialogs/settings-dialog";
 import { ReplaysDialog } from "../../settings/dialogs/replays-dialog";
+import { SettingsDialog } from "../../settings/dialogs/settings-dialog";
 
 interface InputBoxProps {
   className?: string;

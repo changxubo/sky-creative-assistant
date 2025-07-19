@@ -216,11 +216,11 @@ function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
               >
                 <a
                   className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
-                  href={searchResult.image_url.indexOf("x-raw-image")>-1? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
+                  href={searchResult.image_url.includes("x-raw-image")? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
                   target="_blank"
                 >
                   <Image
-                    src={searchResult.image_url.indexOf("x-raw-image")>-1? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
+                    src={searchResult.image_url.includes("x-raw-image")? "/images/deer-hero.svg?with=800&height=600": searchResult.image_url}
                     alt={searchResult.image_description}
                     className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
                     imageClassName="hover:scale-110"
