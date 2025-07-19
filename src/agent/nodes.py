@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from typing import Annotated, Literal
+import uuid
 
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
@@ -25,12 +26,13 @@ from src.prompts.planner_model import Plan
 from src.prompts.template import apply_prompt_template
 from src.utils.json_utils import repair_json_output
 
-from .state import State
 from ..config import SELECTED_SEARCH_ENGINE, SearchEngine
+from .checkpoint import write_event, write_replay
+from .state import State
 
 logger = logging.getLogger(__name__)
 
-
+ 
 @tool
 def handoff_to_planner(
     research_topic: Annotated[str, "The topic of the research task to be handed off."],
@@ -39,16 +41,19 @@ def handoff_to_planner(
     """Handoff to planner agent to do plan."""
     # This tool is not returning anything: we're just using it
     # as a way for LLM to signal that it needs to hand off to planner agent
+    
     return
 
 
 def background_investigation_node(state: State, config: RunnableConfig):
-    logger.info("background investigation node is running.")
     configurable = Configuration.from_runnable_config(config)
     query = state.get("research_topic")
     goto = "planner"
+
     background_investigation_results = None
+
     llm = get_llm_by_type(AGENT_LLM_MAP["coordinator"])
+
     if SELECTED_SEARCH_ENGINE == SearchEngine.TAVILY.value:
         searched_content = LoggedTavilySearchTool(
             max_results=configurable.max_search_results
@@ -74,16 +79,15 @@ def background_investigation_node(state: State, config: RunnableConfig):
             ]
             response = llm.invoke(messages)
             full_response = response.model_dump_json(indent=4, exclude_none=True)
+            
+            # Build checkpoint with the full response
+            write_event(configurable.thread_id, "background_investigator", "info", {"goto":goto,"investigations": full_response})
+            
             return Command(
                 update={
                     "investigations": full_response,
-                    "messages": [
-                        AIMessage(
-                            content="__background_investigation_results__",
-                            name="background_investigator",
-                        )
-                    ],
-                },
+                    "messages": [AIMessage(content="background_investigator_finished", name="background_investigator")],
+                    },
                 goto=goto,
             )
             # return {"background_investigation_results": "\n\n".join( background_investigation_results)}
@@ -112,16 +116,11 @@ def background_investigation_node(state: State, config: RunnableConfig):
     ]
     response = llm.invoke(messages)
     full_response = response.model_dump_json(indent=4, exclude_none=True)
+    # Build checkpoint with the full response
+    write_event(configurable.thread_id, "background_investigator", "info", {"goto":goto,"investigations": full_response})
+
     return Command(
-        update={
-            "investigations": full_response,
-            "messages": [
-                AIMessage(
-                    content="__background_investigation_results__",
-                    name="background_investigator",
-                )
-            ],
-        },
+        update={"investigations": full_response, "messages": [AIMessage(content="background_investigator_finished", name="background_investigator")],},
         goto=goto,
     )
     # return {"background_investigation_results": json.dumps(background_investigation_results, ensure_ascii=False)}
@@ -131,7 +130,7 @@ def planner_node(
     state: State, config: RunnableConfig
 ) -> Command[Literal["human_feedback", "reporter"]]:
     """Planner node that generate the full plan."""
-    logger.info("Planner generating full plan")
+
     configurable = Configuration.from_runnable_config(config)
     plan_iterations = state["plan_iterations"] if state.get("plan_iterations", 0) else 0
     messages = apply_prompt_template("planner", state, configurable)
@@ -160,6 +159,7 @@ def planner_node(
 
     # if the plan iterations is greater than the max plan iterations, return the reporter node
     if plan_iterations >= configurable.max_plan_iterations:
+
         return Command(goto="reporter")
 
     full_response = ""
@@ -172,8 +172,6 @@ def planner_node(
             # if chunk.additional_kwargs and "reasoning_content" in chunk.additional_kwargs:
             #    full_response += chunk.additional_kwargs["reasoning_content"]
             full_response += chunk.content
-    logger.debug(f"Current state messages: {state['messages']}")
-    logger.info(f"Planner response: {full_response}")
 
     try:
         curr_plan = json.loads(repair_json_output(full_response))
@@ -184,8 +182,10 @@ def planner_node(
         else:
             return Command(goto="__end__")
     if curr_plan.get("has_enough_context"):
-        logger.info("Planner response has enough context.")
+  
         new_plan = Plan.model_validate(curr_plan)
+        # Build checkpoint with the current plan
+        write_event(configurable.thread_id, "planner", "info", {"goto":"reporter","current_plan": curr_plan})
         return Command(
             update={
                 "messages": [AIMessage(content=full_response, name="planner")],
@@ -193,6 +193,8 @@ def planner_node(
             },
             goto="reporter",
         )
+    # Build checkpoint with the current plan
+    write_event(configurable.thread_id, "planner", "info", {"goto":"human_feedback","current_plan": curr_plan})
     return Command(
         update={
             "messages": [AIMessage(content=full_response, name="planner")],
@@ -203,11 +205,13 @@ def planner_node(
 
 
 def human_feedback_node(
-    state,
+    state: State, config: RunnableConfig
 ) -> Command[Literal["planner", "research_team", "reporter", "__end__"]]:
+    configurable = Configuration.from_runnable_config(config)
     current_plan = state.get("current_plan", "")
     # check if the plan is auto accepted
     auto_accepted_plan = state.get("auto_accepted_plan", False)
+
     if not auto_accepted_plan:
         feedback = interrupt("Please Review the Plan.")
 
@@ -244,6 +248,9 @@ def human_feedback_node(
         else:
             return Command(goto="__end__")
 
+    # Build checkpoint with the current plan
+    write_event(configurable.thread_id, "human_feedback", "info", {"goto":goto,"current_plan": new_plan,"plan_iterations": plan_iterations})
+
     return Command(
         update={
             "current_plan": Plan.model_validate(new_plan),
@@ -258,7 +265,7 @@ def coordinator_node(
     state: State, config: RunnableConfig
 ) -> Command[Literal["planner", "background_investigator", "__end__"]]:
     """Coordinator node that communicate with customers."""
-    logger.info("Coordinator talking.")
+
     configurable = Configuration.from_runnable_config(config)
     messages = apply_prompt_template("coordinator", state)
     response = (
@@ -266,7 +273,6 @@ def coordinator_node(
         .bind_tools([handoff_to_planner])
         .invoke(messages)
     )
-    logger.debug(f"Current state messages: {state['messages']}")
 
     goto = "__end__"
     locale = state.get("locale", "zh-CN")  # Default locale if not specified
@@ -293,13 +299,17 @@ def coordinator_node(
         logger.warning(
             "Coordinator response contains no tool calls. Terminating workflow execution."
         )
-        logger.debug(f"Coordinator response: {response}")
-
+    # Build checkpoint with the current plan
+    write_event(configurable.thread_id, "coordinator", "info", {"goto":goto,"research_topic": research_topic})
+    
+    write_replay(configurable.thread_id, research_topic,configurable.report_style)
+    
     return Command(
         update={
             "locale": locale,
             "research_topic": research_topic,
             "resources": configurable.resources,
+
         },
         goto=goto,
     )
@@ -307,7 +317,7 @@ def coordinator_node(
 
 def reporter_node(state: State, config: RunnableConfig):
     """Reporter node that write a final report."""
-    logger.info("Reporter write final report")
+
     configurable = Configuration.from_runnable_config(config)
     current_plan = state.get("current_plan")
     input_ = {
@@ -316,7 +326,7 @@ def reporter_node(state: State, config: RunnableConfig):
                 f"# Research Requirements\n\n## Task\n\n{current_plan.title}\n\n## Description\n\n{current_plan.thought}"
             )
         ],
-        "locale": state.get("locale", "en-US"),
+        "locale": state.get("locale", "zh-CN"),
     }
     invoke_messages = apply_prompt_template("reporter", input_, configurable)
     observations = state.get("observations", [])
@@ -336,11 +346,13 @@ def reporter_node(state: State, config: RunnableConfig):
                 name="observation",
             )
         )
-    logger.debug(f"Current invoke messages: {invoke_messages}")
+
     response = get_llm_by_type(AGENT_LLM_MAP["reporter"]).invoke(invoke_messages)
     response_content = response.content
-    logger.info(f"reporter response: {response_content}")
-
+    
+    # Build checkpoint with the current plan
+    write_event(configurable.thread_id, "reporter", "info", {"goto":"end","final_report": response_content})
+    
     return {"final_report": response_content}
 
 
@@ -351,12 +363,12 @@ def research_team_node(state: State):
 
 
 async def _execute_agent_step(
-    state: State, agent, agent_name: str
+    state: State, config: RunnableConfig, agent, agent_name: str
 ) -> Command[Literal["research_team"]]:
     """Helper function to execute a step using the specified agent."""
     current_plan = state.get("current_plan")
     observations = state.get("observations", [])
-
+    configurable = Configuration.from_runnable_config(config)
     # Find the first unexecuted step
     current_step = None
     completed_steps = []
@@ -385,7 +397,7 @@ async def _execute_agent_step(
     agent_input = {
         "messages": [
             HumanMessage(
-                content=f"{completed_steps_info}# Current Task\n\n## Title\n\n{current_step.title}\n\n## Description\n\n{current_step.description}\n\n## Locale\n\n{state.get('locale', 'en-US')}"
+                content=f"{completed_steps_info}# Current Task\n\n## Title\n\n{current_step.title}\n\n## Description\n\n{current_step.description}\n\n## Locale\n\n{state.get('locale', 'zh-CN')}"
             )
         ]
     }
@@ -435,19 +447,40 @@ async def _execute_agent_step(
         )
         recursion_limit = default_recursion_limit
 
-    logger.info(f"Agent input: {agent_input}")
+    #logger.info(f"Agent input: {agent_input}")
     result = await agent.ainvoke(
         input=agent_input, config={"recursion_limit": recursion_limit}
     )
 
     # Process the result
     response_content = result["messages"][-1].content
-    logger.debug(f"{agent_name.capitalize()} full response: {response_content}")
+    #logger.debug(f"{agent_name.capitalize()} full response: {response_content}")
 
     # Update the step with the execution result
     current_step.execution_res = response_content
     logger.info(f"Step '{current_step.title}' execution completed by {agent_name}")
 
+    # Build checkpoint with the current plan
+    agent_input_messages = []
+    for message in agent_input["messages"]:
+        if isinstance(message, HumanMessage):
+            agent_input_messages.append(
+                {
+                    "role": "user",
+                    "content": message.content,
+                    "name": message.name,
+                }
+            )
+        elif isinstance(message, AIMessage):
+            agent_input_messages.append(
+                {
+                    "role": "assistant",
+                    "content": message.content,
+                    "name": message.name,
+                }
+            )
+    write_event(configurable.thread_id, "agent", "info", {"goto":"research_team", "agent":agent_name,"input":agent_input_messages, "observations": observations + [response_content]})
+ 
     return Command(
         update={
             "messages": [
@@ -517,24 +550,24 @@ async def _setup_and_execute_agent_step(
                     logger.warning(f"Failed to load MCP tools: {e}")
                     # Continue with default tools if MCP tools fail to load
                 agent = create_agent(agent_type, agent_type, loaded_tools, agent_type)
-                return await _execute_agent_step(state, agent, agent_type)
+                return await _execute_agent_step(state, config, agent, agent_type)
         except Exception as e:
             logger.warning(f"MCP client connection failed: {e}")
             logger.info("Falling back to default tools")
             # Fall back to default tools if MCP connection fails
             agent = create_agent(agent_type, agent_type, default_tools, agent_type)
-            return await _execute_agent_step(state, agent, agent_type)
+            return await _execute_agent_step(state, config, agent, agent_type)
     else:
         # Use default tools if no MCP servers are configured
         agent = create_agent(agent_type, agent_type, default_tools, agent_type)
-        return await _execute_agent_step(state, agent, agent_type)
+        return await _execute_agent_step(state, config, agent, agent_type)
 
 
 async def researcher_node(
     state: State, config: RunnableConfig
 ) -> Command[Literal["research_team"]]:
     """Researcher node that do research"""
-    logger.info("Researcher node is researching.")
+    
     configurable = Configuration.from_runnable_config(config)
     tools = [get_web_search_tool(configurable.max_search_results)]  # crawl_tool
     retriever_tool = get_retriever_tool(state.get("resources", []))
@@ -553,7 +586,6 @@ async def coder_node(
     state: State, config: RunnableConfig
 ) -> Command[Literal["research_team"]]:
     """Coder node that do code analysis."""
-    logger.info("Coder node is coding.")
     return await _setup_and_execute_agent_step(
         state,
         config,

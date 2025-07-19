@@ -1,111 +1,182 @@
+import { z } from "zod";
 import { MCPTool } from "@aicu/mcp-framework";
 
 const { httpGet, downloadCsvData, sleep } = require("../xhs-browser.js");
 
-import { z } from "zod";
-
-interface GetnotecommentsInput {
+/**
+ * Input interface for GetNoteCommentsTool
+ */
+interface GetNoteCommentsInput {
   note_id: string;
   xsec_token: string;
   count: number;
   download: boolean;
 }
 
-class GetnotecommentsTool extends MCPTool<GetnotecommentsInput> {
+/**
+ * Comment data structure from Xiaohongshu API response
+ */
+interface CommentData {
+  id: string;
+  targetComment?: { id: string };
+  userInfo: {
+    nickname: string;
+    userId: string;
+    xsecToken: string;
+  };
+  ipLocation: string;
+  likeCount: number;
+  createTime: number;
+  content: string;
+  subComments?: CommentData[];
+}
+
+/**
+ * API response structure for comment page
+ */
+interface CommentPageResponse {
+  comments: CommentData[];
+  cursor: string;
+  xsecToken?: string;
+}
+
+/**
+ * Tool for retrieving comment data from Xiaohongshu notes
+ * Supports pagination, data export, and CSV download functionality
+ */
+class GetNoteCommentsTool extends MCPTool<GetNoteCommentsInput> {
   name = "Get Note Comments List";
   description = "Get comment list data for a specified Xiaohongshu note. Users can specify the number to retrieve (use -1 to get all). Users can also specify whether to export and download the data. Note: All parameters must be filled in, otherwise data cannot be retrieved.";
 
   schema = {
     note_id: {
       type: z.string(),
-      description: "笔记的note_id",
+      description: "Note ID from Xiaohongshu",
     },
     xsec_token: {
       type: z.string(),
-      description: "笔记对应的xsec_token",
+      description: "Security token for the note",
     },
     count: {
       type: z.number().min(-1).max(1000),
       default: 10,
-      description: "要获取的评论的数据量，默认获取10条。如果用户指定了要获取全部的数据，则值为-1。",
+      description: "Number of comments to retrieve. Default is 10. Use -1 to get all comments.",
     },
     download: {
       type: z.boolean(),
       default: false,
-      description: "是否下载导出评论数据",
+      description: "Whether to download and export comment data as CSV",
     }
   };
 
-  async execute(input: GetnotecommentsInput) {
+  /**
+   * Execute the tool to retrieve note comments
+   * @param input - Input parameters for comment retrieval
+   * @returns Promise<string> - CSV data or download confirmation message
+   */
+  async execute(input: GetNoteCommentsInput): Promise<string> {
     const { note_id, count, download } = input;
     let xsec_token = input.xsec_token;
+    
     try {
       let cursor = '';
-      let result_arr: any[] = [];
+      let result_arr: CommentData[] = [];
+      
+      // Paginate through all comments until we have enough or reach the end
       while (true) {
-        // 获取数量够了
         console.log('[start]', count, cursor, xsec_token);
+        
+        // Check if we have retrieved enough comments
         if ((count !== -1) && (result_arr.length >= count)) break;
-        let res = null;
+        
+        let res: CommentPageResponse | null = null;
         try {
-          res = await httpGet(`/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=&image_formats=jpg,webp,avif&xsec_token=${encodeURIComponent(xsec_token)}`);
-        } catch (e) {
+          const response = await httpGet(`/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=&image_formats=jpg,webp,avif&xsec_token=${encodeURIComponent(xsec_token)}`);
+          res = response as CommentPageResponse;
+        } catch (error) {
+          console.error('Failed to fetch comments:', error);
           break;
         }
-        console.log('res=', res)
-        // 没有数据了
-        if (res['comments'].length === 0) break;
-        result_arr = result_arr.concat(res['comments']);
-        cursor = res['cursor'];
-        // TODO
-        // 这里需要后续登陆了测试，测试是否能获取到下一页数据
-        // 已经测试：不需要修改token
-        // xsec_token = res['xsecToken'];
+        
+        console.log('res=', res);
+        
+        // Break if no more comments are available
+        if (!res || !res.comments || res.comments.length === 0) break;
+        
+        result_arr = result_arr.concat(res.comments);
+        cursor = res.cursor;
+        
+        // Add delay to avoid rate limiting
         await sleep(2);
       }
 
-      // 优化数据
-      let result_csv = 'comment_id,reply_comment_id,user_name,user_id,user_xsec_token,ip_location,like_count,created,content\n';
-      let csv_arr: any[] = [];
-      result_arr.map(r => {
-        const top_comment = [
-          r.id, (r.targetComment ? r.targetComment['id'] : ''),
-          r['userInfo']['nickname'], r['userInfo']['userId'], r['userInfo']['xsecToken'],
-          r['ipLocation'],
-          r['likeCount'],
-          new Date(r['createTime']).toLocaleString(),
-          r['content']
-        ].map(a => String(a).includes(',') ? `"${a}"` : a);
-        // result_csv += top_comment.join(',');
-        csv_arr.push(top_comment.join(','));
-        // 如果有字评论
-        if (r['subComments'] && r['subComments'].length > 0) {
-          for (let i = 0; i < r['subComments'].length; i++) {
-            const rs = r['subComments'][i];
-            // 如果有子评论
-            const sub_comment = [
-              rs.id, (rs.targetComment ? rs.targetComment['id'] : ''),
-              rs['userInfo']['nickname'], rs['userInfo']['userId'], rs['userInfo']['xsecToken'],
-              rs['ipLocation'],
-              rs['likeCount'],
-              new Date(rs['createTime']).toLocaleString(),
-              rs['content']
-            ].map(a => String(a).includes(',') ? `"${a}"` : a).join(',');
-            csv_arr.push(sub_comment);
-          }
-        }
-      })
-      result_csv += csv_arr.join('\n');
+      // Generate CSV data from comments
+      const csvData = this.generateCsvData(result_arr, note_id, count);
+      
       if (download) {
-        const download_res = downloadCsvData(`comments_${note_id}_${count}`, result_csv);
-        return download_res['error'] ? `保存数据失败：${download_res['error']}` : `数据保存成功。条数：${result_arr.length}。文件：${download_res['link']}`;
+        const downloadResult = downloadCsvData(`comments_${note_id}_${count}`, csvData);
+        return downloadResult?.error 
+          ? `Failed to save data: ${downloadResult.error}` 
+          : `Data saved successfully. Count: ${result_arr.length}. File: ${downloadResult.link}`;
       }
-      return result_csv;
-    } catch (e) {
-      // @ts-ignore
-      return 'Failed to retrieve data! ' + e.message;
+      
+      return csvData;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      return `Failed to retrieve data! ${errorMessage}`;
     }
+  }
+
+  /**
+   * Generate CSV data from comment array
+   * @param comments - Array of comment data
+   * @param noteId - Note ID for filename
+   * @param count - Number of comments requested
+   * @returns CSV formatted string
+   */
+  private generateCsvData(comments: CommentData[], noteId: string, count: number): string {
+    let result_csv = 'comment_id,reply_comment_id,user_name,user_id,user_xsec_token,ip_location,like_count,created,content\n';
+    let csv_arr: string[] = [];
+    
+    comments.forEach(comment => {
+      // Process main comment
+      const topComment = [
+        comment.id, 
+        comment.targetComment?.id || '',
+        comment.userInfo.nickname, 
+        comment.userInfo.userId, 
+        comment.userInfo.xsecToken,
+        comment.ipLocation,
+        comment.likeCount,
+        new Date(comment.createTime).toLocaleString(),
+        comment.content
+      ].map(field => String(field).includes(',') ? `"${field}"` : field);
+      
+      csv_arr.push(topComment.join(','));
+      
+      // Process sub-comments if they exist
+      if (comment.subComments && comment.subComments.length > 0) {
+        comment.subComments.forEach(subComment => {
+          const subCommentRow = [
+            subComment.id, 
+            subComment.targetComment?.id || '',
+            subComment.userInfo.nickname, 
+            subComment.userInfo.userId, 
+            subComment.userInfo.xsecToken,
+            subComment.ipLocation,
+            subComment.likeCount,
+            new Date(subComment.createTime).toLocaleString(),
+            subComment.content
+          ].map(field => String(field).includes(',') ? `"${field}"` : field);
+          
+          csv_arr.push(subCommentRow.join(','));
+        });
+      }
+    });
+    
+    result_csv += csv_arr.join('\n');
+    return result_csv;
   }
 }
 
-module.exports = GetnotecommentsTool;
+module.exports = GetNoteCommentsTool;

@@ -13,4 +13,5 @@ def create_agent(agent_name: str, agent_type: str, tools: list, prompt_template:
         model=get_llm_by_type(AGENT_LLM_MAP[agent_type]),
         tools=tools,
         prompt=lambda state: apply_prompt_template(prompt_template, state),
+
     )

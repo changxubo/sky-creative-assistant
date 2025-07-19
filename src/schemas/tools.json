@@ -1,0 +1,97 @@
+[Tool(
+name="Note Collection Action", 
+description="Collect or uncollect Xiaohongshu notes based on note ID", 
+inputSchema={
+    "type": "object", 
+    "properties": {
+    "note_id": {"type": "string", "description": "Xiaohongshu note ID"}, 
+    "collect": {"type": "boolean", "description": "true to collect,false to uncollect"}
+    }
+})
+    , Tool(name="User Follow Action", description="Follow or unfollow users based on user ID", inputSchema={"type": "object", "properties": {"target_user_id": {"type": "string", "description": "Target user ID,
+                24-character string"
+            }, "follow": {"type": "boolean", "description": "true to follow,
+                false to unfollow"
+            }
+        }
+    }), Tool(name="Get User Collected Notes List", description="Get a list of notes collected by the specified user. If the user needs to get their own account"s list, please first get the current account"s ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.", inputSchema={"type": "object", "properties": {"user_id": {"type": "string", "description": "User ID,
+                24 characters in length"
+            }, "count": {"type": "number", "description": "Number of notes to retrieve, default is 5. To get all notes, set the value to -1"
+            }, "xsec_token": {"type": "string", "description": "xsec_token for request parameter validation, optional"
+            }, "download": {"type": "boolean", "description": "Whether to export data as a file. If the user specifically requests a download, set to true, otherwise default is false"
+            }
+        }
+    }), Tool(name="Get Note Details", description="Get detailed data for a specific note, note_id and xsec_token are both required", inputSchema={"type": "object", "properties": {"note_id": {"type": "string", "description": "The note_id of the note"
+            }, "xsec_token": {"type": "string", "description": "The xsec_token corresponding to the note"
+            }
+        }
+    }), Tool(name="Get Local File Contents", description="Get the contents of a local file at the specified path, returns the file"s string data", inputSchema={"type": "object", "properties": {"filePath": {"type": "string", "description": "The local path of the file to read (absolute path)"
+            }
+        }
+    }), Tool(name="Get Recommended Notes List", description="Get the post list from Xiaohongshu website homepage。\nCategory data as follows (csv format)：\nid,name\nhomefeed_recommend,Recommended\nhomefeed.fashion_v3,Fashion\nhomefeed.food_v3,Food\nhomefeed.cosmetics_v3,Makeup\nhomefeed.movie_and_tv_v3,Movies & TV\nhomefeed.career_v3,Career\nhomefeed.love_v3,Relationships\nhomefeed.household_product_v3,Home & Living\nhomefeed.gaming_v3,Gaming\nhomefeed.travel_v3,Travel\nhomefeed.fitness_v3,Fitness\n\nReturned result (csv, type data: normal=Image and Text, video=Video)：\nnote_id,xsec_token,type,title,liked_count,cover,user_id,user_name,user_xsec_token\n\nPlease pass all tool parameters, default parameters are: count=10, category=homefeed_recommend, download=false", inputSchema={"type": "object", "properties": {"count": {"type": "number", "description": "Number of items to retrieve, default is 10"
+            }, "category": {"type": "string", "description": "Category ID of posts, default is the recommended category"
+            }, "download": {"type": "boolean", "description": "Whether to export data as a file. If the user specifically requests a download, set to true, otherwise default is false"
+            }
+        }
+    }), Tool(name="Get User Liked Notes List", description="Get a list of notes liked by the specified user. If the user needs to get their own account"s list, please first get the current account"s ID. If user ID is not specified, guide the user to provide an ID to continue. All parameters are required.", inputSchema={"type": "object", "properties": {"user_id": {"type": "string", "description": "User ID,
+                24 characters in length"
+            }, "count": {"type": "number", "description": "Number of notes to retrieve, default is 5. To get all notes, set the value to -1"
+            }, "xsec_token": {"type": "string", "description": "xsec_token for request parameter validation, optional"
+            }, "download": {"type": "boolean", "description": "Whether to export data as a file. If the user specifically requests a download, set to true, otherwise default is false"
+            }
+        }
+    }), Tool(name="get_current_account", description="Get detailed data for the current account, including nickname, ID, avatar, follower data, etc.", inputSchema={"type": "object", "properties": {}
+    }), Tool(name="Get Note Comments List", description="Get comment list data for a specified Xiaohongshu note. Users can specify the number to retrieve (use -1 to get all). Users can also specify whether to export and download the data. Note: All parameters must be filled in, otherwise data cannot be retrieved.", inputSchema={"type": "object", "properties": {"note_id": {"type": "string", "description": "笔记的note_id"
+            }, "xsec_token": {"type": "string", "description": "笔记对应的xsec_token"
+            }, "count": {"type": "number", "description": "要获取的评论的数据量，默认获取10条。如果用户指定了要获取全部的数据，则值为-1。"
+            }, "download": {"type": "boolean", "description": "是否下载导出评论数据"
+            }
+        }
+    }), Tool(name="Get Current Account Details", description="Get detailed data for the current account, including nickname, ID, avatar, follower data, etc.", inputSchema={"type": "object", "properties": {}
+    }), Tool(name="Get New Followers List", description="Get user message notifications in the new followers category. For example, which users have recently followed me can be retrieved with this tool. Two parameters are required, count and cursor. The cursor is a pointer for the next page of data, which is the cursor returned when the data is fetched. If this is the first request, please pass an empty string (all parameter names must be passed)", inputSchema={"type": "object", "properties": {"count": {"type": "number", "description": "Amount of data to retrieve, default is 20"
+            }, "cursor": {"type": "string", "description": "The pointer for the next page of data, which is the cursor returned when the data is fetched. If empty, the first page of data will be retrieved"
+            }
+        }
+    }), Tool(name="Get Likes and Collections Notifications", description="Get the current user"s message notifications in the likes and collections category. For example, which users have recently liked my notes, or collected my notes, can be retrieved with this tool. If the cursor parameter is empty, please pass an empty string", inputSchema={"type": "object", "properties": {"count": {"type": "number", "description": "Amount of data to retrieve, default is 20"
+            }, "cursor": {"type": "string", "description": "The pointer for the next page of data, this pointer is the cursor returned when the data is fetched"
+            }
+        }
+    }), Tool(name="Get Comment-related Notifications", description="Get user message notifications in the "Comments and @" category. For example, which users have recently commented on my notes, or mentioned me in notes, can be retrieved with this tool. If the cursor parameter is empty, please pass an empty string", inputSchema={"type": "object", "properties": {"count": {"type": "number", "description": "Amount of data to retrieve, default is 20"
+            }, "cursor": {"type": "string", "description": "Pointer for the next page of data, this pointer is the cursor returned when the data is fetched"
+            }
+        }
+    }), Tool(name="Get User Notes List", description="Get the list of published notes for a specified user. All parameters are required.", inputSchema={"type": "object", "properties": {"user_id": {"type": "string", "description": "User ID, not the Xiaohongshu ID,
+                24 characters in length"
+            }, "count": {"type": "number", "description": "The number of notes to retrieve, default is 5. Use -1 to retrieve all."
+            }, "xsec_token": {"type": "string", "description": "The xsec_token for request parameter verification, this is required."
+            }, "download": {"type": "boolean", "description": "Whether to download and export data as a file. Set to true if the user explicitly requests a download, otherwise defaults to false."
+            }
+        }
+    }), Tool(name="Note Like Action", description="Like or unlike Xiaohongshu notes based on note ID", inputSchema={"type": "object", "properties": {"note_id": {"type": "string", "description": "Xiaohongshu note ID"
+            }, "like": {"type": "boolean", "description": "true to like,
+                false to unlike"
+            }
+        }
+    }), Tool(name="like_note_action", description="Like or unlike Xiaohongshu notes based on note ID", inputSchema={"type": "object", "properties": {"note_id": {"type": "string", "description": "Xiaohongshu note ID - unique identifier for the note"
+            }, "like": {"type": "boolean", "description": "true to like the note,
+                false to unlike the note"
+            }
+        }
+    }), Tool(name="Post Note Comment", description="Post a text comment on a specified Xiaohongshu note", inputSchema={"type": "object", "properties": {"note_id": {"type": "string", "description": "Xiaohongshu note ID"
+            }, "content": {"type": "string", "description": "Text content of the comment to post"
+            }
+        }
+    }), Tool(name="Search Xiaohongshu Notes", description="Search for relevant Xiaohongshu notes based on keywords. Note type (note_type) options are:\n0 All types\n1 Video notes\n2 Image and text notes\nSearch results can be sorted using one of the following sort options:\ngeneral Comprehensive sorting\ntime_descending Newest sorting\npopularity_descending Most popular sorting\n  ", inputSchema={"type": "object", "properties": {"keyword": {"type": "string", "description": "Keyword to search for notes"
+            }, "count": {"type": "number", "description": "Amount of data to retrieve, default is 20"
+            }, "sort": {"type": "enum", "description": "Search result sorting rule"
+            }, "noteType": {"type": "number", "description": "Type of notes to search for"
+            }, "download": {"type": "boolean", "description": "Whether to export data as a file. If the user specifically requests a download, set to true, otherwise default is false"
+            }
+        }
+    }), Tool(name="Search Xiaohongshu Users", description="Search for specific users based on keywords. The returned data may include multiple results, which can be filtered by criteria such as verification status or follower count to help users select an appropriate account. If there are multiple similar results, please remind the user to choose one. The xsec_token in the returned data is very important and may need to be passed to the next tool call", inputSchema={"type": "object", "properties": {"keyword": {"type": "string", "description": "Keyword for the username to search"
+            }, "count": {"type": "number", "description": "The amount of data to be retrieved, default is 5"
+            }, "download": {"type": "boolean", "description": "Whether to download and export data as a file. If the user specifically requests a download, it will be true, otherwise, the default is false"
+            }
+        }
+    })
+]

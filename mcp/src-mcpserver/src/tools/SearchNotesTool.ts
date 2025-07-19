@@ -1,38 +1,58 @@
+// Library imports
 import { MCPTool } from "@aicu/mcp-framework";
 import { z } from "zod";
 
+// Local imports
 const { httpPost, jsonToCsv, sleep, downloadCsvData } = require("../xhs-browser.js");
 
-const createSearchId = () => {
-  const F = () => {
-    var timestamp = new Date().getTime().toString();
+/**
+ * Generates a unique search ID for Xiaohongshu search requests
+ * @returns {string} - Unique search identifier
+ */
+const createSearchId = (): string => {
+  /**
+   * Creates a timestamp string padded to 13 characters
+   * @returns {string} - Formatted timestamp
+   */
+  const generateTimestamp = (): string => {
+    let timestamp = new Date().getTime().toString();
     if (timestamp.length < 13) {
       timestamp = timestamp.padEnd(13, "0");
     }
-    return timestamp
+    return timestamp;
   };
-  const J = () => {
-    var e;
-    var t = BigInt(F())
-      , r = BigInt(Math.ceil(2147483646 * Math.random()));
-    return t <<= BigInt(64),
-      (t += r).toString(36)
-  };
-  return J();
-}
 
-interface SearchnotesInput {
+  /**
+   * Generates a unique identifier using BigInt operations
+   * @returns {string} - Base36 encoded unique ID
+   */
+  const generateUniqueId = (): string => {
+    const timestamp = BigInt(generateTimestamp());
+    const randomComponent = BigInt(Math.ceil(2147483646 * Math.random()));
+    const shiftedTimestamp = timestamp << BigInt(64);
+    return (shiftedTimestamp + randomComponent).toString(36);
+  };
+
+  return generateUniqueId();
+};
+
+/**
+ * Input interface for SearchNotesTool
+ */
+interface SearchNotesInput {
   keyword: string;
-  // page: number;
   count: number;
-  // pageSize: number;
-  sort: string; // popularity_descending = most popular, time_descending=newest; general=comprehensive sorting
-  noteType: number; // 0 = all, 1 = video; 2=image and text
+  sort: 'general' | 'time_descending' | 'popularity_descending';
+  noteType: 0 | 1 | 2; // 0 = all, 1 = video, 2 = image and text
   download: boolean;
 }
 
-class SearchnotesTool extends MCPTool<SearchnotesInput> {
-  name = "Search Xiaohongshu Notes";
+/**
+ * Tool for searching Xiaohongshu notes based on keywords
+ * Provides comprehensive search functionality with filtering and sorting options
+ */
+class SearchNotesTool extends MCPTool<SearchNotesInput> {
+  name = "search_notes";
   description = `Search for relevant Xiaohongshu notes based on keywords. Note type (note_type) options are:
 0 All types
 1 Video notes
@@ -59,7 +79,7 @@ popularity_descending Most popular sorting
       description: 'Search result sorting rule'
     },
     noteType: {
-      type: z.number(),
+      type: z.union([z.literal(0), z.literal(1), z.literal(2)]),
       default: 0,
       description: 'Type of notes to search for'
     },
@@ -70,20 +90,40 @@ popularity_descending Most popular sorting
     }
   };
 
-  async execute(input: SearchnotesInput) {
-    const {
-      keyword, count, sort, noteType, download
-    } = input;
+  /**
+   * Executes the search operation for Xiaohongshu notes
+   * @param input - Search parameters including keyword, count, sort, noteType, and download
+   * @returns Promise<string> - CSV data or download confirmation message
+   */
+  async execute(input: SearchNotesInput): Promise<string> {
+    const { keyword, count, sort, noteType, download } = input;
+    
+    // Input validation
+    if (!keyword || typeof keyword !== 'string' || keyword.trim().length === 0) {
+      return JSON.stringify({
+        error: true,
+        message: 'Invalid keyword: Must be a non-empty string'
+      });
+    }
+    
+    if (count <= 0 || count > 1000) {
+      return JSON.stringify({
+        error: true,
+        message: 'Invalid count: Must be between 1 and 1000'
+      });
+    }
+
     try {
       const searchId = createSearchId();
-      let loaded_count = 0;
-      let current_page = 1;
-      const results_all: any[] = [];
-      while (loaded_count < count) {
+      let loadedCount = 0;
+      let currentPage = 1;
+      const resultsAll: any[] = [];
+      
+      while (loadedCount < count) {
         try {
-          const res = await httpPost('/api/sns/web/v1/search/notes', {
+          const searchResponse = await httpPost('/api/sns/web/v1/search/notes', {
             "keyword": keyword,
-            "page": current_page,
+            "page": currentPage,
             "page_size": 20,
             "search_id": searchId,
             "sort": sort,
@@ -91,62 +131,53 @@ popularity_descending Most popular sorting
             "ext_flags": [],
             "filters": [
               {
-                "tags": [
-                  "general"
-                ],
+                "tags": ["general"],
                 "type": "sort_type"
               },
               {
-                "tags": [
-                  "不限"
-                ],
+                "tags": ["不限"],
                 "type": "filter_note_type"
               },
               {
-                "tags": [
-                  "不限"
-                ],
+                "tags": ["不限"],
                 "type": "filter_note_time"
               },
               {
-                "tags": [
-                  "不限"
-                ],
+                "tags": ["不限"],
                 "type": "filter_note_range"
               },
               {
-                "tags": [
-                  "不限"
-                ],
+                "tags": ["不限"],
                 "type": "filter_pos_distance"
               }
             ],
             "geo": "",
-            "image_formats": [
-              "jpg",
-              "webp",
-              "avif"
-            ]
+            "image_formats": ["jpg", "webp", "avif"]
           });
-          // @ts-ignore
-          res['items'].map((item) => {
-            if (loaded_count >= count) return;
-            // 过滤
-            if (item['modelType'] !== 'note') return;
-            results_all.push(item);
-            loaded_count++;
-          })
-          if (loaded_count >= count) break;
-          current_page++;
-          await sleep(2);
-        } catch (e) {
-          // @ts-ignore
-          return `Failed to search notes data: ${e.message}`;
+          
+          // Process search results
+          if (searchResponse && searchResponse.items && Array.isArray(searchResponse.items)) {
+            searchResponse.items.forEach((item: any) => {
+              if (loadedCount >= count) return;
+              // Filter only note items
+              if (item.modelType !== 'note') return;
+              resultsAll.push(item);
+              loadedCount++;
+            });
+          }
+          
+          if (loadedCount >= count) break;
+          currentPage++;
+          await sleep(2); // Rate limiting
+        } catch (searchError) {
+          const errorMessage = searchError instanceof Error ? searchError.message : 'Unknown search error';
+          console.error('Search page error:', errorMessage);
           break;
         }
       }
 
-      const result_csv = jsonToCsv(results_all, [
+      // Convert results to CSV format
+      const resultCsv = jsonToCsv(resultsAll, [
         'note_id@id',
         'xsec_token@xsecToken',
         'note_type@noteCard.type',
@@ -157,17 +188,39 @@ popularity_descending Most popular sorting
         'user_name@noteCard.user.nickname',
         'user_xsec_token@noteCard.user.xsecToken'
       ]);
+      
       if (download) {
-        const fileName = `search_notes_${encodeURIComponent(keyword)}_${count}_${+new Date}.csv`;
-        const download_result = downloadCsvData(fileName, result_csv);
-        return download_result['error'] ? `Failed to save data: ${download_result['error']}` : `Data saved. Count: ${results_all.length}. File: ${download_result.link}`;
+        const fileName = `search_notes_${encodeURIComponent(keyword)}_${count}_${Date.now()}.csv`;
+        const downloadResult = downloadCsvData(fileName, resultCsv);
+        
+        if (downloadResult.error) {
+          return JSON.stringify({
+            error: true,
+            message: `Failed to save data: ${downloadResult.error}`
+          });
+        }
+        
+        return JSON.stringify({
+          success: true,
+          message: 'Data saved successfully',
+          count: resultsAll.length,
+          filename: fileName,
+          link: downloadResult.link
+        });
       }
-      return result_csv;
-    } catch (e) {
-      // @ts-ignore
-      return 'Failed to search notes data: ' + e.message;
+      
+      return JSON.stringify(resultsAll);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('SearchNotesTool error:', errorMessage);
+      
+      return JSON.stringify({
+        error: true,
+        message: `Failed to search notes: ${errorMessage}`,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 }
 
-module.exports = SearchnotesTool;
+module.exports = SearchNotesTool;

@@ -44,8 +44,8 @@ const getBrowser = () => {
     browser = new BrowserWindow({
         width: 1024,
         height: 768,
-        show: false,
-        autoHideMenuBar: true
+        show: true,
+        autoHideMenuBar: false
     });
     browser.on('close', (event: any) => {
         event.preventDefault();

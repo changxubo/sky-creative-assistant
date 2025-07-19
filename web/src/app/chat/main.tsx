@@ -13,9 +13,9 @@ import { ResearchBlock } from "./components/research-block";
 
 // Layout constants for better maintainability
 const LAYOUT_CONSTANTS = {
-  MESSAGE_COLUMN_WIDTH: 44,
+  MESSAGE_COLUMN_WIDTH: 43,
   MESSAGE_COLUMN_WIDTH_SINGLE: 75,
-  RESEARCH_COLUMN_WIDTH: 54,
+  RESEARCH_COLUMN_WIDTH: 55,
   LAYOUT_PADDING: "px-4 pt-12 pb-4",
   COLUMN_GAP: "gap-8",
   TRANSITION: "transition-all duration-300 ease-out",
@@ -55,7 +55,7 @@ export default function ChatLayout({ className }: ChatLayoutProps = {}) {
     const baseClasses = `${LAYOUT_CONSTANTS.TRANSITION}`; //shrink-0 
     
     if (isDoubleColumnMode) {
-      return cn(baseClasses, `w-[${LAYOUT_CONSTANTS.MESSAGE_COLUMN_WIDTH}%] min-w-[560px]`);
+      return cn(baseClasses, `w-[${LAYOUT_CONSTANTS.MESSAGE_COLUMN_WIDTH}%] min-w-[560px] max-w-[1260px]`);
     }
     
     // Single column mode - center the messages block
@@ -67,7 +67,7 @@ export default function ChatLayout({ className }: ChatLayoutProps = {}) {
     const baseClasses = `pb-4 ${LAYOUT_CONSTANTS.TRANSITION}`;
     
     if (isDoubleColumnMode) {
-      const responsiveWidth = `w-[${LAYOUT_CONSTANTS.RESEARCH_COLUMN_WIDTH}%] min-w-[575px]`;
+      const responsiveWidth = `w-[${LAYOUT_CONSTANTS.RESEARCH_COLUMN_WIDTH}%] min-w-[575px] max-w-[1260px]`;
       return cn(baseClasses, responsiveWidth);
     }
     

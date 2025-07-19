@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FastForward, Play } from "lucide-react";
+import { FastForward, Play,CornerDownLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { RainbowText } from "~/components/core/rainbow-text";
@@ -228,6 +228,17 @@ export function MessagesBlock({ className }: MessagesBlockProps) {
                       <Button className="w-24" onClick={handleStartReplaySession}>
                         <Play size={16} />
                         Play
+                      </Button>
+                    )}
+                    { !responding && replayStarted && (
+                       
+                    <Button className="w-24" onClick={() => {
+                      // Handle return to chat logic here
+                      console.log("Returning to chat");
+                      location.href = "/chat";
+                    }}>
+                        <CornerDownLeft size={16} />
+                        Return
                       </Button>
                     )}
                   </div>

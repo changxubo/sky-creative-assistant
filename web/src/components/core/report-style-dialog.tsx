@@ -20,25 +20,25 @@ import { Tooltip } from "./tooltip";
 const REPORT_STYLES = [
   {
     value: "academic" as const,
-    label: "学术",
+    label: "Academic",
     description: "Formal, objective, and analytical with precise terminology",
     icon: GraduationCap,
   },
   {
     value: "popular_science" as const,
-    label: "热门科学",
+    label: "Science",
     description: "Engaging and accessible for general audience",
     icon: FileText,
   },
   {
     value: "news" as const,
-    label: "新闻",
+    label: "News",
     description: "Factual, concise, and impartial journalistic style",
     icon: Newspaper,
   },
   {
     value: "social_media" as const,
-    label: "社交媒体",
+    label: "Social Media",
     description: "Concise, attention-grabbing, and shareable",
     icon: Users,
   },
@@ -88,7 +88,7 @@ export function ReportStyleDialog() {
       </Tooltip>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>选择写作风格</DialogTitle>
+          <DialogTitle>Writing Style</DialogTitle>
           <DialogDescription>
             Select the writing style for your research reports. Each style is
             optimized for different audiences and purposes.

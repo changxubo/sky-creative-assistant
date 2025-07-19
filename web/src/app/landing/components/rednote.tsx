@@ -29,7 +29,7 @@ export function Rednote() {
               target={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ? "_blank" : undefined}
               href={ "/chat"}
             >
-              Get Started <ChevronRight />
+              Start Chat <ChevronRight />
             </Link>
           </Button>
           

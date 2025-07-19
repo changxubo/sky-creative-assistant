@@ -1,3 +1,5 @@
+import asyncio
+import os
 import argparse
 import logging
 import signal
@@ -11,7 +13,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
+if os.name == "nt":
+    logger.info("Setting Windows event loop policy for asyncio")
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 def handle_shutdown(signum, frame):
     """Handle graceful shutdown on SIGTERM/SIGINT"""

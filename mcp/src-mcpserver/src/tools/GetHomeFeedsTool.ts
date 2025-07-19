@@ -1,14 +1,22 @@
 import { MCPTool } from "@aicu/mcp-framework";
 import { z } from "zod";
+
 const { httpPost, downloadCsvData, sleep, jsonToCsv } = require("../xhs-browser.js");
 
-interface GethomefeedsInput {
+/**
+ * Input interface for GetHomeFeedsTool
+ */
+interface GetHomeFeedsInput {
   count: number;
   category: string;
   download: boolean;
 }
 
-class GethomefeedsTool extends MCPTool<GethomefeedsInput> {
+/**
+ * Tool for retrieving recommended notes list from Xiaohongshu website homepage
+ * Supports various categories including fashion, food, makeup, movies, career, etc.
+ */
+class GetHomeFeedsTool extends MCPTool<GetHomeFeedsInput> {
   name = "Get Recommended Notes List";
   description = `Get the post list from Xiaohongshu website homepage。
 Category data as follows (csv format)：
@@ -48,70 +56,148 @@ Please pass all tool parameters, default parameters are: count=10, category=home
     }
   };
 
-  async execute(input: GethomefeedsInput) {
+  /**
+   * Executes the tool to fetch home feeds from Xiaohongshu
+   * @param input - The input parameters containing count, category, and download preference
+   * @returns Promise<string> - CSV data or download confirmation message
+   */
+  async execute(input: GetHomeFeedsInput): Promise<string> {
     const { count, category, download } = input;
+
+    // Validate input parameters
+    if (count <= 0 || count > 1000) {
+      return 'Error: Count must be between 1 and 1000';
+    }
 
     try {
       let cursor_score = '';
       let note_index = 0;
-      // 总共获取了多少
-      let loaded_count = 0;
-      // 结果缓存
-      let results_all: any[] = [];
-      while (loaded_count < count) {
+      let loaded_count = 0; // Total number of items loaded
+      let results_all: any[] = []; // Cache for results
+      let retryCount = 0;
+      const MAX_RETRIES = 3;
+
+      while (loaded_count < count && retryCount < MAX_RETRIES) {
         try {
-          const res = await httpPost("/api/sns/web/v1/homefeed", {
-            "cursor_score": cursor_score,
-            "num": 27,
-            "refresh_type": 1,
-            "note_index": note_index,
-            "unread_begin_note_id": "",
-            "unread_end_note_id": "",
-            "unread_note_count": 0,
-            "category": category,
-            "search_key": "",
-            "need_num": 12,
-            "image_formats": [
-              "jpg",
-              "webp",
-              "avif"
-            ],
-            "need_filter_image": false
-          });
-          res['items'].map((item: Array<any>) => {
-            if (loaded_count >= count) return;
-            results_all.push(item);
-            loaded_count++;
-          })
+          const response = await this.fetchHomeFeedBatch(cursor_score, note_index, category);
+          
+          // Process the response items
+          if (response?.items && Array.isArray(response.items)) {
+            response.items.forEach((item: any) => {
+              if (loaded_count >= count) return;
+              results_all.push(item);
+              loaded_count++;
+            });
+
+            // Update pagination parameters
+            cursor_score = response.cursor_score || '';
+            note_index = response.items.length;
+            
+            // Add delay between requests to avoid rate limiting
+            await sleep(2);
+            
+            // Reset retry count on successful request
+            retryCount = 0;
+          } else {
+            throw new Error('Invalid response format');
+          }
+
+          // Break if we've loaded enough items
           if (loaded_count >= count) break;
-          cursor_score = res['cursor_score'];
-          note_index = res['items'].length;
-          await sleep(2);
-        } catch (e) {
-          break;
+          
+        } catch (error) {
+          retryCount++;
+          console.error(`Request failed (attempt ${retryCount}/${MAX_RETRIES}):`, error);
+          
+          if (retryCount >= MAX_RETRIES) {
+            break;
+          }
+          
+          // Exponential backoff for retries
+          await sleep(Math.pow(2, retryCount) * 1000);
         }
       }
-      const result_csv = jsonToCsv(results_all, [
-        'note_id@id',
-        'xsec_token@xsecToken',
-        'note_type@noteCard.type',
-        'title@noteCard.displayTitle',
-        'liked_count@noteCard.interactInfo.likedCount',
-        'cover@noteCard.cover.urlPre',
-        'user_id@noteCard.user.userId',
-        'user_name@noteCard.user.nickname',
-        'user_xsec_token@noteCard.user.xsecToken'
-      ]);
+
+      // Convert results to CSV format
+      const result_csv = this.convertToCSV(results_all);
+      
       if (download) {
-        const fileName = `${category}_${count}_${+new Date}.csv`;
-        const download_result = downloadCsvData(fileName, result_csv);
-        return download_result['error'] ? `数据保存失败：${download_result['error']}` : `数据已保存。条数：${results_all.length}。文件：${download_result.link}`;
+        return this.handleDownload(category, count, result_csv, results_all.length);
       }
+      
       return result_csv;
-    } catch (e: any) {
-      return '获取数据列表失败了！错误信息：' + e.message;
+      
+    } catch (error: any) {
+      console.error('Failed to fetch home feeds:', error);
+      return `Failed to retrieve data list! Error: ${error.message || 'Unknown error'}`;
     }
+  }
+
+  /**
+   * Fetches a batch of home feed items from the API
+   * @param cursor_score - Pagination cursor score
+   * @param note_index - Current note index for pagination
+   * @param category - Category ID for filtering
+   * @returns Promise<any> - API response containing items and pagination info
+   */
+  private async fetchHomeFeedBatch(cursor_score: string, note_index: number, category: string): Promise<any> {
+    const requestPayload = {
+      cursor_score,
+      num: 27,
+      refresh_type: 1,
+      note_index,
+      unread_begin_note_id: "",
+      unread_end_note_id: "",
+      unread_note_count: 0,
+      category,
+      search_key: "",
+      need_num: 12,
+      image_formats: ["jpg", "webp", "avif"],
+      need_filter_image: false
+    };
+
+    return await httpPost("/api/sns/web/v1/homefeed", requestPayload);
+  }
+
+  /**
+   * Converts JSON data to CSV format with predefined field mappings
+   * @param data - Array of JSON objects to convert
+   * @returns string - CSV formatted data
+   */
+  private convertToCSV(data: any[]): string {
+    const fieldMappings = [
+      'note_id@id',
+      'xsec_token@xsecToken',
+      'note_type@noteCard.type',
+      'title@noteCard.displayTitle',
+      'liked_count@noteCard.interactInfo.likedCount',
+      'cover@noteCard.cover.urlPre',
+      'user_id@noteCard.user.userId',
+      'user_name@noteCard.user.nickname',
+      'user_xsec_token@noteCard.user.xsecToken'
+    ];
+
+    return jsonToCsv(data, fieldMappings);
+  }
+
+  /**
+   * Handles file download functionality
+   * @param category - Category ID used for filename
+   * @param count - Number of items for filename
+   * @param csvData - CSV data to be downloaded
+   * @param actualCount - Actual number of items retrieved
+   * @returns string - Download result message
+   */
+  private handleDownload(category: string, count: number, csvData: string, actualCount: number): string {
+    const fileName = `${category}_${count}_${Date.now()}.csv`;
+    const downloadResult = downloadCsvData(fileName, csvData);
+    
+    if (downloadResult?.error) {
+      return `Data save failed: ${downloadResult.error}`;
+    }
+    
+    return `Data saved successfully. Count: ${actualCount}. File: ${downloadResult.link}`;
   }
 }
 
-module.exports = GethomefeedsTool;
+module.exports = GetHomeFeedsTool;

@@ -1,13 +1,23 @@
+// Library imports
 import { MCPTool } from "@aicu/mcp-framework";
 import { z } from "zod";
 
+// Local imports
 const { httpPost, getJoinedTest } = require("../xhs-browser.js");
-interface PostnotecommentInput {
+
+/**
+ * Input interface for PostNoteCommentTool
+ */
+interface PostNoteCommentInput {
   note_id: string;
   content: string;
 }
 
-class PostnotecommentTool extends MCPTool<PostnotecommentInput> {
+/**
+ * Tool for posting text comments on Xiaohongshu notes
+ * Provides comment interaction functionality
+ */
+class PostNoteCommentTool extends MCPTool<PostNoteCommentInput> {
   name = "Post Note Comment";
   description = "Post a text comment on a specified Xiaohongshu note";
 
@@ -26,23 +36,70 @@ class PostnotecommentTool extends MCPTool<PostnotecommentInput> {
   //   return getJoinedTest();
   // };
 
-  async execute(input: PostnotecommentInput) {
+  /**
+   * Executes posting a comment on a note
+   * @param input - Contains note_id and content
+   * @returns Promise<string> - Success or error message
+   */
+  async execute(input: PostNoteCommentInput): Promise<string> {
     const { note_id, content } = input;
-    if (!note_id || !content) return "错误了：缺少参数";
+    
+    // Input validation
+    if (!note_id || typeof note_id !== 'string') {
+      return JSON.stringify({
+        error: true,
+        message: 'Invalid note_id: Must be a non-empty string'
+      });
+    }
+    
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      return JSON.stringify({
+        error: true,
+        message: 'Invalid content: Must be a non-empty string'
+      });
+    }
+    
+    if (content.length > 500) {
+      return JSON.stringify({
+        error: true,
+        message: 'Content too long: Maximum 500 characters allowed'
+      });
+    }
+
     try {
-      const res = await httpPost('/api/sns/web/v1/comment/post', {
+      const response = await httpPost('/api/sns/web/v1/comment/post', {
         at_users: [],
-        content,
+        content: content.trim(),
         note_id
       });
-      if (JSON.stringify(res).includes('已发布')) {
-        return `评论发布成功`;
+      
+      const responseStr = JSON.stringify(response);
+      if (responseStr.includes('已发布')) {
+        return JSON.stringify({
+          success: true,
+          message: 'Comment posted successfully',
+          note_id: note_id,
+          content: content.trim()
+        });
       }
-      return `评论发布失败，返回信息：${JSON.stringify(res)}`;
-    } catch(e: any) {
-      return `评论发布错误，信息：${e.message}`;
+      
+      return JSON.stringify({
+        error: true,
+        message: 'Comment posting failed',
+        response: response
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('PostNoteCommentTool error:', errorMessage);
+      
+      return JSON.stringify({
+        error: true,
+        message: `Failed to post comment: ${errorMessage}`,
+        note_id: note_id,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 }
 
-module.exports = PostnotecommentTool;
+module.exports = PostNoteCommentTool;

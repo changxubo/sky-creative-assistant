@@ -28,7 +28,14 @@ export function mergeMessage(message: Message, event: ChatEvent) {
     if (message.toolCalls) {
       message.toolCalls.forEach((toolCall) => {
         if (toolCall.argsChunks?.length) {
-          toolCall.args = JSON.parse(toolCall.argsChunks.join(""));
+          
+          try{
+            toolCall.args = JSON.parse(toolCall.argsChunks.join(""));
+          }catch (e) {
+            console.log("Failed to parse tool call args:", e);
+            console.log(toolCall.argsChunks.join(""));
+            toolCall.args = {};
+          }
           delete toolCall.argsChunks;
         }
       });
@@ -48,7 +55,11 @@ function mergeTextMessage(message: Message, event: MessageChunkEvent) {
     message.reasoningContentChunks.push(event.data.reasoning_content);
   }
 }
-
+function convertToolChunkArgs(args: string) {
+  // Convert escaped characters in args
+  if (!args) return "";
+  return args.replace(/&#91;/g, "[").replace(/&#93;/g, "]").replace(/&#123;/g, "{").replace(/&#125;/g, "}");
+}
 function mergeToolCallMessage(
   message: Message,
   event: ToolCallsEvent | ToolCallChunksEvent,
@@ -69,14 +80,14 @@ function mergeToolCallMessage(
         (toolCall) => toolCall.id === chunk.id,
       );
       if (toolCall) {
-        toolCall.argsChunks = [chunk.args];
+        toolCall.argsChunks = [convertToolChunkArgs(chunk.args)];
       }
     } else {
       const streamingToolCall = message.toolCalls.find(
         (toolCall) => toolCall.argsChunks?.length,
       );
       if (streamingToolCall) {
-        streamingToolCall.argsChunks!.push(chunk.args);
+        streamingToolCall.argsChunks!.push(convertToolChunkArgs(chunk.args));
       }
     }
   }

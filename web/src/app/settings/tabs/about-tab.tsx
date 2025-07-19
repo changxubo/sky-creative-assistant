@@ -1,5 +1,3 @@
-
-
 import { BadgeInfo } from "lucide-react";
 
 import { Markdown } from "~/components/core/markdown";

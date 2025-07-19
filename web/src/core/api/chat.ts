@@ -10,6 +10,7 @@ import { sleep } from "../utils";
 
 import { resolveServiceURL } from "./resolve-service-url";
 import type { ChatEvent } from "./types";
+import { queryReplayByPath } from "./replay";
 
 export async function* chatStream(
   userMessage: string,
@@ -40,10 +41,10 @@ export async function* chatStream(
     env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ||
     location.search.includes("mock") ||
     location.search.includes("replay=")
-  ) 
+  )
     return yield* chatReplayStream(userMessage, params, options);
-  
-  try{
+
+  try {
     const stream = fetchStream(resolveServiceURL("chat/stream"), {
       body: JSON.stringify({
         messages: [{ role: "user", content: userMessage }],
@@ -51,14 +52,14 @@ export async function* chatStream(
       }),
       signal: options.abortSignal,
     });
-    
+
     for await (const event of stream) {
       yield {
         type: event.event,
         data: JSON.parse(event.data),
       } as ChatEvent;
     }
-  }catch(e){
+  } catch (e) {
     console.error(e);
   }
 }
@@ -73,16 +74,17 @@ async function* chatReplayStream(
     max_search_results?: number;
     interrupt_feedback?: string;
   } = {
-    thread_id: "__mock__",
-    auto_accepted_plan: false,
-    max_plan_iterations: 3,
-    max_step_num: 1,
-    max_search_results: 3,
-    interrupt_feedback: undefined,
-  },
+      thread_id: "__mock__",
+      auto_accepted_plan: false,
+      max_plan_iterations: 3,
+      max_step_num: 1,
+      max_search_results: 3,
+      interrupt_feedback: undefined,
+    },
   options: { abortSignal?: AbortSignal } = {},
 ): AsyncIterable<ChatEvent> {
   const urlParams = new URLSearchParams(window.location.search);
+
   let replayFilePath = "";
   if (urlParams.has("mock")) {
     if (urlParams.get("mock")) {
@@ -97,6 +99,15 @@ async function* chatReplayStream(
       }
     }
     fastForwardReplaying = true;
+  } else if (urlParams.has("db")) {
+    const replayId = extractReplayIdFromSearchParams(window.location.search);
+    if (replayId) {
+      replayFilePath = `/api/replay/${replayId}`;
+    } else {
+      // Fallback to a default replay
+      replayFilePath = `/replay/eiffel-tower-vs-tallest-building.txt`;
+    }
+    fastForwardReplaying = true;
   } else {
     const replayId = extractReplayIdFromSearchParams(window.location.search);
     if (replayId) {
@@ -106,15 +117,17 @@ async function* chatReplayStream(
       replayFilePath = `/replay/eiffel-tower-vs-tallest-building.txt`;
     }
   }
-  const text = await fetchReplay(replayFilePath, {
+  const text = replayFilePath.startsWith("/api/replay") ? await queryReplayByPath(replayFilePath, {
+    abortSignal: options.abortSignal,
+  }) : await fetchReplay(replayFilePath, {
     abortSignal: options.abortSignal,
   });
-  const normalizedText = text.replace(/\r\n/g, "\n");
-  const chunks = normalizedText.split("\n\n");
+  const normalizedText = text ? text.replace(/\r\n/g, "\n") : "";
+  const chunks = normalizedText?.split("\n\n");
   for (const chunk of chunks) {
-    const [eventRaw, dataRaw] = chunk.split("\n") as [string, string];
-    const [, event] = eventRaw.split("event: ", 2) as [string, string];
-    const [, data] = dataRaw.split("data: ", 2) as [string, string];
+    const [eventRaw, dataRaw] = chunk?.split("\n") as [string, string];
+    const [, event] = eventRaw?.split("event: ", 2) as [string, string];
+    const [, data] = dataRaw?.split("data: ", 2) as [string, string];
 
     try {
       const chatEvent = {

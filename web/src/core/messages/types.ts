@@ -43,3 +43,10 @@ export interface Resource {
   uri: string;
   title: string;
 }
+export interface Replay{
+  id: string;
+  title: string;
+  count: number;
+  date: string;
+  category: string;
+}
