@@ -157,11 +157,11 @@ export function MessagesBlock({ className }: MessagesBlockProps) {
         <>
           <div
             className={cn(
-              "fixed bottom-[calc(50vh+80px)] left-0 transition-all duration-500 ease-out",
+              "fixed bottom-[calc(50vh+120px)] transition-all duration-500 ease-out",
               replayStarted && "pointer-events-none scale-150 opacity-0",
             )}
           >
-            <Welcome />
+            <Welcome className="w-[75%] items-center justify-center" />
           </div>
           <motion.div
             className="mb-4 h-fit w-full items-center justify-center"
@@ -204,7 +204,7 @@ export function MessagesBlock({ className }: MessagesBlockProps) {
                     <CardDescription>
                       <RainbowText animated={responding}>
                         {responding
-                          ? "DeepResearch is now replaying the conversation..."
+                          ? "Deep Research is now replaying the conversation..."
                           : replayStarted
                             ? "The replay has been stopped."
                             : `You're now in DeepResearch's replay mode. Click the "Play" button on the right to start.`}

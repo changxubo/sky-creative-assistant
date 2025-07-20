@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 
-import { chatStream, generatePodcast,queryReplays,queryReplayById} from "../api";
-import type { Message, Resource,Replay } from "../messages";
+import { chatStream, generatePodcast} from "../api";
+import type { Message, Resource } from "../messages";
 import { mergeMessage } from "../messages";
 import { parseJSON } from "../utils";
 
@@ -19,8 +19,6 @@ export const useStore = create<{
   threadId: string | undefined;
   messageIds: string[];
   messages: Map<string, Message>;
-  replays: Map<string, string>;
-  conversations: Map<string, Replay>;
   researchIds: string[];
   researchPlanIds: Map<string, string>;
   researchReportIds: Map<string, string>;
@@ -40,8 +38,6 @@ export const useStore = create<{
   threadId: THREAD_ID,
   messageIds: [],
   messages: new Map<string, Message>(),
-  replays: new Map<string, string>(),
-  conversations: new Map<string, Replay>(),
   researchIds: [],
   researchPlanIds: new Map<string, string>(),
   researchReportIds: new Map<string, string>(),
@@ -78,22 +74,7 @@ export const useStore = create<{
   },
   
 }));
-export async function useReplay(threadId: string) {
-   try {
-      const replay = await queryReplayById(threadId);
-      useStore.getState().replays.set(threadId, replay);
-    } catch (e) {
-      console.error(`Failed to fetch replay for conversation ${threadId}:`, e);
-    }
-}
 
-export async function useConversations(){
-  const replays = await queryReplays();
-  useStore.setState({
-    conversations: new Map(replays.map((c) => [c.id, c])),
-  });
-  
-}
 export async function sendMessage(
   content?: string,
   {
@@ -167,8 +148,8 @@ export async function sendMessage(
       }
     }
   } catch(e)  {
-    console.error(e);
-    toast("An error occurred while generating the response. Please try again.");
+    console.warn(e);
+    //toast("An error occurred while generating the response. Please try again.");
     // Update message status.
     // TODO: const isAborted = (error as Error).name === "AbortError";
     if (messageId != null) {

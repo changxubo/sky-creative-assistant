@@ -8,7 +8,7 @@ import { extractReplayIdFromSearchParams } from "../replay/get-replay-id";
 import { fetchStream } from "../sse";
 import { sleep } from "../utils";
 
-import { queryReplayByPath } from "./replay";
+import { queryReplayByPath } from "./replays";
 import { resolveServiceURL } from "./resolve-service-url";
 import type { ChatEvent } from "./types";
 

@@ -248,7 +248,7 @@ export function InputBox({
         )}
       </div>
       <div className="flex items-center px-4 py-2">
-        <div className="flex grow gap-2">
+        <div className="flex grow gap-2 flex-wrap">
           {config?.models.reasoning?.[0] && (
             <Tooltip
               className="max-w-60"
@@ -267,15 +267,15 @@ export function InputBox({
             >
               <Button
                 className={cn(
-                  "rounded-2xl",
+                  "rounded-2xl md:w-30",
                   enableDeepThinking && "!border-brand !text-brand",
                 )}
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={handleToggleDeepThinking}
                 aria-label={`Toggle deep thinking mode ${enableDeepThinking ? 'off' : 'on'}`}
               >
-                <Lightbulb /> Deep Think
+                <Lightbulb /><span className="hidden md:block">Deep Think</span>
               </Button>
             </Tooltip>
           )}
@@ -297,15 +297,15 @@ export function InputBox({
           >
             <Button
               className={cn(
-                "rounded-2xl",
+                "rounded-2xl md:w-30",
                 backgroundInvestigation && "!border-brand !text-brand",
               )}
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={handleToggleBackgroundInvestigation}
               aria-label={`Toggle investigation mode ${backgroundInvestigation ? 'off' : 'on'}`}
             >
-              <Search /> Investigation
+              <Search/><span className="hidden md:block">Investigation</span>
             </Button>
           </Tooltip>
           <ReportStyleDialog />

@@ -5,10 +5,48 @@ import { useEffect, useRef, useState } from "react";
 import { env } from "~/env";
 
 import type { DeerFlowConfig } from "../config";
+import type { Replay } from "../messages";
 import { useReplay } from "../replay";
 
 import { fetchReplayTitle } from "./chat";
+import { queryReplays } from "./replays";
 import { resolveServiceURL } from "./resolve-service-url";
+
+export function useReplays(): {
+  replays: Replay[] | null;
+  loading: boolean;
+} {
+  const [replays, setReplays] = useState<Array<Replay>>([]);
+  const [loading, setLoading] = useState(true);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY) {
+      setLoading(false);
+      return;
+    }
+    isMounted.current = true;
+    queryReplays()
+      .then((data) => {
+        if (isMounted.current) {
+          setReplays(data);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch replays", error);
+        if (isMounted.current) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  return { replays, loading };
+}
 
 export function useReplayMetadata() {
   const { isReplay } = useReplay();
