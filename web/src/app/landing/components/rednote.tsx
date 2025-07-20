@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { MagicWandIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 
 import { AuroraText } from "~/components/magicui/aurora-text";
@@ -10,7 +10,7 @@ export function Rednote() {
     <section className="flex h-[27vh] w-full flex-col items-center justify-center pb-1">
        
       <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-        <h1 className="text-center text-3xl font-bold md:text-3xl">
+        <h1 className="text-center text-3xl font-bold md:text-4xl pt-15">
           <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
             Sky Creative Assistant{" "}
           </span>
@@ -29,7 +29,7 @@ export function Rednote() {
               target={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ? "_blank" : undefined}
               href={ "/chat"}
             >
-              Start Chat <ChevronRight />
+              Start Chat <MagicWandIcon className="text-brand" />
             </Link>
           </Button>
           

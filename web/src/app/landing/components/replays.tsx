@@ -28,7 +28,7 @@ export function ReplaysSection() {
     return (
         <div className="flex flex-wrap w-full ">
             {replays.map((replay) => (
-                <div key={replay.id} className="flex w-1/3 shrink-2 ">
+                <div key={replay.id} className="flex w-full sm:w-1/2 md:w-1/3 shrink-2 ">
                     <Card
                         className={cn(
                             "w-[98%] transition-all duration-300 pt-5 mt-5 rounded-2xl",

@@ -16,7 +16,7 @@ const LAYOUT_CONSTANTS = {
   MESSAGE_COLUMN_WIDTH: 43,
   MESSAGE_COLUMN_WIDTH_SINGLE: 75,
   RESEARCH_COLUMN_WIDTH: 55,
-  LAYOUT_PADDING: "px-4 pt-12 pb-4",
+  LAYOUT_PADDING: "px-4 pt-20 pb-4",
   COLUMN_GAP: "gap-8",
   TRANSITION: "transition-all duration-300 ease-out",
 } as const;
