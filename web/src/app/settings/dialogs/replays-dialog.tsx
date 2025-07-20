@@ -1,6 +1,7 @@
 import { MessageSquareReply, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 
+import { LoadingAnimation } from "~/components/core/loading-animation";
 import { RainbowText } from "~/components/core/rainbow-text";
 import { Tooltip } from "~/components/core/tooltip";
 import { Button } from "~/components/ui/button";
@@ -19,26 +20,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { useConversations, useStore } from "~/core/store";
+import { useReplays } from "~/core/api/hooks";
 import { cn } from "~/lib/utils";
 
 export function ReplaysDialog() {
   const [open, setOpen] = useState(false);
   // Fetch conversations when dialog opens
-  useEffect(() => {
-    if (open) {
-      const fetchConversations = useConversations(true);
-      fetchConversations.catch((error) => {
-        console.error('Error fetching conversations:', error);
-      });
-    }
-  }, [open]);
+  const { replays, loading } = useReplays();
+
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
   }
-  const conversations = useStore((state => state.conversations));
-  const replays = [
-    ...conversations.values(),
+
+  const conversations = [
+    ...(replays ?? []),
     //{ id: "test-replay", title: "test-机器人如何改变农业生产方式?", date: "2025/5/19 12:54", category: "Social Media", count: 1533 },
     // Placeholder for replays data
     { id: "ai-twin-insurance", title: "Write an article on \"Would you insure your AI twin?\"", date: "2025/5/19 12:54", category: "Social Media", count: 500 },
@@ -69,8 +64,17 @@ export function ReplaysDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap h-130 w-full overflow-auto border-y">
-
-          {replays.map((replay) => (
+          {loading ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <LoadingAnimation />
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <p>No conversations found.</p>
+            </div>
+          ) : (<></>)
+          }
+          {conversations.map((replay) => (
             <div key={replay.id} className="flex w-1/2 shrink-2 ">
               <Card
                 className={cn(
@@ -109,6 +113,7 @@ export function ReplaysDialog() {
               </Card>
             </div>
           ))}
+
         </div>
 
 
