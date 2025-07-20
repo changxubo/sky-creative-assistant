@@ -87,12 +87,14 @@ export async function useReplay(threadId: string) {
     }
 }
 
-export async function useConversations(){
-  const replays = await queryReplays();
-  useStore.setState({
-    conversations: new Map(replays.map((c) => [c.id, c])),
-  });
-  
+export async function useConversations(refresh:boolean){
+  //const conversations = useStore.getState().conversations;
+  if (refresh) {
+    const replays = await queryReplays();
+    useStore.setState({
+      conversations: new Map(replays.map((c) => [c.id, c])),
+    });
+  }
 }
 export async function sendMessage(
   content?: string,
@@ -167,8 +169,8 @@ export async function sendMessage(
       }
     }
   } catch(e)  {
-    console.error(e);
-    toast("An error occurred while generating the response. Please try again.");
+    //console.error(e);
+    //toast("An error occurred while generating the response. Please try again.");
     // Update message status.
     // TODO: const isAborted = (error as Error).name === "AbortError";
     if (messageId != null) {

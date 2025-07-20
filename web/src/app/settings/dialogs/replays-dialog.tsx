@@ -25,14 +25,14 @@ import { cn } from "~/lib/utils";
 export function ReplaysDialog() {
   const [open, setOpen] = useState(false);
   // Fetch conversations when dialog opens
-  const fetchConversations = useConversations();
   useEffect(() => {
     if (open) {
+      const fetchConversations = useConversations(true);
       fetchConversations.catch((error) => {
         console.error('Error fetching conversations:', error);
       });
     }
-  }, [open,fetchConversations]);
+  }, [open]);
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
   }
