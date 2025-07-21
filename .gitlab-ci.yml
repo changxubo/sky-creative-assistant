@@ -52,7 +52,8 @@ sonar_scan:
 build_image_web:
   variables:
     IMAGE_NAME: creative-frontend
-    DOCKER_FILE: "web/Dockerfile"
+    CD_SUB_PATH: "cd web &&"
+    DOCKER_FILE: "Dockerfile"
   extends: .build_image
   needs: ["build_cache", "sonar_scan"]
   tags:
@@ -61,6 +62,7 @@ build_image_web:
 build_image:
   variables:
     IMAGE_NAME: creative-backend
+    CD_SUB_PATH: "echo Building image with Dockerfile"
     DOCKER_FILE: "Dockerfile"
   extends: .build_image
   needs: ["build_cache", "sonar_scan"]

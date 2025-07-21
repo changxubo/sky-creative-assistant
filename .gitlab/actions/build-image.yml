@@ -22,6 +22,7 @@
 #    - podman push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
     - echo "BUILD_IMAGE_TAG:$BUILD_IMAGE_TAG"
     - docker login -u ${APP_HARBOR_USER} -p ${APP_HARBOR_PASSWORD} ${DOCKER_REGISTRY}
+    - ${CD_SUB_PATH}
     - docker buildx build --rm -f ${DOCKER_FILE_NAME} -t ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG} .
     - docker push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
     - echo "build image success"
