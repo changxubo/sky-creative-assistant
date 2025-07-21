@@ -32,7 +32,7 @@ variables:
   FILE_ENV_CFG: ${FILE_ENV_CFG}
 
 cache:
-  key: ${CI_PROJECT_NAME}
+  key: ${CI_PROJECT_NAME}-20250721
   paths:
     - node_modules
 
