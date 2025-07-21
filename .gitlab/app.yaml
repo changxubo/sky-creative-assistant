@@ -1,0 +1,231 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: creative-backend
+  namespace: light-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: creative-backend
+      app.kubernetes.io/instance: light-ai-lab
+      app.kubernetes.io/name: light-ai-lab
+  template:
+    metadata:
+      labels:
+        app: creative-backend
+        app.kubernetes.io/instance: light-ai-lab
+        app.kubernetes.io/name: light-ai-lab
+    spec:
+      containers:
+        - resources:
+            limits:
+              cpu: '4'
+              memory: 8Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: creative-backend
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: ENABLE_MCP_SERVER_CONFIGURATION
+              value: "true"
+            - name: TTS_TYPE
+              value: "VOLCENGINE"
+            - name: VOLCENGINE_TTS_APPID
+              value: "7745671851"
+            - name: VOLCENGINE_TTS_ACCESS_TOKEN
+              value: "hcp7eckX0962udkUV2nsl2lsgxDB91FA"
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://chat-lightai-qa.acclgtm.intranet.local/api"
+            - name: AGENT_RECURSION_LIMIT
+              value: "50"
+            - name: BG_JOB_TIMEOUT_SECS
+              value: "3600"
+            - name: BG_JOB_SHUTDOWN_GRACE_PERIOD_SECS
+              value: "300"
+            - name: BG_JOB_ISOLATED_LOOPS
+              value: "true"
+            - name: SEARCH_API
+              value: "tavily"
+            - name: TAVILY_API_KEY
+              value: "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"
+            - name: LANGSMITH_TRACING
+              value: "true"
+            - name: LANGSMITH_API_KEY
+              value: "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"
+            - name: LANGSMITH_PROJECT
+              value: "default"
+            - name: LANGSMITH_ENDPOINT
+              value: "https://api.smith.langchain.com"
+            - name: MONGODB_URI
+              value: "mongodb://skyadmin:H6e8rl0Hdfrq@creative-mongo:27017"
+            
+          securityContext: {}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: 'cnharbor.amway.com.cn/lightai/backend:latest'
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: creative-mongo
+  namespace: light-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: creative-mongo
+      app.kubernetes.io/instance: light-ai-lab
+      app.kubernetes.io/name: light-ai-lab
+  template:
+    metadata:
+      labels:
+        app: creative-mongo
+        app.kubernetes.io/instance: light-ai-lab
+        app.kubernetes.io/name: light-ai-lab
+    spec:
+      containers:
+        - name: mongodb
+          image: cnharbor.amway.com.cn/lightai/mongo:latest
+          ports:
+            - containerPort: 27017
+              name: mongodb
+              protocol: TCP
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "skyadmin"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "H6e8rl0Hdfrq"
+          resources:
+            limits:
+              cpu: '2'
+              memory: 4Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.runCommand('ping').ok"
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.runCommand('ping').ok"
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+      volumes:
+        - name: mongodb-data
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
+  strategy:
+    type: Recreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: light-ai-lab
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: nfs.csi.k8s.io
+    volume.kubernetes.io/storage-provisioner: nfs.csi.k8s.io
+spec:
+  storageClassName: sc-nfs
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: creative-backend
+  namespace: light-ai-lab
+spec:
+  selector:
+    app: creative-backend
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: creative-mongo
+  namespace: light-ai-lab
+spec:
+  selector:
+    app: creative-mongo
+  ports:
+    - name: tcp
+      port: 27017
+      targetPort: 27017
+      protocol: TCP
+  type: ClusterIP

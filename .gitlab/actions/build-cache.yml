@@ -1,0 +1,11 @@
+.build_cache:
+  stage: build_cache
+  image: cnharbor.amway.com.cn/lightai/node:20.11.0-alpine
+  script:
+    - | 
+      echo 'Warming the cache'
+      if [ ! -d "node_modules" ]; then
+        echo "Cache not found, initializing cache directory..."
+        mkdir -p node_modules
+      fi
+

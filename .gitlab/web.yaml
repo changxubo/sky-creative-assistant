@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: creative-secrets
+  namespace: light-ai-lab
+type: Opaque
+data:
+  GITHUB_OAUTH_TOKEN: Z2hwX2ZPNGlsZFg1OXh0M09zOFpDdmd1SE4weTlJVVR4VTBab095Ng==
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: creative-frontend
+  namespace: light-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: creative-frontend
+      app.kubernetes.io/instance: light-ai-lab
+      app.kubernetes.io/name: light-ai-lab
+  template:
+    metadata:
+      labels:
+        app: creative-frontend
+        app.kubernetes.io/instance: light-ai-lab
+        app.kubernetes.io/name: light-ai-lab
+    spec:
+      containers:
+        - resources:
+            limits:
+              cpu: '4'
+              memory: 8Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: creative-frontend
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://chat-lightai-qa.acclgtm.intranet.local/api"
+            - name: GITHUB_OAUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: creative-secrets
+                  key: GITHUB_OAUTH_TOKEN
+          securityContext: {}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: 'cnharbor.amway.com.cn/lightai/frontend:latest'
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: creative-frontend-svc
+  namespace: light-ai-lab
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: http
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: creative-frontend
+    app.kubernetes.io/instance: light-ai-lab
+    app.kubernetes.io/name: light-ai-lab

@@ -1,6 +1,6 @@
 ##### DEPENDENCIES
 
-FROM node:20-alpine AS deps
+FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN \
 
 ##### BUILDER
 
-FROM node:20-alpine AS builder
+FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS builder
 WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
@@ -35,7 +35,7 @@ RUN \
 
 ##### RUNNER
 
-FROM gcr.io/distroless/nodejs20-debian12 AS runner
+FROM cnharbor.amway.com.cn/lightai/node:20-debian12 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

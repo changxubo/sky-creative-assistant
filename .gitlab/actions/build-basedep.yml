@@ -1,0 +1,13 @@
+.build_basedep:
+  stage: build_basedep
+  #image: cnharbor.amway.com.cn/lightai/podman:240925
+  script:
+    - |
+#    - podman login -u ${APP_HARBOR_USER} -p ${APP_HARBOR_PASSWORD} ${DOCKER_REGISTRY}
+#    - podman build -f ${DOCKER_FILE_NAME} -t ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG} .
+#    - podman push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
+
+    - docker login -u ${APP_HARBOR_USER} -p ${APP_HARBOR_PASSWORD} ${DOCKER_REGISTRY}
+    - docker buildx build --rm -f ${DOCKER_FILE_NAME} -t ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG} .
+    - docker push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
+    - echo "build baseimage success"

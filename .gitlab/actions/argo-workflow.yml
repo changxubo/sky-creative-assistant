@@ -1,0 +1,9 @@
+.argo_workflow:
+  stage: argo_workflow
+  image: 
+    name:  cnharbor.amway.com.cn/lightai/argoproj/argocli:v3.6.4
+    entrypoint: [""]  # 覆盖 ENTRYPOINT
+  script:
+    - mkdir ~/.kube
+    - echo "$KUBE_CONFIG" > ~/.kube/config
+    - argo template update $WF_YAML  --namespace ${NAMESPACE}

@@ -1,0 +1,47 @@
+.sonar_scan:
+  variables:
+    GLOBAL_PROJECT_ARGS: "-Dsonar.projectKey=${CI_PROJECT_ROOT_NAMESPACE}-${CI_PROJECT_NAME}-$CI_COMMIT_REF_NAME
+                          -Dsonar.projectName=${CI_PROJECT_ROOT_NAMESPACE}-${CI_PROJECT_NAME}-$CI_COMMIT_REF_NAME
+                          -Dsonar.projectDescription=${CI_PROJECT_TITLE}"
+    GLOBAL_SERVER_ARGS:  "-Dsonar.ws.timeout=30 
+                          -Dsonar.links.homepage=${CI_PROJECT_URL} 
+                          -Dsonar.host.url=${SONAR_SERVER_URL} 
+                          -Dsonar.login=${SONAR_SERVER_LOGIN}
+                          -Dsonar.sourceEncoding=UTF-8 "
+  stage: sonar_scan
+  image: cnharbor.amway.com.cn/lightai/sonar-scanner-cli:latest
+  script: 
+    - sonar-scanner ${GLOBAL_PROJECT_ARGS} ${GLOBAL_SERVER_ARGS} ${SONAR_SCAN_ARGS}
+    - |
+      SONAR_REPORT_URL=$(grep "ceTaskUrl" .scannerwork/report-task.txt  | awk -F = '{OFS="=";print $2,$3}')
+      echo ${SONAR_REPORT_URL}
+      for i in {1..10}
+      do
+        curl -k -u "${SONAR_SERVER_LOGIN}":"" ${SONAR_REPORT_URL}  -o sonar_result.txt -s
+        grep '"status":"SUCCESS"' sonar_result.txt  && SONAR_SCAN_RESULT='SUCCESS'
+      
+        if [ ${SONAR_SCAN_RESULT} == 'SUCCESS' ]
+          then
+            echo "${SONAR_SCAN_RESULT}"
+            SONAR_SCAN_RESULT=SUCCESS
+            curl -k -u "${SONAR_SERVER_LOGIN}":"" "${SONAR_SERVER_URL}/api/qualitygates/project_status?projectKey=${CI_PROJECT_ROOT_NAMESPACE}-$CI_PROJECT_NAME-$CI_COMMIT_REF_NAME" -o result.txt  -s
+            echo "result info ---->>>>>"
+            cat result.txt
+            result=`cat result.txt | awk -F ':' '{print $3}' | awk -F '"' '{print$2}'`
+            echo $result
+            if [ $result == 'ERROR' ]                 
+              then 
+                echo "${result}"
+                exit 1
+                break;
+            else
+                echo "success!"
+                break;
+            fi
+        else
+          SONAR_SCAN_RESULT='ERROR'
+          echo "waiting for 10 seconds..."
+          cat sonar_result.txt
+          sleep 10
+        fi
+      done

@@ -1,0 +1,26 @@
+.trigger_webhook:
+  stage: trigger_webhook
+  image: cnharbor.amway.com.cn/lightai/tools:241101
+  script:
+    - |
+      echo "trigger webhook"
+      echo "{
+        \"gitlabUrl\": \"${CI_PIPELINE_URL}\",
+        \"userID\": \"${GITLAB_USER_NAME}\",
+        \"pipelineID\": ${CI_PIPELINE_ID},
+        \"projectID\": ${CI_PROJECT_ID},
+        \"branch\": \"${CI_BUILD_REF_NAME}\",
+        \"status\": \"\",
+        \"gitlabJobName\": \"cicd-${CI_PROJECT_TITLE}\",
+        \"reportUrl\": \"http://sonarqube-cn.intranet.local/dashboard?id=${CI_PROJECT_ROOT_NAMESPACE}-${CI_PROJECT_NAME}-$CI_COMMIT_REF_NAME\",
+        \"artifactsParams\": {
+          \"image\" : \"${DOCKER_REGISTRY}/${DOCKER_REGISTRY_GROUP}/${IMAGE_NAME}:${CI_BUILD_REF_NAME}-${CI_COMMIT_SHORT_SHA}\",
+        },
+        \"safetyParams\": {
+          \"safetyUrl\": \"http://sonarqube-cn.intranet.local/dashboard?id=${CI_PROJECT_ROOT_NAMESPACE}-${CI_PROJECT_NAME}-$CI_COMMIT_REF_NAME\"
+        },
+        \"unitTestParams\": {
+            \"UtUrl\" : \"${CI_JOB_URL}/artifacts/browse\"
+        }
+      }"
+      echo "success"

@@ -1,0 +1,8 @@
+.k8s_restart:
+  stage: k8s_restart
+  image: cnharbor.amway.com.cn/lightai/kubectl:240926
+  script:
+    - mkdir ~/.kube
+    - echo "$KUBE_CONFIG" > ~/.kube/config
+    - kubectl rollout restart deployment ${DEPLOYMENT_NAME} -n ${NAMESPACE}
+    
