@@ -59,7 +59,7 @@ spec:
             - name: VOLCENGINE_TTS_ACCESS_TOKEN
               value: "hcp7eckX0962udkUV2nsl2lsgxDB91FA"
             - name: NEXT_PUBLIC_API_URL
-              value: "http://chat-lightai-qa.acclgtm.intranet.local/api/api"
+              value: "http://chat-lightai-qa.acclgtm.intranet.local/api/cnu072ly/api"
             - name: AGENT_RECURSION_LIMIT
               value: "50"
             - name: BG_JOB_TIMEOUT_SECS
