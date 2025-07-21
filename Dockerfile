@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Copy the application into the container.
 COPY . /app
-COPY ./config-nim.yaml /app/config.yaml
+COPY ./config-nim.yaml /app/conf.yaml
 
 # Install the application dependencies.
 RUN --mount=type=cache,target=/root/.cache/uv \
