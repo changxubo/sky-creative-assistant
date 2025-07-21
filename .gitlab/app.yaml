@@ -202,7 +202,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: creative-backend
+  name: creative-backend-svc
   namespace: light-ai-lab
 spec:
   selector:
