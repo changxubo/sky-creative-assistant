@@ -23,6 +23,7 @@ import httpx
 from langchain_deepseek import ChatDeepSeek
 from langchain_openai import ChatOpenAI
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from langfuse.langchain import CallbackHandler
 
 # Local imports
 from src.config import load_yaml_config
@@ -32,6 +33,8 @@ from .chat_openai_reasoning import ChatOpenAIReasoning
 # Global cache for LLM instances to avoid recreation and improve performance
 _llm_instance_cache: Dict[LLMType, Union[ChatOpenAI, ChatDeepSeek, ChatNVIDIA]] = {}
 
+# Initialize the Langfuse handler
+langfuse_handler = CallbackHandler()
 
 def _get_config_file_path() -> str:
     """
@@ -167,14 +170,14 @@ def _create_llm_from_config(
         # return ChatOpenAI(**merged_config)
         # return ChatNVIDIA(**merged_config,  extra_body={"chat_template_kwargs": {"thinking":True}})
         return ChatOpenAIReasoning(
-            **merged_config, extra_body={"chat_template_kwargs": {"thinking": True}}
+            **merged_config, callbacks=[langfuse_handler], extra_body={"chat_template_kwargs": {"thinking": True}}
         )
     else:
         # return ChatOpenAI(**merged_config, extra_body={"enable_thinking": False})
         # return ChatOpenAI(**merged_config)
         # return ChatNVIDIA(**merged_config,  extra_body={"chat_template_kwargs": {"thinking":False}})
         return ChatOpenAI(
-            **merged_config, extra_body={"chat_template_kwargs": {"thinking": False}}
+            **merged_config,callbacks=[langfuse_handler], extra_body={"chat_template_kwargs": {"thinking": False}}
         )
 
 

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 import { useCallback, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 
 import { Tooltip } from "~/components/core/tooltip";
 import { ShineBorder } from "~/components/magicui/shine-border";
@@ -82,6 +83,7 @@ export function MultiAgentVisualization({ className }: { className?: string }) {
       }
     }
   }, []);
+  const {theme} = useTheme();
   return (
     <div
       ref={containerRef}
@@ -97,7 +99,7 @@ export function MultiAgentVisualization({ className }: { className?: string }) {
         nodeTypes={nodeTypes}
         fitView
         proOptions={{ hideAttribution: true }}
-        colorMode="dark"
+        colorMode={theme === "dark" ? "dark" : "light"}
         panOnScroll={false}
         zoomOnScroll={false}
         preventScrolling={false}

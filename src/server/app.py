@@ -28,6 +28,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 # from langgraph.checkpoint.postgres import PostgresSaver
 from psycopg_pool import AsyncConnectionPool
 from langgraph.checkpoint.mongodb import AsyncMongoDBSaver
+from langfuse.langchain import CallbackHandler
 
 # Local imports
 from src.config.report_style import ReportStyle
@@ -70,6 +71,9 @@ DEFAULT_MCP_TIMEOUT = 300
 
 # Initialize logger
 logger = logging.getLogger(__name__)
+
+# Initialize the Langfuse handler
+langfuse_handler = CallbackHandler()
 
 # FastAPI app instance
 app = FastAPI(
@@ -121,8 +125,8 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             raise HTTPException(status_code=400, detail="Messages cannot be empty")
 
         # initialize checkpointer and store
-        pg_db_uri = os.getenv("POSTGRES_URI", "")
-        mg_db_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+        pg_db_uri = os.getenv("POSTGRES_URI_test", "")
+        mg_db_uri = os.getenv("MONGODB_URI_test", "")
         if pg_db_uri != "":
             logger.info("start async postgres checkpointer")
             connection_kwargs = {
@@ -160,7 +164,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                         "X-Accel-Buffering": "no",  # Disable nginx buffering
                     },
                 )
-        elif pg_db_uri != "":
+        elif mg_db_uri != "":
             logger.info("start async postgres checkpointer.")
             async with AsyncMongoDBSaver.from_conn_string(mg_db_uri) as checkpointer:
                 # graph = workflow.compile(checkpointer=checkpointer, store=in_memory_store)
@@ -295,148 +299,156 @@ async def _astream_workflow_generator(
             workflow_input = Command(resume=resume_message)
 
         # Stream workflow execution
-        logger.info(f"Starting workflow with thread_id: {thread_id}")
-        async for agent, _, event_data in graph.astream(
-            workflow_input,
-            config={
-                "thread_id": thread_id,
-                "resources": resources,
-                "max_plan_iterations": max_plan_iterations,
-                "max_step_num": max_step_num,
-                "max_search_results": max_search_results,
-                "mcp_settings": mcp_settings,
-                "report_style": report_style.value,
-                "enable_deep_thinking": enable_deep_thinking,
-            },
-            stream_mode=["messages", "updates"],
-            subgraphs=True,
-            # checkpoint_during= True,
-        ):
-            # Handle interruption events
-            if isinstance(event_data, dict):
-                if "__interrupt__" in event_data:
+       
+        mg_db_uri = os.getenv("MONGODB_URI", "")
+        logger.info("start async postgres checkpointer.")
+        async with AsyncMongoDBSaver.from_conn_string(mg_db_uri) as checkpointer:
+            # graph = workflow.compile(checkpointer=checkpointer, store=in_memory_store)
+            graph.checkpointer = checkpointer
+            graph.store = in_memory_store
+            logger.info(f"Starting workflow with thread_id: {thread_id}")    
+            async for agent, _, event_data in graph.astream(
+                workflow_input,
+                config={
+                    "thread_id": thread_id,
+                    "resources": resources,
+                    "max_plan_iterations": max_plan_iterations,
+                    "max_step_num": max_step_num,
+                    "max_search_results": max_search_results,
+                    "mcp_settings": mcp_settings,
+                    "report_style": report_style.value,
+                    "enable_deep_thinking": enable_deep_thinking,
+                    "callbacks": [langfuse_handler]
+                },
+                stream_mode=["messages", "updates"],
+                subgraphs=True,
+                # checkpoint_during= True,
+            ):
+                # Handle interruption events
+                if isinstance(event_data, dict):
+                    if "__interrupt__" in event_data:
+                        yield _make_event(
+                            "interrupt",
+                            {
+                                "thread_id": thread_id,
+                                "id": event_data["__interrupt__"][0].ns[0],
+                                "role": "assistant",
+                                "content": event_data["__interrupt__"][0].value,
+                                "finish_reason": "interrupt",
+                                "options": [
+                                    {"text": "Edit Plan", "value": "edit_plan"},
+                                    {"text": "Start Research", "value": "accepted"},
+                                ],
+                            },
+                        )
+                    continue
+
+                if (
+                    isinstance(event_data, dict)
+                    and "background_investigator_finished" in event_data
+                ):
+                    # Process message events
+                    message_chunk = cast(
+                        BaseMessage,
+                        event_data["background_investigator"]["messages"][0],
+                    )
                     yield _make_event(
-                        "interrupt",
+                        "message_chunk",
                         {
                             "thread_id": thread_id,
-                            "id": event_data["__interrupt__"][0].ns[0],
+                            "agent": "background_investigator",
+                            "id": "run--" + message_chunk.id,
                             "role": "assistant",
-                            "content": event_data["__interrupt__"][0].value,
-                            "finish_reason": "interrupt",
-                            "options": [
-                                {"text": "Edit Plan", "value": "edit_plan"},
-                                {"text": "Start Research", "value": "accepted"},
+                            "content": event_data["background_investigator"][
+                                "investigations"
                             ],
                         },
                     )
-                continue
+                    continue
 
-            if (
-                isinstance(event_data, dict)
-                and "background_investigator_finished" in event_data
-            ):
                 # Process message events
-                message_chunk = cast(
-                    BaseMessage,
-                    event_data["background_investigator"]["messages"][0],
+                message_chunk, message_metadata = cast(
+                    tuple[BaseMessage, dict[str, Any]], event_data
                 )
-                yield _make_event(
-                    "message_chunk",
-                    {
-                        "thread_id": thread_id,
-                        "agent": "background_investigator",
-                        "id": "run--" + message_chunk.id,
-                        "role": "assistant",
-                        "content": event_data["background_investigator"][
-                            "investigations"
-                        ],
-                    },
-                )
-                continue
-
-            # Process message events
-            message_chunk, message_metadata = cast(
-                tuple[BaseMessage, dict[str, Any]], event_data
-            )
-            # Handle empty agent tuple gracefully
-            agent_name = "unknown"
-            if agent and len(agent) > 0:
-                agent_name = agent[0].split(":")[0] if ":" in agent[0] else agent[0]
-            else:
-                agent_name = message_metadata.get("langgraph_node", "unknown")
-            # Build event stream message
-            event_stream_message: Dict[str, Any] = {
-                "thread_id": thread_id,
-                "checkpoint_ns": message_metadata.get("checkpoint_ns", ""),
-                "langgraph_node": message_metadata.get("langgraph_node", ""),
-                "langgraph_path": message_metadata.get("langgraph_path", ""),
-                "langgraph_step": message_metadata.get("langgraph_step", ""),
-                "agent": agent_name,
-                "id": message_chunk.id,
-                "role": "assistant",
-                "content": message_chunk.content,
-            }
-
-            # Add reasoning content if available
-            if message_chunk.additional_kwargs.get("reasoning_content"):
-                event_stream_message["reasoning_content"] = (
-                    message_chunk.additional_kwargs["reasoning_content"]
-                )
-
-            # Add finish reason if available
-            if message_chunk.response_metadata.get("finish_reason"):
-                event_stream_message["finish_reason"] = (
-                    message_chunk.response_metadata.get("finish_reason")
-                )
-
-            # Handle different message types
-            if isinstance(message_chunk, ToolMessage):
-                # Tool Message - Return the result of the tool call
-                event_stream_message["tool_call_id"] = message_chunk.tool_call_id
-                yield _make_event("tool_call_result", event_stream_message)
-
-            elif isinstance(message_chunk, AIMessageChunk):
-                # AI Message - Handle tool calls and content
-                if message_chunk.tool_calls:
-                    # AI Message - Tool Call
-                    event_stream_message["tool_calls"] = message_chunk.tool_calls
-                    chunks = []
-                    # Convert special characters in args like [],{},<>,& and etc.
-                    for chunk in message_chunk.tool_call_chunks:
-                        chunks.append(
-                            {
-                                "name": chunk.get("name", ""),
-                                "args": sanitize_args( chunk.get("args", "")),
-                                "id": chunk.get("id", ""),
-                                "index": chunk.get("index", 0),
-                                "type": chunk.get("type", ""),
-                            }
-                        )
-                    event_stream_message["tool_call_chunks"] = chunks
-                    yield _make_event("tool_calls", event_stream_message)
-
-                elif message_chunk.tool_call_chunks:
-                    # AI Message - Tool Call Chunks
-                    chunks = []
-                    # Convert special characters in args like [],{},<>,& and etc.
-                    for chunk in message_chunk.tool_call_chunks:
-                        chunks.append(
-                            {
-                                 "name": chunk.get("name", ""),
-                                "args": sanitize_args( chunk.get("args", "")),
-                                "id": chunk.get("id", ""),
-                                "index": chunk.get("index", 0),
-                                "type": chunk.get("type", ""),
-                            }
-                        )
-                    event_stream_message["tool_call_chunks"] =chunks
-                    yield _make_event("tool_call_chunks", event_stream_message)
-
+                # Handle empty agent tuple gracefully
+                agent_name = "unknown"
+                if agent and len(agent) > 0:
+                    agent_name = agent[0].split(":")[0] if ":" in agent[0] else agent[0]
                 else:
-                    # AI Message - Raw message tokens
-                    message_event = _make_event("message_chunk", event_stream_message)
-                    if message_event != "":
-                        yield message_event
+                    agent_name = message_metadata.get("langgraph_node", "unknown")
+                # Build event stream message
+                event_stream_message: Dict[str, Any] = {
+                    "thread_id": thread_id,
+                    "checkpoint_ns": message_metadata.get("checkpoint_ns", ""),
+                    "langgraph_node": message_metadata.get("langgraph_node", ""),
+                    "langgraph_path": message_metadata.get("langgraph_path", ""),
+                    "langgraph_step": message_metadata.get("langgraph_step", ""),
+                    "agent": agent_name,
+                    "id": message_chunk.id,
+                    "role": "assistant",
+                    "content": message_chunk.content,
+                }
+
+                # Add reasoning content if available
+                if message_chunk.additional_kwargs.get("reasoning_content"):
+                    event_stream_message["reasoning_content"] = (
+                        message_chunk.additional_kwargs["reasoning_content"]
+                    )
+
+                # Add finish reason if available
+                if message_chunk.response_metadata.get("finish_reason"):
+                    event_stream_message["finish_reason"] = (
+                        message_chunk.response_metadata.get("finish_reason")
+                    )
+
+                # Handle different message types
+                if isinstance(message_chunk, ToolMessage):
+                    # Tool Message - Return the result of the tool call
+                    event_stream_message["tool_call_id"] = message_chunk.tool_call_id
+                    yield _make_event("tool_call_result", event_stream_message)
+
+                elif isinstance(message_chunk, AIMessageChunk):
+                    # AI Message - Handle tool calls and content
+                    if message_chunk.tool_calls:
+                        # AI Message - Tool Call
+                        event_stream_message["tool_calls"] = message_chunk.tool_calls
+                        chunks = []
+                        # Convert special characters in args like [],{},<>,& and etc.
+                        for chunk in message_chunk.tool_call_chunks:
+                            chunks.append(
+                                {
+                                    "name": chunk.get("name", ""),
+                                    "args": sanitize_args( chunk.get("args", "")),
+                                    "id": chunk.get("id", ""),
+                                    "index": chunk.get("index", 0),
+                                    "type": chunk.get("type", ""),
+                                }
+                            )
+                        event_stream_message["tool_call_chunks"] = chunks
+                        yield _make_event("tool_calls", event_stream_message)
+
+                    elif message_chunk.tool_call_chunks:
+                        # AI Message - Tool Call Chunks
+                        chunks = []
+                        # Convert special characters in args like [],{},<>,& and etc.
+                        for chunk in message_chunk.tool_call_chunks:
+                            chunks.append(
+                                {
+                                    "name": chunk.get("name", ""),
+                                    "args": sanitize_args( chunk.get("args", "")),
+                                    "id": chunk.get("id", ""),
+                                    "index": chunk.get("index", 0),
+                                    "type": chunk.get("type", ""),
+                                }
+                            )
+                        event_stream_message["tool_call_chunks"] =chunks
+                        yield _make_event("tool_call_chunks", event_stream_message)
+
+                    else:
+                        # AI Message - Raw message tokens
+                        message_event = _make_event("message_chunk", event_stream_message)
+                        if message_event != "":
+                            yield message_event
     except Exception as e:
         logger.exception(f"Error in workflow generator: {str(e)}")
         yield _make_event("error", {"error": str(e)})

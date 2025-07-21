@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -13,13 +11,13 @@ export function ThemeProviderWrapper({
 }) {
   const pathname = usePathname();
   const isChatPage = pathname?.startsWith("/chat");
-
+  
   return (
     <ThemeProvider
       attribute="class"
       defaultTheme={"dark"}
       enableSystem={isChatPage}
-      forcedTheme={isChatPage ? undefined : "dark"}
+      forcedTheme={undefined}
       disableTransitionOnChange
     >
       {children}

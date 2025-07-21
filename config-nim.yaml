@@ -4,26 +4,23 @@
 # - Replace `base_url` and `model` name if you want to use a custom model
 
 BASIC_MODEL:
-  base_url: http://api-lightai-qa.acclgtm.intranet.local/qwen3-235b/v1
-  model: "qwen3-235b-a22b-fp-v1"
-  api_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJxd2VuMy0yMzViLXFhLTA0LTEifQ.IiWqGuEAq2AHGzyIgK5Ns5ICLu4y29jw7owGik3yokk
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  model: "qwen3-235b-a22b"
+  api_key: sk-ba9202fabcb249e291c5907a86b13f80
   temperature: 0.2
-  #max_tokens: 40960
+  #max_tokens: 8192
   top_p: 0.70
-  streaming: true
 REASONING_MODEL:
-  base_url: http://api-lightai-qa.acclgtm.intranet.local/qwen3-235b/v1
-  #model: "deepseek-ai/deepseek-r1-0528"
-  model: "qwen3-235b-a22b-fp-v1"
-  api_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJxd2VuMy0yMzViLXFhLTA0LTEifQ.IiWqGuEAq2AHGzyIgK5Ns5ICLu4y29jw7owGik3yokk
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  model: "qwen3-235b-a22b"
+  api_key: sk-ba9202fabcb249e291c5907a86b13f80
   temperature: 0.6
   #max_tokens: 8192
   top_p: 0.70
-  streaming: true
 VISION_MODEL:
-  base_url: https://integrate.api.nvidia.com/v1
-  model: "microsoft/phi-4-multimodal-instruct"
-  api_key: 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
-  temperature: 0.10
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  model: "qwen-vl-max"
+  api_key: sk-ba9202fabcb249e291c5907a86b13f80
+  temperature: 0.2
   #max_tokens: 512
   top_p: 0.7
