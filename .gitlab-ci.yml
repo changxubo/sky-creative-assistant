@@ -43,7 +43,7 @@ build_cache:
 
 sonar_scan:
   variables:
-    SONAR_SCAN_ARGS: "-Dsonar.sources=./src/,./web/,./worker/,./xhs-mcp-server/ -Dsonar.tests= -Dsonar.exclusions=.env*,Dockerfile*,public/**"
+    SONAR_SCAN_ARGS: "-Dsonar.sources=./src/,./web/,./xhs-mcp-server/ -Dsonar.tests= -Dsonar.exclusions=.env*,Dockerfile*,public/**"
   extends: .sonar_scan
   allow_failure: true
   tags:
