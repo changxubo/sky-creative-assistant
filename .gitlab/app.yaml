@@ -27,23 +27,23 @@ spec:
               memory: 1Gi
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/config
               port: http
               scheme: HTTP
-            initialDelaySeconds: 20
+            initialDelaySeconds: 60
             timeoutSeconds: 5
-            periodSeconds: 10
+            periodSeconds: 30
             successThreshold: 1
             failureThreshold: 3
           terminationMessagePath: /dev/termination-log
           name: creative-backend
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/config
               port: http
               scheme: HTTP
-            initialDelaySeconds: 20
-            timeoutSeconds: 5
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 3
