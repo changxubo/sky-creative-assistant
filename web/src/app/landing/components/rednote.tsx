@@ -12,14 +12,14 @@ export function Rednote() {
       <div className="relative z-10 flex flex-col items-center justify-center gap-2">
         <h1 className="text-center text-3xl font-bold md:text-4xl pt-15">
           <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-            Sky Creative Assistant{" "}
+            Amway Creative Assistant{" "}
           </span>
           
           <AuroraText>with deep research</AuroraText>
         </h1>
 
         <p className="max-w-4xl p-0 text-center text-sm opacity-85 md:text-xl">
-          Multi-agent system and MCP tools using NVIDIA NIM and Langchain for @SkyHackthon 12th.
+          Multi-agent system and MCP tools using NVIDIA NIM and Langchain.
         </p>
 
         <div className="flex gap-6">

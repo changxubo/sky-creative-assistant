@@ -43,6 +43,7 @@ dependencies = [
     "asyncpg>=0.30.0",
     "langgraph-checkpoint-postgres>=2.0.23",
     "langgraph-checkpoint-mongodb>=0.1.4",
+    "mcp-github-trending>=0.1.0",
 ]
 
 [project.optional-dependencies]

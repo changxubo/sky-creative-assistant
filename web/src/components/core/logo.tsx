@@ -8,7 +8,7 @@ export function Logo() {
       className="text-2xl md:text-4xl sm:text-3xl font-bold opacity-70 transition-opacity duration-300 hover:opacity-100"
       href="/"
     >
-     <AuroraText>Sky Creative Assistant</AuroraText>
+     <AuroraText>Amway Creative Assistant</AuroraText>
     </Link> 
   );
 }

@@ -115,7 +115,7 @@ export const getChatStreamSettings = () => {
           ...acc,
           [cur.name]: {
             ...server,
-            enabled_tools: ["search_notes","get_note_details"],//cur.tools.map((tool) => tool.name), 
+            enabled_tools: ["search_notes","get_note_details","get_github_trending_repositories"],//cur.tools.map((tool) => tool.name), 
             add_to_agents: ["researcher"],
           },
         };

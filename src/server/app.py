@@ -985,6 +985,16 @@ async def mcp_server_metadata(
     Raises:
         HTTPException: If server connection or metadata retrieval fails
     """
+    # Check if MCP server configuration is enabled
+    if os.getenv("ENABLE_MCP_SERVER_CONFIGURATION", "false").lower() not in [
+        "true",
+        "1",
+        "yes",
+    ]:
+        raise HTTPException(
+            status_code=403,
+            detail="MCP server configuration is disabled. Set ENABLE_MCP_SERVER_CONFIGURATION=true to enable MCP features.",
+        )
     try:
         # Validate request parameters
         if not request.transport:

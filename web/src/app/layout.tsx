@@ -10,7 +10,7 @@ import { Toaster } from "~/components/core/toaster";
 import { env } from "~/env";
 
 export const metadata: Metadata = {
-  title: "Sky Creative Assistant",
+  title: "Amway Creative Assistant",
   description:"Multi-agent system and MCP tools using NVIDIA NIM and Langchain.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

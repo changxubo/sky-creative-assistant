@@ -704,6 +704,19 @@ wheels = [
 ]
 
 [[package]]
+name = "gtrending"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/fe/81e8906e8f159b2828c3d0b807f62d3c54a0f7737c6b7b1d70b3287364d9/gtrending-0.5.1.tar.gz", hash = "sha256:f82505a6e2425a18c772afce12bc92c2165180b5caa98de5feb7cea3b4b117c8", size = 19886 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/11/b9dc4abf1534cc33407ac1d8c3c36b22e0ced1a12a3dc019e2cb569b1c93/gtrending-0.5.1-py3-none-any.whl", hash = "sha256:544bcd7feab2448b9522675918263292d0874f6fabc6f17aa82377fba71084a2", size = 19759 },
+]
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1538,6 +1551,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/95/d2/f587cb965a56e992634bebc8611c5b579af912b74e04eb9164bd49527d21/mcp-1.6.0.tar.gz", hash = "sha256:d9324876de2c5637369f43161cd71eebfd803df5a95e46225cab8d280e366723", size = 200031 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/10/30/20a7f33b0b884a9d14dd3aa94ff1ac9da1479fe2ad66dd9e2736075d2506/mcp-1.6.0-py3-none-any.whl", hash = "sha256:7bd24c6ea042dbec44c754f100984d186620d8b841ec30f1b19eda9b93a634d0", size = 76077 },
+]
+
+[[package]]
+name = "mcp-github-trending"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "gtrending" },
+    { name = "mcp" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/65/a8/21f010a31864f5cb6e139f8a480cfa4d73229da2b8d839f4ce13f1672dbb/mcp_github_trending-0.1.0.tar.gz", hash = "sha256:ad888da65f3c0728c480a402d07afb4f94453ceb5ca0aa252a833acb0e425da7", size = 19654 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/72/fc7008b87fa049fc85188e3ed75927a924aa72adc24d3321c3ec5af3e1dd/mcp_github_trending-0.1.0-py3-none-any.whl", hash = "sha256:4f87bf3cc328c0aacad28f9c3d4bb9380e8be29ff6078007a4081f03b8b8ff19", size = 5635 },
 ]
 
 [[package]]
@@ -2531,6 +2558,7 @@ dependencies = [
     { name = "litellm" },
     { name = "markdownify" },
     { name = "mcp" },
+    { name = "mcp-github-trending" },
     { name = "numpy" },
     { name = "nvidia-riva-client" },
     { name = "pandas" },
@@ -2582,6 +2610,7 @@ requires-dist = [
     { name = "litellm", specifier = ">=1.63.11" },
     { name = "markdownify", specifier = ">=1.1.0" },
     { name = "mcp", specifier = ">=1.6.0" },
+    { name = "mcp-github-trending", specifier = ">=0.1.0" },
     { name = "numpy", specifier = ">=2.2.3" },
     { name = "nvidia-riva-client", specifier = ">=2.21.1" },
     { name = "pandas", specifier = ">=2.2.3" },
