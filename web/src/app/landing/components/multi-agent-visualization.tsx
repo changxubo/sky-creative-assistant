@@ -20,8 +20,8 @@ import {
   Minimize,
 } from "lucide-react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { useCallback, useRef, useState } from "react";
 
 import { Tooltip } from "~/components/core/tooltip";
 import { ShineBorder } from "~/components/magicui/shine-border";
