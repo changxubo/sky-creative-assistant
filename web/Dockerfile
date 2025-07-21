@@ -22,7 +22,7 @@ FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS builder
 WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
-COPY web/* .
+COPY web/ .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 

@@ -32,7 +32,7 @@ variables:
   FILE_ENV_CFG: ${FILE_ENV_CFG}
 
 cache:
-  key: ${CI_PROJECT_NAME}-20250721
+  key: ${CI_PROJECT_NAME}
   paths:
     - node_modules
 
@@ -130,7 +130,7 @@ send_notification:
     IMAGE_NAME: creative-backend,creative-frontend
     DOCKER_REGISTRY_GROUP: "lightai"
   extends: .trigger_webhook
-  needs: ["k8s_deploy"] 
+  needs: ["k8s_deploy","k8s_deploy_web"] 
   tags:
     - k8s-runner
 
