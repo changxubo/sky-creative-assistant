@@ -13,7 +13,8 @@ import { cn } from "~/lib/utils";
 
 export function ReplaysSection() {
     const replays = [
-        { id: "test-case-720", title: "石墨原矿石碳品位视觉深度分析", date: "2025/5/19 12:54", category: "Academic", count: 1533 },
+        { id: "test-replay-722", title: "量子计算对密码学的影响是什么", date: "2025/5/19 12:54", category: "Social Media", count: 1649 },
+        //{ id: "test-case-720", title: "石墨原矿石碳品位视觉深度分析", date: "2025/5/19 12:54", category: "Academic", count: 1533 },
         // Placeholder for replays data
         { id: "ai-twin-insurance", title: "Write an article on \"Would you insure your AI twin?\"", date: "2025/5/19 12:54", category: "Social Media", count: 500 },
         { id: "china-food-delivery", title: "如何看待外卖大战", date: "2025/5/20 14:30", category: "Research", count: 1000 },

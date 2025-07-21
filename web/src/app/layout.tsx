@@ -4,8 +4,6 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
 import { type ReactNode } from "react";
-import { NextIntlClientProvider } from 'next-intl';
-//import { getLocale, getMessages } from 'next-intl/server';
 
 import { ThemeProviderWrapper } from "~/components/core/theme-provider-wrapper";
 import { Toaster } from "~/components/core/toaster";
@@ -27,9 +25,7 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  //const locale = await getLocale();
-  //const messages = await getMessages();
-  //lang={locale}
+
   return (
     <html lang="cn"  className={`${geist.variable}`} suppressHydrationWarning>
       <head>
@@ -50,10 +46,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         </Script>
       </head>
       <body className="bg-app">
-        {/* <NextIntlClientProvider messages={messages}>*/}
           <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
           <Toaster />
-        {/*</NextIntlClientProvider>*/}
         {
           // NO USER BEHAVIOR TRACKING OR PRIVATE DATA COLLECTION BY DEFAULT
           //
