@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml ./
+COPY ./web/package.json ./web/yarn.lock* ./web/package-lock.json* ./web/pnpm-lock.yaml ./
 
 RUN \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
@@ -22,7 +22,7 @@ FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS builder
 WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY ./web/ .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
