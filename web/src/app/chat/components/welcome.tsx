@@ -26,7 +26,7 @@ export function Welcome({ className }: WelcomeProps) {
         👋 Hello, there!
       </h3>
       <div className="px-4 text-center text-md md:text-lg sm:text-sm text-muted-foreground">
-        Amway Creative Assistant，一个深度创作助手，使用Qwen3,Deepseek,Phi-4模型和Multi-Agent协同，帮助您在联网搜索、浏览信息、生成图表和图片处理复杂创作任务。
+        Sky Creative Assistant，一个深度创作助手，使用Qwen3,Deepseek,Phi-4模型和Multi-Agent协同，帮助您在联网搜索、浏览信息、生成图表和图片处理复杂创作任务。
       </div>
     </motion.div>
   );

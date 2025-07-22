@@ -13,7 +13,7 @@ export async function SiteHeader() {
       <div className="container flex h-15 items-center justify-between px-3">
         <div className="text-xl font-medium">
           <span className="mr-1 text-2xl">🦌</span>
-          <span>Amway Creative Assistant</span>
+          <span>Sky Creative Assistant</span>
         </div>
         <div className="relative flex items-center">
           <LanguageSwitcher />

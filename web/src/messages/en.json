@@ -16,12 +16,12 @@
     "placeholderWithRag": "What can I do for you? \nYou may refer to RAG resources by using @."
   },
   "header": {
-    "title": "Amway Creative Assistant"
+    "title": "Sky Creative Assistant"
   },
   "hero": {
     "title": "Deep Research",
     "subtitle": "at Your Fingertips",
-    "description": "Meet Amway Creative Assistant, your personal Deep Research assistant. With powerful tools like search engines, web crawlers, Python and MCP services, it delivers instant insights, comprehensive reports, and even captivating podcasts.",
+    "description": "Meet Sky Creative Assistant, your personal Deep Research assistant. With powerful tools like search engines, web crawlers, Python and MCP services, it delivers instant insights, comprehensive reports, and even captivating podcasts.",
     "footnote": "* DEER stands for Deep Exploration and Efficient Research."
   },
   "settings": {
@@ -45,7 +45,7 @@
     },
     "mcp": {
       "title": "MCP Servers",
-      "description": "The Model Context Protocol boosts Amway Creative Assistant by integrating external tools for tasks like private domain searches, web browsing, food ordering, and more. Click here to",
+      "description": "The Model Context Protocol boosts Sky Creative Assistant by integrating external tools for tasks like private domain searches, web browsing, food ordering, and more. Click here to",
       "learnMore": "learn more about MCP.",
       "enableDisable": "Enable/disable server",
       "deleteServer": "Delete server",
@@ -72,7 +72,7 @@
   "footer": {
     "quote": "Originated from Open Source, give back to Open Source.",
     "license": "Licensed under MIT License",
-    "copyright": "Amway Creative Assistant"
+    "copyright": "Sky Creative Assistant"
   },
   "chat": {
     "page": {
@@ -82,7 +82,7 @@
     },
     "welcome": {
       "greeting": "👋 Hello, there!",
-      "description": "Welcome to Amway Creative Assistant, a deep research assistant built on cutting-edge language models, helps you search on web, browse information, and handle complex tasks."
+      "description": "Welcome to Sky Creative Assistant, a deep research assistant built on cutting-edge language models, helps you search on web, browse information, and handle complex tasks."
     },
     "conversationStarters": [
       "How many times taller is the Eiffel Tower than the tallest building in the world?",
