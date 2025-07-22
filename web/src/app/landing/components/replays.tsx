@@ -13,7 +13,7 @@ import { cn } from "~/lib/utils";
 
 export function ReplaysSection() {
     const replays = [
-        { id: "test-case-722", title: "研究小红书笔记热点, 发表新笔记：如何通过颜色、绿植、香氛提升幸福感？", date: "2025/7/21 18:54", category: "Social Media", count: 1655 },
+        { id: "test-case-722", title: "研究小红书笔记热点, 发表新笔记：如何通过颜色、绿植、香氛提升幸福感？", date: "2025/5/21 18:54", category: "Social Media", count: 1655 },
         { id: "test-replay-722", title: "量子计算对密码学的影响是什么", date: "2025/5/19 12:54", category: "Social Media", count: 1649 },
         //{ id: "test-case-720", title: "石墨原矿石碳品位视觉深度分析", date: "2025/5/19 12:54", category: "Academic", count: 1533 },
         // Placeholder for replays data
