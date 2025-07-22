@@ -1,3 +1,4 @@
+//import { SiteHeader } from "./chat/components/site-header";
 import { Rednote } from "./landing/components/rednote";
 import {ReplaysSection} from "./landing/components/replays";
 import { MultiAgentSection } from "./landing/sections/multi-agent-section";
