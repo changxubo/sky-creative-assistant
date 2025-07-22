@@ -1,32 +1,41 @@
 ##### DEPENDENCIES
 
-FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 
 # Install dependencies based on the preferred package manager
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml\* ./
 
-RUN npm install .
+RUN \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm i; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
 ##### BUILDER
 
-FROM cnharbor.amway.com.cn/lightai/node:20-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY .env.example .env
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+RUN \
+    if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
+    elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build; \
+    elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && SKIP_ENV_VALIDATION=1 pnpm run build; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
 ##### RUNNER
 
-FROM cnharbor.amway.com.cn/lightai/node:20-debian12 AS runner
+FROM gcr.io/distroless/nodejs20-debian12 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
