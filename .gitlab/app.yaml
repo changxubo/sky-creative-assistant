@@ -82,7 +82,12 @@ spec:
               value: "https://api.smith.langchain.com"
             - name: MONGODB_URI
               value: "mongodb://skyadmin:H6e8rl0Hdfrq@creative-mongo:27017"
-            
+            - name: LANGFUSE_HOST
+              value: "http://langfuse-idc-cn.acclgtm.intranet.local"
+            - name: LANGFUSE_PUBLIC_KEY
+              value: "pk-lf-ce5fd78c-8afc-42c2-9339-5302d3951a77"
+            - name: LANGFUSE_SECRET_KEY
+              value: "sk-lf-ef34ffdf-5317-4ab8-b1dc-c11d3899704e"
           securityContext: {}
           ports:
             - name: http
