@@ -1,10 +1,12 @@
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState, Suspense } from "react";
 
 import { Search } from "~/components/core/icons/search";
 import { SendMessage } from "~/components/core/icons/send-message";
+import { LanguageSwitcher } from "~/components/core/language-switcher";
 import MessageInput, {
   type MessageInputRef,
 } from "~/components/core/message-input";
@@ -50,6 +52,8 @@ export function InputBox({
   onCancel,
   onRemoveFeedback,
 }: InputBoxProps) {
+  const t = useTranslations("chat.inputBox");
+  const tCommon = useTranslations("common");
   const enableDeepThinking = useSettingsStore(
     (state) => state.general.enableDeepThinking,
   );
@@ -255,12 +259,14 @@ export function InputBox({
               title={
                 <div>
                   <h3 className="mb-2 font-bold">
-                    Deep Thinking Mode: {enableDeepThinking ? "On" : "Off"}
+                     {t("deepThinkingTooltip.title", {
+                      status: enableDeepThinking ? t("on") : t("off"),
+                    })}
                   </h3>
                   <p>
-                    When enabled, Agent will use reasoning model (
-                    {config.models.reasoning?.[0]}) to generate more thoughtful
-                    plans.
+                     {t("deepThinkingTooltip.description", {
+                      model: config.models.reasoning?.[0] ?? "",
+                    })}
                   </p>
                 </div>
               }
@@ -275,7 +281,7 @@ export function InputBox({
                 onClick={handleToggleDeepThinking}
                 aria-label={`Toggle deep thinking mode ${enableDeepThinking ? 'off' : 'on'}`}
               >
-                <Lightbulb /><span className="hidden md:block">Deep Think</span>
+                <Lightbulb /><span className="hidden md:block">{t("deepThinking")}</span>
               </Button>
             </Tooltip>
           )}
@@ -285,12 +291,12 @@ export function InputBox({
             title={
               <div>
                 <h3 className="mb-2 font-bold">
-                  Investigation Mode: {backgroundInvestigation ? "On" : "Off"}
+                  {t("investigationTooltip.title", {
+                    status: backgroundInvestigation ? t("on") : t("off"),
+                  })}
                 </h3>
                 <p>
-                  When enabled, Agent will perform a quick search before
-                  planning. This is useful for researches related to ongoing
-                  events and news.
+                  {t("investigationTooltip.description")}
                 </p>
               </div>
             }
@@ -305,7 +311,7 @@ export function InputBox({
               onClick={handleToggleBackgroundInvestigation}
               aria-label={`Toggle investigation mode ${backgroundInvestigation ? 'off' : 'on'}`}
             >
-              <Search/><span className="hidden md:block">Investigation</span>
+              <Search/><span className="hidden md:block">{t("investigation")}</span>
             </Button>
           </Tooltip>
           <ReportStyleDialog />
@@ -316,6 +322,9 @@ export function InputBox({
               <ReplaysDialog />
             </Suspense>
           </Tooltip>
+          <Tooltip title="Language">
+               <LanguageSwitcher />
+          </Tooltip>
           <Tooltip title="Themes">
             <ThemeToggle />
           </Tooltip>
@@ -324,7 +333,7 @@ export function InputBox({
               <SettingsDialog />
             </Suspense>
           </Tooltip>
-          <Tooltip title="Enhance prompt with AI">
+          <Tooltip title={t("enhancePrompt")}>
             <Button
               variant="ghost"
               size="icon"
@@ -346,7 +355,7 @@ export function InputBox({
               )}
             </Button>
           </Tooltip>
-          <Tooltip title={responding ? "Stop" : "Send"}>
+          <Tooltip title={responding ? tCommon("stop") : tCommon("send")}>
             <Button
               variant="outline"
               size="icon"

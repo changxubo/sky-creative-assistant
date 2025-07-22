@@ -32,7 +32,6 @@ from .state import State
 
 logger = logging.getLogger(__name__)
 
- 
 @tool
 def handoff_to_planner(
     research_topic: Annotated[str, "The topic of the research task to be handed off."],
@@ -172,7 +171,6 @@ def planner_node(
             # if chunk.additional_kwargs and "reasoning_content" in chunk.additional_kwargs:
             #    full_response += chunk.additional_kwargs["reasoning_content"]
             full_response += chunk.content
-
     try:
         curr_plan = json.loads(repair_json_output(full_response))
     except json.JSONDecodeError:
@@ -194,6 +192,7 @@ def planner_node(
             goto="reporter",
         )
     # Build checkpoint with the current plan
+    write_replay(configurable.thread_id,state.get("research_topic"),configurable.report_style)
     write_event(configurable.thread_id, "planner", "info", {"goto":"human_feedback","current_plan": curr_plan})
     return Command(
         update={
@@ -301,8 +300,6 @@ def coordinator_node(
         )
     # Build checkpoint with the current plan
     write_event(configurable.thread_id, "coordinator", "info", {"goto":goto,"research_topic": research_topic})
-    
-    write_replay(configurable.thread_id, research_topic,configurable.report_style)
     
     return Command(
         update={

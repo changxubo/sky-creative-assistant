@@ -16,7 +16,7 @@ const ChatMainComponent = dynamic(() => import("./main"), {
 export default function ChatPage() {
   return (
     <div className="flex h-screen w-screen justify-center overscroll-none">
-      <header className="fixed z-10 flex h-[15vh] w-full items-center justify-center px-4 ">
+      <header className="fixed z-10 flex h-[10vh] w-full items-center justify-center px-4 mt-4">
         <Logo />
       </header>
       <ChatMainComponent />

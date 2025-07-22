@@ -19,7 +19,7 @@ export function Rednote() {
         </h1>
 
         <p className="max-w-4xl p-0 text-center text-sm opacity-85 md:text-xl">
-          Multi-agent system and MCP tools using NVIDIA NIM and Langchain for @SkyHackthon 12th.
+          Multi-agent system and MCP tools using NVIDIA NIM and Langchain.
         </p>
 
         <div className="flex gap-6">

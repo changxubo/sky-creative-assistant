@@ -84,7 +84,9 @@ def update_replay(thread_id: str, messages: int):
 def write_replay(thread_id:str,research_topic:str,report_style:str):
     try:
         collection = mongo_db.replays
-        result = collection.insert_one(
+        existing = collection.find_one({"thread_id": thread_id})
+        if not existing:
+            result = collection.insert_one(
                 {
                     "thread_id": thread_id,
                     "research_topic": research_topic,
@@ -94,7 +96,7 @@ def write_replay(thread_id:str,research_topic:str,report_style:str):
                     "id": uuid.uuid4().hex,
                 }
             )
-        logger.info(f"replay created:  {result.inserted_id}")
+            logger.info(f"replay created:  {result.inserted_id}")
     except Exception as e:
         logger.error("Error writing replay: %s", e)
 

@@ -1,0 +1,9 @@
+.k8s_configmap:
+  stage: k8s_configmap
+  image: cnharbor.amway.com.cn/lightai/kubectl:240926
+  script:
+    - mkdir ~/.kube
+    - echo "$KUBE_CONFIG" > ~/.kube/config
+    - echo "kubectl apply -f ${CONFIG_MAP} -n ${NAMESPACE}"
+    - cat ${CONFIG_MAP}
+    - kubectl apply -f $CONFIG_MAP -n ${NAMESPACE}

@@ -1,0 +1,28 @@
+.build_image:
+  stage: build_image
+  #image: cnharbor.amway.com.cn/lightai/podman:240925
+  variables:
+    BUILD_IMAGE_NAME: ${DOCKER_REGISTRY}/${DOCKER_PROJECT}/${IMAGE_NAME}
+    BUILD_IMAGE_TAG: ${CI_BUILD_REF_NAME}-${CI_COMMIT_SHORT_SHA}
+  script:
+    - |
+      DOCKER_FILE_NAME="${DOCKER_FILE}"; 
+      if [ "$CI_COMMIT_REF_NAME" = "main" ]; then 
+          DOCKER_FILE_NAME="${DOCKER_FILE}"; 
+      else 
+          DOCKER_FILE_NAME="${DOCKER_FILE}"; 
+      fi
+
+      if [ ! -e "${DOCKER_FILE_NAME}" ]; then
+          echo "文件不存在 ${DOCKER_FILE_NAME}"
+          DOCKER_FILE_NAME=${DOCKER_FILE}; 
+      fi
+#    - podman login -u ${APP_HARBOR_USER} -p ${APP_HARBOR_PASSWORD} ${DOCKER_REGISTRY}
+#    - podman build -f ${DOCKER_FILE_NAME} -t ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG} .
+#    - podman push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
+    - echo "BUILD_IMAGE_TAG:$BUILD_IMAGE_TAG"
+    - docker login -u ${APP_HARBOR_USER} -p ${APP_HARBOR_PASSWORD} ${DOCKER_REGISTRY}
+    - ${CD_SUB_PATH}
+    - docker buildx build --rm -f ${DOCKER_FILE_NAME} -t ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG} .
+    - docker push ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
+    - echo "build image success"

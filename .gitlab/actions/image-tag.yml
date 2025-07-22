@@ -1,0 +1,13 @@
+.image_tag:
+  image: cnharbor.amway.com.cn/lightai/yq:3.3.4
+  variables:
+    IMAGE_URL: "${DOCKER_REGISTRY}/${DOCKER_PROJECT}/${IMAGE_NAME}:${CI_BUILD_REF_NAME}-${CI_COMMIT_SHORT_SHA}" 
+  stage: image_tag
+  script:
+    - yq --version
+    - yq w -i ${APP_YAML} 'spec.template.spec.containers[0].image' "$IMAGE_URL"
+    - yq -P r ${APP_YAML}
+  artifacts:
+    paths:
+      - ${APP_YAML}
+

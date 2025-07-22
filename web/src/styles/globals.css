@@ -112,7 +112,7 @@
   --app-background: #FCFCFC;
   --background: oklch(1 0 0);
   --foreground: rgba(0, 0, 0, 0.72);
-  --card: #FEFBE9;
+  --card: #F3FBF9;
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -233,4 +233,8 @@ div.think-markdown{
 
 div.think-markdown hr{
   margin: 0.5rem 0;
+}
+
+html.light .text-transparent {
+  color: #3a3a3a;
 }
