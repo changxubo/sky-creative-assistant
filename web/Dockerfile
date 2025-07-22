@@ -20,7 +20,7 @@ RUN \
 
 FROM node:20-alpine AS builder
 WORKDIR /app
-ARG NEXT_PUBLIC_API_URL
+#ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -51,5 +51,7 @@ COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
 ENV PORT=3000
+
+ENV NEXT_PUBLIC_API_URL=https://eft-vocal-termite.ngrok-free.app/api
 
 CMD ["server.js"]
